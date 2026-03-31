@@ -96,9 +96,25 @@
 @layer components {
 
 /* ============================================================
-   DESIGN TOKENS
+   DESIGN TOKENS — thema-aware via data-theme attribuut
    ============================================================ */
+
+/* Gedeelde tokens (niet thema-afhankelijk) */
 :root {
+  --pa-teal:      oklch(62% 0.17 194);
+  --pa-green:     oklch(60% 0.16 150);
+  --pa-amber:     oklch(72% 0.17 65);
+  --pa-red:       oklch(58% 0.22 20);
+  --pa-blue:      oklch(60% 0.17 240);
+
+  --pa-radius-sm: 0.375rem;
+  --pa-radius:    0.625rem;
+  --pa-radius-lg: 0.875rem;
+  --pa-transition: 150ms ease;
+}
+
+/* Dark thema */
+[data-theme="dark"] {
   --pa-surface:        oklch(17% 0.02 250);
   --pa-surface-raised: oklch(20% 0.022 250);
   --pa-border:         oklch(26% 0.025 250);
@@ -106,6 +122,8 @@
   --pa-text:           oklch(90% 0.01 250);
   --pa-text-muted:     oklch(60% 0.012 250);
   --pa-text-faint:     oklch(42% 0.01 250);
+  --pa-bg:             oklch(12% 0.016 250);
+
   --pa-teal:           oklch(72% 0.15 194);
   --pa-teal-dim:       oklch(72% 0.15 194 / 0.12);
   --pa-teal-glow:      oklch(72% 0.15 194 / 0.25);
@@ -117,23 +135,44 @@
   --pa-red-dim:        oklch(60% 0.22 20 / 0.12);
   --pa-blue:           oklch(62% 0.17 240);
   --pa-blue-dim:       oklch(62% 0.17 240 / 0.12);
+  --pa-code-bg:        oklch(10% 0.012 250);
+}
 
-  --pa-radius-sm:  0.375rem;
-  --pa-radius:     0.625rem;
-  --pa-radius-lg:  0.875rem;
+/* Light thema */
+[data-theme="light"] {
+  --pa-surface:        oklch(99% 0.003 240);
+  --pa-surface-raised: oklch(96% 0.006 240);
+  --pa-border:         oklch(86% 0.01 240);
+  --pa-border-subtle:  oklch(91% 0.007 240);
+  --pa-text:           oklch(16% 0.015 250);
+  --pa-text-muted:     oklch(45% 0.012 250);
+  --pa-text-faint:     oklch(62% 0.008 250);
+  --pa-bg:             oklch(97% 0.005 240);
 
-  --pa-transition: 150ms ease;
+  --pa-teal:           oklch(52% 0.17 194);
+  --pa-teal-dim:       oklch(52% 0.17 194 / 0.1);
+  --pa-teal-glow:      oklch(52% 0.17 194 / 0.2);
+  --pa-green:          oklch(48% 0.16 150);
+  --pa-green-dim:      oklch(48% 0.16 150 / 0.1);
+  --pa-amber:          oklch(55% 0.17 65);
+  --pa-amber-dim:      oklch(55% 0.17 65 / 0.1);
+  --pa-red:            oklch(50% 0.22 20);
+  --pa-red-dim:        oklch(50% 0.22 20 / 0.1);
+  --pa-blue:           oklch(50% 0.17 240);
+  --pa-blue-dim:       oklch(50% 0.17 240 / 0.1);
+  --pa-code-bg:        oklch(93% 0.009 240);
 }
 
 /* ============================================================
    BASE
    ============================================================ */
 body {
-  background: oklch(12% 0.016 250);
+  background: var(--pa-bg);
   color: var(--pa-text);
   font-size: 0.9375rem;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  transition: background 200ms ease, color 200ms ease;
 }
 
 /* ============================================================
@@ -679,7 +718,7 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
-  background: oklch(11% 0.014 250);
+  background: var(--pa-bg);
 }
 
 .pa-auth-card {
@@ -994,7 +1033,7 @@ h3 { font-size: 1rem;    line-height: 1.4; }
    CODE SNIPPET
    ============================================================ */
 .pa-snippet-box {
-  background: oklch(12% 0.014 250);
+  background: var(--pa-bg);
   border: 1px solid var(--pa-border);
   border-radius: var(--pa-radius);
   padding: 1.25rem 1.5rem;
@@ -1026,7 +1065,7 @@ h3 { font-size: 1rem;    line-height: 1.4; }
 }
 
 .pa-code {
-  background: oklch(10% 0.012 250);
+  background: var(--pa-code-bg);
   border: 1px solid var(--pa-border-subtle);
   border-radius: var(--pa-radius-sm);
   padding: 1rem 1.25rem;
@@ -1092,7 +1131,7 @@ h3 { font-size: 1rem;    line-height: 1.4; }
 .pa-heatmap-wrap {
   width: 100%;
   aspect-ratio: 16 / 9;
-  background: oklch(10% 0.012 250);
+  background: var(--pa-surface);
   border: 1px solid var(--pa-border);
   border-radius: var(--pa-radius-sm);
   overflow: hidden;
@@ -1119,6 +1158,44 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   color: var(--pa-teal);
   font-weight: 600;
 }
+
+/* ============================================================
+   THEME TOGGLE
+   ============================================================ */
+#pa-theme-toggle {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1000;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  border: 1px solid var(--pa-border);
+  background: var(--pa-surface);
+  color: var(--pa-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background var(--pa-transition), color var(--pa-transition), border-color var(--pa-transition);
+}
+
+#pa-theme-toggle:hover {
+  background: var(--pa-surface-raised);
+  color: var(--pa-teal);
+  border-color: var(--pa-teal);
+}
+
+#pa-theme-toggle svg {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+/* Moon icon zichtbaar in dark mode, zon in light mode */
+[data-theme="dark"] #pa-icon-sun { display: none; }
+[data-theme="light"] #pa-icon-moon { display: none; }
 
 /* ============================================================
    UTILITY
