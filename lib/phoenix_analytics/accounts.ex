@@ -65,6 +65,32 @@ defmodule PhoenixAnalytics.Accounts do
     end
   end
 
+  def authenticate(email, password) do
+    case User
+         |> Ash.Query.filter(email == ^email)
+         |> Ash.read_one() do
+      {:ok, %User{hashed_password: hash} = user} when not is_nil(hash) ->
+        if PhoenixAnalytics.Crypto.verify_password(password, hash) do
+          {:ok, user}
+        else
+          {:error, :invalid_credentials}
+        end
+
+      _ ->
+        # Voer altijd een hash-operatie uit om timing attacks te voorkomen
+        PhoenixAnalytics.Crypto.hash_password(password)
+        {:error, :invalid_credentials}
+    end
+  end
+
+  def set_password(email, password) do
+    with {:ok, user} <- find_or_create_user(email) do
+      user
+      |> Ash.Changeset.for_update(:set_password, %{password: password})
+      |> Ash.update()
+    end
+  end
+
   def verify_token(token_string) do
     query =
       MagicToken

@@ -5,7 +5,7 @@ primary_region = "ams"
   dockerfile = "Dockerfile"
 
 [env]
-  PHX_HOST = "analytics.yourdomain.com"
+  PHX_HOST = "phoenix-analytics.fly.dev"
   PORT = "8080"
   MIX_ENV = "prod"
   ECTO_IPV6 = "true"

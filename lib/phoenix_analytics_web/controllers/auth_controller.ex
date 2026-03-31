@@ -24,6 +24,22 @@ defmodule PhoenixAnalyticsWeb.AuthController do
     end
   end
 
+  def verify_password(conn, %{"user_id" => user_id}) do
+    case Ash.get(Accounts.User, user_id) do
+      {:ok, user} ->
+        {:ok, _org} = Accounts.get_or_create_default_org(user)
+
+        conn
+        |> put_session(:user_id, user.id)
+        |> redirect(to: ~p"/dashboard")
+
+      _ ->
+        conn
+        |> put_flash(:error, "Inloggen mislukt.")
+        |> redirect(to: ~p"/login")
+    end
+  end
+
   def logout(conn, _params) do
     conn
     |> clear_session()
