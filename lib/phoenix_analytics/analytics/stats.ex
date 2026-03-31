@@ -18,40 +18,47 @@ defmodule PhoenixAnalytics.Analytics.Stats do
   def period_start("90d"), do: DateTime.add(DateTime.utc_now(), -90 * 86_400, :second)
   def period_start(_), do: period_start("7d")
 
+  # Raw Ecto queries verwachten binary UUIDs -- converteer string UUIDs altijd eerst
+  defp to_binary_uuid(id) when is_binary(id) and byte_size(id) == 16, do: id
+  defp to_binary_uuid(id), do: Ecto.UUID.dump!(id)
+
   def pageview_count(site_id, period) do
     since = period_start(period)
+    sid = to_binary_uuid(site_id)
 
     Repo.one(
       from p in "pageviews",
-        where: p.site_id == ^site_id and p.inserted_at >= ^since,
+        where: p.site_id == ^sid and p.inserted_at >= ^since,
         select: count(p.id)
     ) || 0
   end
 
   def unique_visitors(site_id, period) do
     since = period_start(period)
+    sid = to_binary_uuid(site_id)
 
     Repo.one(
       from p in "pageviews",
-        where: p.site_id == ^site_id and p.inserted_at >= ^since,
+        where: p.site_id == ^sid and p.inserted_at >= ^since,
         select: count(p.session_hash, :distinct)
     ) || 0
   end
 
   def bounce_rate(site_id, period) do
     since = period_start(period)
+    sid = to_binary_uuid(site_id)
 
     total =
       Repo.one(
         from p in "pageviews",
-          where: p.site_id == ^site_id and p.inserted_at >= ^since,
+          where: p.site_id == ^sid and p.inserted_at >= ^since,
           select: count(p.session_hash, :distinct)
       ) || 0
 
     bounced =
       Repo.one(
         from p in "pageviews",
-          where: p.site_id == ^site_id and p.inserted_at >= ^since,
+          where: p.site_id == ^sid and p.inserted_at >= ^since,
           group_by: p.session_hash,
           having: count(p.id) == 1,
           select: count(p.session_hash)
@@ -62,10 +69,11 @@ defmodule PhoenixAnalytics.Analytics.Stats do
 
   def top_pages(site_id, period, limit \\ 10) do
     since = period_start(period)
+    sid = to_binary_uuid(site_id)
 
     Repo.all(
       from p in "pageviews",
-        where: p.site_id == ^site_id and p.inserted_at >= ^since,
+        where: p.site_id == ^sid and p.inserted_at >= ^since,
         group_by: p.url,
         order_by: [desc: count(p.id)],
         limit: ^limit,
@@ -75,11 +83,12 @@ defmodule PhoenixAnalytics.Analytics.Stats do
 
   def top_referrers(site_id, period, limit \\ 10) do
     since = period_start(period)
+    sid = to_binary_uuid(site_id)
 
     Repo.all(
       from p in "pageviews",
         where:
-          p.site_id == ^site_id and
+          p.site_id == ^sid and
             p.inserted_at >= ^since and
             not is_nil(p.referrer) and
             p.referrer != "",
@@ -92,10 +101,11 @@ defmodule PhoenixAnalytics.Analytics.Stats do
 
   def device_breakdown(site_id, period) do
     since = period_start(period)
+    sid = to_binary_uuid(site_id)
 
     Repo.all(
       from p in "pageviews",
-        where: p.site_id == ^site_id and p.inserted_at >= ^since,
+        where: p.site_id == ^sid and p.inserted_at >= ^since,
         group_by: p.device_type,
         order_by: [desc: count(p.id)],
         select: %{device: p.device_type, count: count(p.id)}
@@ -104,11 +114,12 @@ defmodule PhoenixAnalytics.Analytics.Stats do
 
   def country_breakdown(site_id, period, limit \\ 10) do
     since = period_start(period)
+    sid = to_binary_uuid(site_id)
 
     Repo.all(
       from p in "pageviews",
         where:
-          p.site_id == ^site_id and
+          p.site_id == ^sid and
             p.inserted_at >= ^since and
             not is_nil(p.country),
         group_by: p.country,
@@ -120,11 +131,12 @@ defmodule PhoenixAnalytics.Analytics.Stats do
 
   def heatmap_clicks(site_id, period, url) do
     since = period_start(period)
+    sid = to_binary_uuid(site_id)
 
     Repo.all(
       from e in "events",
         where:
-          e.site_id == ^site_id and
+          e.site_id == ^sid and
             e.event_name == "heatmap_click" and
             e.inserted_at >= ^since and
             e.url == ^url,
@@ -134,10 +146,11 @@ defmodule PhoenixAnalytics.Analytics.Stats do
 
   def pageviews_for_export(site_id, period) do
     since = period_start(period)
+    sid = to_binary_uuid(site_id)
 
     Repo.all(
       from p in "pageviews",
-        where: p.site_id == ^site_id and p.inserted_at >= ^since,
+        where: p.site_id == ^sid and p.inserted_at >= ^since,
         order_by: [desc: p.inserted_at],
         select: %{
           date: p.inserted_at,
@@ -156,10 +169,11 @@ defmodule PhoenixAnalytics.Analytics.Stats do
 
   def pageviews_timeline(site_id, period) do
     since = period_start(period)
+    sid = to_binary_uuid(site_id)
 
     Repo.all(
       from p in "pageviews",
-        where: p.site_id == ^site_id and p.inserted_at >= ^since,
+        where: p.site_id == ^sid and p.inserted_at >= ^since,
         group_by: fragment("DATE(inserted_at)"),
         order_by: fragment("DATE(inserted_at)"),
         select: %{

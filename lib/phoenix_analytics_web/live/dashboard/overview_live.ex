@@ -22,11 +22,18 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OverviewLive do
   defp load_sites([]), do: []
 
   defp load_sites(org_ids) do
+    binary_ids = Enum.map(org_ids, &Ecto.UUID.dump!/1)
+
     Repo.all(
       from s in "sites",
-        where: s.org_id in ^org_ids and s.active == true,
+        where: s.org_id in ^binary_ids and s.active == true,
         order_by: [asc: s.name],
-        select: %{id: s.id, name: s.name, domain: s.domain, org_id: s.org_id}
+        select: %{
+          id: type(s.id, Ecto.UUID),
+          name: s.name,
+          domain: s.domain,
+          org_id: type(s.org_id, Ecto.UUID)
+        }
     )
   end
 
