@@ -4,33 +4,35 @@ defmodule PhoenixAnalytics.Accounts.Membership do
     data_layer: AshPostgres.DataLayer
 
   postgres do
-    table "memberships"
-    repo PhoenixAnalytics.Repo
+    table("memberships")
+    repo(PhoenixAnalytics.Repo)
 
     custom_indexes do
-      index [:org_id, :user_id], unique: true
+      index([:org_id, :user_id], unique: true)
     end
   end
 
   attributes do
-    uuid_primary_key :id
-    attribute :role, :atom,
+    uuid_primary_key(:id)
+
+    attribute(:role, :atom,
       constraints: [one_of: [:owner, :member]],
       default: :member,
       allow_nil?: false
+    )
 
     timestamps()
   end
 
   actions do
-    defaults [:read, :destroy]
+    defaults([:read, :destroy])
 
     create :create do
-      accept [:role]
+      accept([:role])
     end
 
     update :update do
-      accept [:role]
+      accept([:role])
     end
   end
 

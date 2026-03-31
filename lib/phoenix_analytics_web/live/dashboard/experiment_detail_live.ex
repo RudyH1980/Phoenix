@@ -51,10 +51,10 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.ExperimentDetailLive do
     ~H"""
     <div class="pa-container">
       <nav class="pa-breadcrumb">
-        <.link navigate={~p"/dashboard"}>Dashboard</.link> /
-        <.link navigate={~p"/dashboard/sites/#{@site.id}"}>{@site.name}</.link> /
-        <.link navigate={~p"/dashboard/sites/#{@site.id}/experiments"}>Experimenten</.link> /
-        <strong>{@experiment.name}</strong>
+        <.link navigate={~p"/dashboard"}>Dashboard</.link>
+        / <.link navigate={~p"/dashboard/sites/#{@site.id}"}>{@site.name}</.link>
+        / <.link navigate={~p"/dashboard/sites/#{@site.id}/experiments"}>Experimenten</.link>
+        / <strong>{@experiment.name}</strong>
       </nav>
 
       <div class="pa-experiment-header">
@@ -63,8 +63,10 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.ExperimentDetailLive do
           <p class="pa-goal-label">Doel: <strong>{@experiment.goal_event}</strong></p>
         </div>
         <div class="pa-experiment-actions">
-          <span class={"pa-badge pa-badge--#{@experiment.status}"}
-                aria-label={"Status: #{@experiment.status}"}>
+          <span
+            class={"pa-badge pa-badge--#{@experiment.status}"}
+            aria-label={"Status: #{@experiment.status}"}
+          >
             {@experiment.status}
           </span>
           <%= if @experiment.status == :draft do %>
@@ -109,7 +111,8 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.ExperimentDetailLive do
             Notificatie wordt verstuurd naar <code>{@experiment.webhook_url}</code>
             zodra het resultaat significant is.
             <%= if @experiment.webhook_notified_at do %>
-              Laatste notificatie: <strong>{Calendar.strftime(@experiment.webhook_notified_at, "%d-%m-%Y %H:%M")}</strong>
+              Laatste notificatie:
+              <strong>{Calendar.strftime(@experiment.webhook_notified_at, "%d-%m-%Y %H:%M")}</strong>
             <% else %>
               Nog geen notificatie verstuurd.
             <% end %>
@@ -122,7 +125,8 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.ExperimentDetailLive do
         <%= case @significance do %>
           <% :significant -> %>
             <div class="pa-alert pa-alert--success">
-              <strong>Significant resultaat (p &lt; 0.05)</strong> — je kunt een winnaar kiezen.
+              <strong>Significant resultaat (p &lt; 0.05)</strong>
+              — je kunt een winnaar kiezen.
               <%= if @winner do %>
                 Beste variant: <strong>{@winner}</strong>
               <% end %>

@@ -58,8 +58,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
     ~H"""
     <div class="pa-container">
       <nav class="pa-breadcrumb">
-        <.link navigate={~p"/dashboard"}>Dashboard</.link> /
-        <strong>{@site.name}</strong>
+        <.link navigate={~p"/dashboard"}>Dashboard</.link> / <strong>{@site.name}</strong>
       </nav>
 
       <div class="pa-page-header">
@@ -202,12 +201,14 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
 
   # Landvlag emoji via country code (NL -> 🇳🇱)
   defp flag(nil), do: "🌐"
+
   defp flag(code) when byte_size(code) == 2 do
     code
     |> String.upcase()
     |> String.to_charlist()
-    |> Enum.map(&(&1 + 127397))
+    |> Enum.map(&(&1 + 127_397))
     |> List.to_string()
   end
+
   defp flag(_), do: "🌐"
 end

@@ -2,9 +2,9 @@ defmodule PhoenixAnalytics.Experiments do
   use Ash.Domain
 
   resources do
-    resource PhoenixAnalytics.Experiments.Experiment
-    resource PhoenixAnalytics.Experiments.Variant
-    resource PhoenixAnalytics.Experiments.Assignment
+    resource(PhoenixAnalytics.Experiments.Experiment)
+    resource(PhoenixAnalytics.Experiments.Variant)
+    resource(PhoenixAnalytics.Experiments.Assignment)
   end
 
   # Deterministisch variant toewijzen zonder cookie

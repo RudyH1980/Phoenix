@@ -46,9 +46,9 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.InviteLive do
     ~H"""
     <div class="pa-container">
       <nav class="pa-breadcrumb">
-        <.link navigate={~p"/dashboard"}>Dashboard</.link> /
-        <.link navigate={~p"/dashboard/orgs/#{@org.id}"}>{@org.name}</.link> /
-        <strong>Uitnodiging</strong>
+        <.link navigate={~p"/dashboard"}>Dashboard</.link>
+        / <.link navigate={~p"/dashboard/orgs/#{@org.id}"}>{@org.name}</.link>
+        / <strong>Uitnodiging</strong>
       </nav>
 
       <h2>Teamlid uitnodigen</h2>
@@ -57,7 +57,11 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.InviteLive do
         <div class="pa-alert pa-alert--success">
           Uitnodiging verstuurd! De ontvanger krijgt een e-mail met een inloglink.
         </div>
-        <.link navigate={~p"/dashboard/orgs/#{@org.id}"} class="pa-btn pa-btn--ghost" style="margin-top:1rem;">
+        <.link
+          navigate={~p"/dashboard/orgs/#{@org.id}"}
+          class="pa-btn pa-btn--ghost"
+          style="margin-top:1rem;"
+        >
           Terug naar teaminstellingen
         </.link>
       <% else %>

@@ -2,7 +2,9 @@ import Config
 
 # Configure your database
 config :phoenix_analytics, PhoenixAnalytics.Repo,
-  url: System.get_env("DATABASE_URL") || "postgres://postgres:postgres@localhost:5445/phoenix_analytics_dev",
+  url:
+    System.get_env("DATABASE_URL") ||
+      "postgres://postgres:postgres@localhost:5445/phoenix_analytics_dev",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
@@ -81,6 +83,7 @@ config :phoenix_live_view,
 
 # Swoosh SMTP naar gedeelde Mailpit (poort 1025 → UI op 8025)
 config :swoosh, :api_client, false
+
 config :phoenix_analytics, PhoenixAnalytics.Mailer,
   adapter: Swoosh.Adapters.SMTP,
   relay: System.get_env("SMTP_HOST", "host.docker.internal"),

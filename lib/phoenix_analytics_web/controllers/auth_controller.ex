@@ -14,7 +14,10 @@ defmodule PhoenixAnalyticsWeb.AuthController do
 
         conn
         |> put_session(:user_id, user.id)
-        |> put_flash(:info, "Welkom#{if invite_org_id, do: " — uitnodiging geaccepteerd!", else: " terug!"}")
+        |> put_flash(
+          :info,
+          "Welkom#{if invite_org_id, do: " — uitnodiging geaccepteerd!", else: " terug!"}"
+        )
         |> redirect(to: ~p"/dashboard")
 
       {:error, :invalid_or_expired} ->

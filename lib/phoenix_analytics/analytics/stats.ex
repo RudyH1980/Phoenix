@@ -7,7 +7,12 @@ defmodule PhoenixAnalytics.Analytics.Stats do
   import Ecto.Query
   alias PhoenixAnalytics.Repo
 
-  def period_start("today"), do: DateTime.truncate(DateTime.utc_now(), :second) |> DateTime.to_date() |> DateTime.new!(~T[00:00:00])
+  def period_start("today"),
+    do:
+      DateTime.truncate(DateTime.utc_now(), :second)
+      |> DateTime.to_date()
+      |> DateTime.new!(~T[00:00:00])
+
   def period_start("7d"), do: DateTime.add(DateTime.utc_now(), -7 * 86_400, :second)
   def period_start("30d"), do: DateTime.add(DateTime.utc_now(), -30 * 86_400, :second)
   def period_start("90d"), do: DateTime.add(DateTime.utc_now(), -90 * 86_400, :second)

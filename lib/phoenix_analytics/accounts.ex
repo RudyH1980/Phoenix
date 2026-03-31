@@ -6,10 +6,10 @@ defmodule PhoenixAnalytics.Accounts do
   alias PhoenixAnalytics.Accounts.{User, MagicToken, Organization, Membership}
 
   resources do
-    resource User
-    resource MagicToken
-    resource Organization
-    resource Membership
+    resource(User)
+    resource(MagicToken)
+    resource(Organization)
+    resource(Membership)
   end
 
   # --- Magic link flow ---
@@ -37,8 +37,12 @@ defmodule PhoenixAnalytics.Accounts do
 
   defp email_allowed?(email) do
     case System.get_env("ALLOWED_EMAILS") do
-      nil -> true
-      "" -> true
+      nil ->
+        true
+
+      "" ->
+        true
+
       allowed ->
         allowed
         |> String.split(",")

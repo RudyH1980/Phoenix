@@ -10,7 +10,8 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.NewExperimentLive do
     {:ok,
      assign(socket,
        site: site,
-       form: to_form(%{"name" => "", "description" => "", "goal_event" => "", "webhook_url" => ""}),
+       form:
+         to_form(%{"name" => "", "description" => "", "goal_event" => "", "webhook_url" => ""}),
        variants: [%{name: "Controle", weight: 50}, %{name: "Variant B", weight: 50}],
        page_title: "Nieuw experiment"
      )}
@@ -62,10 +63,10 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.NewExperimentLive do
     ~H"""
     <div class="pa-container">
       <nav class="pa-breadcrumb">
-        <.link navigate={~p"/dashboard"}>Dashboard</.link> /
-        <.link navigate={~p"/dashboard/sites/#{@site.id}"}>{@site.name}</.link> /
-        <.link navigate={~p"/dashboard/sites/#{@site.id}/experiments"}>Experimenten</.link> /
-        <strong>Nieuw</strong>
+        <.link navigate={~p"/dashboard"}>Dashboard</.link>
+        / <.link navigate={~p"/dashboard/sites/#{@site.id}"}>{@site.name}</.link>
+        / <.link navigate={~p"/dashboard/sites/#{@site.id}/experiments"}>Experimenten</.link>
+        / <strong>Nieuw</strong>
       </nav>
 
       <h2>Nieuw A/B experiment</h2>
@@ -73,27 +74,48 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.NewExperimentLive do
       <.form for={@form} phx-submit="submit" class="pa-form">
         <div class="pa-field">
           <label for="name">Naam experiment</label>
-          <input type="text" id="name" name="name" value={@form[:name].value}
-            placeholder="Homepage CTA test" required />
+          <input
+            type="text"
+            id="name"
+            name="name"
+            value={@form[:name].value}
+            placeholder="Homepage CTA test"
+            required
+          />
         </div>
         <div class="pa-field">
           <label for="goal_event">Conversiedoel (event naam)</label>
-          <input type="text" id="goal_event" name="goal_event" value={@form[:goal_event].value}
-            placeholder="cta_klik" required />
+          <input
+            type="text"
+            id="goal_event"
+            name="goal_event"
+            value={@form[:goal_event].value}
+            placeholder="cta_klik"
+            required
+          />
           <span class="pa-hint">Dit is de data-pa-event waarde die als conversie telt</span>
         </div>
         <div class="pa-field">
           <label for="description">Beschrijving (optioneel)</label>
-          <textarea id="description" name="description"
+          <textarea
+            id="description"
+            name="description"
             placeholder="Wat testen we en wat verwachten we?"
           >{@form[:description].value}</textarea>
         </div>
 
         <div class="pa-field">
           <label for="webhook_url">Webhook URL (optioneel)</label>
-          <input type="url" id="webhook_url" name="webhook_url" value={@form[:webhook_url].value}
-            placeholder="https://jouwapp.nl/webhooks/ab-resultaat" />
-          <span class="pa-hint">Ontvangt een HTTP POST zodra het experiment statistisch significant is</span>
+          <input
+            type="url"
+            id="webhook_url"
+            name="webhook_url"
+            value={@form[:webhook_url].value}
+            placeholder="https://jouwapp.nl/webhooks/ab-resultaat"
+          />
+          <span class="pa-hint">
+            Ontvangt een HTTP POST zodra het experiment statistisch significant is
+          </span>
         </div>
 
         <div class="pa-variants-section">

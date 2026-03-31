@@ -104,7 +104,6 @@ if config_env() == :prod do
       adapter: Swoosh.Adapters.Resend,
       api_key: resend_key
   else
-    config :phoenix_analytics, PhoenixAnalytics.Mailer,
-      adapter: Swoosh.Adapters.Local
+    config :phoenix_analytics, PhoenixAnalytics.Mailer, adapter: Swoosh.Adapters.Local
   end
 end

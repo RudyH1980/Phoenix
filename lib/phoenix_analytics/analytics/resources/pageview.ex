@@ -4,37 +4,37 @@ defmodule PhoenixAnalytics.Analytics.Pageview do
     data_layer: AshPostgres.DataLayer
 
   postgres do
-    table "pageviews"
-    repo PhoenixAnalytics.Repo
+    table("pageviews")
+    repo(PhoenixAnalytics.Repo)
 
     custom_indexes do
-      index [:site_id, :inserted_at]
-      index [:session_hash]
+      index([:site_id, :inserted_at])
+      index([:session_hash])
     end
   end
 
   attributes do
-    uuid_primary_key :id
-    attribute :session_hash, :string, allow_nil?: false
-    attribute :url, :string, allow_nil?: false
-    attribute :referrer, :string
-    attribute :utm_source, :string
-    attribute :utm_medium, :string
-    attribute :utm_campaign, :string
-    attribute :country, :string
-    attribute :device_type, :string
-    attribute :browser, :string
-    attribute :os, :string
+    uuid_primary_key(:id)
+    attribute(:session_hash, :string, allow_nil?: false)
+    attribute(:url, :string, allow_nil?: false)
+    attribute(:referrer, :string)
+    attribute(:utm_source, :string)
+    attribute(:utm_medium, :string)
+    attribute(:utm_campaign, :string)
+    attribute(:country, :string)
+    attribute(:device_type, :string)
+    attribute(:browser, :string)
+    attribute(:os, :string)
     # Nooit raw IP opslaan (AVG) -- alleen dagelijks geroteerd hash
-    attribute :duration_seconds, :integer
+    attribute(:duration_seconds, :integer)
     timestamps()
   end
 
   actions do
-    defaults [:read, :destroy]
+    defaults([:read, :destroy])
 
     create :record do
-      accept [
+      accept([
         :session_hash,
         :url,
         :referrer,
@@ -45,7 +45,7 @@ defmodule PhoenixAnalytics.Analytics.Pageview do
         :device_type,
         :browser,
         :os
-      ]
+      ])
     end
   end
 

@@ -11,7 +11,8 @@ defmodule PhoenixAnalyticsWeb.ExportController do
 
     filename = "#{site.domain}_pageviews_#{period}_#{Date.utc_today()}.csv"
 
-    header = "date,url,referrer,device_type,browser,os,country,utm_source,utm_medium,utm_campaign\n"
+    header =
+      "date,url,referrer,device_type,browser,os,country,utm_source,utm_medium,utm_campaign\n"
 
     body =
       Enum.map_join(rows, "", fn row ->

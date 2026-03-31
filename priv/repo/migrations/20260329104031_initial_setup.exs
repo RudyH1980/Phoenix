@@ -89,7 +89,8 @@ defmodule PhoenixAnalytics.Repo.Migrations.InitialSetup do
             name: "pageviews_site_id_fkey",
             type: :uuid,
             prefix: "public"
-          ), null: false
+          ),
+          null: false
     end
 
     create index(:pageviews, [:session_hash])
@@ -116,7 +117,8 @@ defmodule PhoenixAnalytics.Repo.Migrations.InitialSetup do
             name: "magic_tokens_user_id_fkey",
             type: :uuid,
             prefix: "public"
-          ), null: false
+          ),
+          null: false
     end
 
     create index(:magic_tokens, [:inserted_at])
@@ -157,7 +159,8 @@ defmodule PhoenixAnalytics.Repo.Migrations.InitialSetup do
             name: "experiments_site_id_fkey",
             type: :uuid,
             prefix: "public"
-          ), null: false
+          ),
+          null: false
     end
 
     create index(:experiments, [:site_id, :status])
@@ -185,7 +188,8 @@ defmodule PhoenixAnalytics.Repo.Migrations.InitialSetup do
             name: "events_site_id_fkey",
             type: :uuid,
             prefix: "public"
-          ), null: false
+          ),
+          null: false
     end
 
     create index(:events, [:session_hash])
@@ -210,7 +214,8 @@ defmodule PhoenixAnalytics.Repo.Migrations.InitialSetup do
             name: "assignments_experiment_id_fkey",
             type: :uuid,
             prefix: "public"
-          ), null: false
+          ),
+          null: false
 
       add :variant_id,
           references(:variants,
@@ -218,7 +223,8 @@ defmodule PhoenixAnalytics.Repo.Migrations.InitialSetup do
             name: "assignments_variant_id_fkey",
             type: :uuid,
             prefix: "public"
-          ), null: false
+          ),
+          null: false
     end
 
     create index(:assignments, [:experiment_id, :session_hash], unique: true)

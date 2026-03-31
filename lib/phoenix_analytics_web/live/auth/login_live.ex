@@ -41,9 +41,7 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
   end
 
   defp send_magic_link_email(email, token) do
-    PhoenixAnalytics.Mailer.deliver(
-      PhoenixAnalytics.Emails.MagicLinkEmail.build(email, token)
-    )
+    PhoenixAnalytics.Mailer.deliver(PhoenixAnalytics.Emails.MagicLinkEmail.build(email, token))
   end
 
   @impl true
@@ -75,12 +73,7 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
           </div>
           <div class="pa-field">
             <label for="password">Wachtwoord</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              required
-            />
+            <input type="password" id="password" name="password" required />
           </div>
           <button type="submit" class="pa-btn pa-btn--primary pa-btn--full">
             Inloggen
@@ -95,15 +88,12 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
             <p>Controleer je inbox. De link is 15 minuten geldig.</p>
           </div>
         <% else %>
-          <p style="font-size:0.8rem;color:var(--pa-text-muted);margin-bottom:0.75rem;">Of log in via e-mail link</p>
+          <p style="font-size:0.8rem;color:var(--pa-text-muted);margin-bottom:0.75rem;">
+            Of log in via e-mail link
+          </p>
           <.form for={@magic_form} phx-submit="magic_link" class="pa-form">
             <div class="pa-field">
-              <input
-                type="email"
-                name="email"
-                placeholder="jij@voorbeeld.nl"
-                required
-              />
+              <input type="email" name="email" placeholder="jij@voorbeeld.nl" required />
             </div>
             <button type="submit" class="pa-btn pa-btn--ghost pa-btn--full">
               Stuur magic link

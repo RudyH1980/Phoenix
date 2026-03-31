@@ -24,14 +24,7 @@ defmodule PhoenixAnalyticsWeb.ChartComponents do
           aria-label="Pageview tijdlijn"
         >
           <%= for {bar, _i} <- Enum.with_index(@bars) do %>
-            <rect
-              x={bar.x}
-              y={bar.y}
-              width={bar.w}
-              height={bar.h}
-              rx="2"
-              class="pa-chart-bar"
-            >
+            <rect x={bar.x} y={bar.y} width={bar.w} height={bar.h} rx="2" class="pa-chart-bar">
               <title>{bar.label}: {bar.count}</title>
             </rect>
           <% end %>
@@ -63,7 +56,7 @@ defmodule PhoenixAnalyticsWeb.ChartComponents do
         data
         |> Enum.with_index()
         |> Enum.map(fn {point, i} ->
-          bar_h = max(2, round((point.count / max_count) * (height - padding_top)))
+          bar_h = max(2, round(point.count / max_count * (height - padding_top)))
           x = i * (bar_w + gap)
           y = height - bar_h
 
@@ -85,6 +78,9 @@ defmodule PhoenixAnalyticsWeb.ChartComponents do
   end
 
   defp format_date(%Date{} = date), do: Calendar.strftime(date, "%d %b")
-  defp format_date(date) when is_binary(date), do: String.slice(date, 5, 5) |> String.replace("-", "/")
+
+  defp format_date(date) when is_binary(date),
+    do: String.slice(date, 5, 5) |> String.replace("-", "/")
+
   defp format_date(_), do: ""
 end

@@ -12,9 +12,7 @@ defmodule PhoenixAnalytics.Workers.TokenCleanupWorker do
     cutoff = DateTime.add(DateTime.utc_now(), -24 * 60 * 60, :second)
 
     {count, _} =
-      PhoenixAnalytics.Repo.delete_all(
-        from t in "magic_tokens", where: t.inserted_at < ^cutoff
-      )
+      PhoenixAnalytics.Repo.delete_all(from t in "magic_tokens", where: t.inserted_at < ^cutoff)
 
     {:ok, %{deleted: count}}
   end

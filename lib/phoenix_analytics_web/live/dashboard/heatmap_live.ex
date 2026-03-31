@@ -34,7 +34,11 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.HeatmapLive do
     period = if period in ~w(today 7d 30d 90d), do: period, else: "7d"
     url = Map.get(params, "url")
 
-    socket = assign(socket, period: period, top_pages: Stats.top_pages(socket.assigns.site.id, period, 20))
+    socket =
+      assign(socket,
+        period: period,
+        top_pages: Stats.top_pages(socket.assigns.site.id, period, 20)
+      )
 
     socket =
       if url do
@@ -117,9 +121,9 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.HeatmapLive do
     ~H"""
     <div class="pa-container">
       <nav class="pa-breadcrumb">
-        <.link navigate={~p"/dashboard"}>Dashboard</.link> /
-        <.link navigate={~p"/dashboard/sites/#{@site.id}"}>{@site.name}</.link> /
-        <strong>Heatmap</strong>
+        <.link navigate={~p"/dashboard"}>Dashboard</.link>
+        / <.link navigate={~p"/dashboard/sites/#{@site.id}"}>{@site.name}</.link>
+        / <strong>Heatmap</strong>
       </nav>
 
       <div class="pa-page-header">

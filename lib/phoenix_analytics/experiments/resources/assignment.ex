@@ -4,32 +4,32 @@ defmodule PhoenixAnalytics.Experiments.Assignment do
     data_layer: AshPostgres.DataLayer
 
   postgres do
-    table "assignments"
-    repo PhoenixAnalytics.Repo
+    table("assignments")
+    repo(PhoenixAnalytics.Repo)
 
     custom_indexes do
-      index [:experiment_id, :session_hash], unique: true
+      index([:experiment_id, :session_hash], unique: true)
     end
   end
 
   attributes do
-    uuid_primary_key :id
-    attribute :session_hash, :string, allow_nil?: false
+    uuid_primary_key(:id)
+    attribute(:session_hash, :string, allow_nil?: false)
     timestamps()
   end
 
   actions do
-    defaults [:read, :destroy]
+    defaults([:read, :destroy])
 
     create :assign do
-      accept [:session_hash]
-      upsert? true
-      upsert_identity :unique_session_experiment
+      accept([:session_hash])
+      upsert?(true)
+      upsert_identity(:unique_session_experiment)
     end
   end
 
   identities do
-    identity :unique_session_experiment, [:experiment_id, :session_hash]
+    identity(:unique_session_experiment, [:experiment_id, :session_hash])
   end
 
   relationships do

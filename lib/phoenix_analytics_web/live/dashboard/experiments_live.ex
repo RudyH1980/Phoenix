@@ -21,9 +21,9 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.ExperimentsLive do
     ~H"""
     <div class="pa-container">
       <nav class="pa-breadcrumb">
-        <.link navigate={~p"/dashboard"}>Dashboard</.link> /
-        <.link navigate={~p"/dashboard/sites/#{@site.id}"}>{@site.name}</.link> /
-        <strong>Experimenten</strong>
+        <.link navigate={~p"/dashboard"}>Dashboard</.link>
+        / <.link navigate={~p"/dashboard/sites/#{@site.id}"}>{@site.name}</.link>
+        / <strong>Experimenten</strong>
       </nav>
 
       <div class="pa-section-header">
@@ -54,8 +54,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.ExperimentsLive do
             <li>
               <.link navigate={~p"/dashboard/sites/#{@site.id}/experiments/#{exp.id}"}>
                 <strong>{exp.name}</strong>
-                <span class={"pa-badge pa-badge--#{exp.status}"}
-                      aria-label={"Status: #{exp.status}"}>
+                <span class={"pa-badge pa-badge--#{exp.status}"} aria-label={"Status: #{exp.status}"}>
                   {exp.status}
                 </span>
                 <span class="pa-goal">Doel: {exp.goal_event}</span>

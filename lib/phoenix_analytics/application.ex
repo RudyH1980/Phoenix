@@ -41,6 +41,7 @@ defmodule PhoenixAnalytics.Application do
 
       Task.start(fn ->
         :timer.sleep(2000)
+
         case PhoenixAnalytics.Accounts.set_initial_password_hash(email, hash) do
           {:ok, _} -> :ok
           _ -> :ok

@@ -45,11 +45,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OverviewLive do
               {m.org.name}
             </.link>
           <% end %>
-          <.link
-            href={~p"/auth/logout"}
-            method="delete"
-            class="pa-btn pa-btn--ghost"
-          >
+          <.link href={~p"/auth/logout"} method="delete" class="pa-btn pa-btn--ghost">
             Uitloggen
           </.link>
         </nav>

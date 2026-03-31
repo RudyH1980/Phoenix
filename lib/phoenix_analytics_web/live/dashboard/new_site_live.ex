@@ -25,7 +25,11 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.NewSiteLive do
   @impl true
   def handle_event("submit", %{"name" => name, "domain" => domain}, socket) do
     case Analytics.Site
-         |> Ash.Changeset.for_create(:create, %{name: name, domain: domain, org_id: socket.assigns.org_id})
+         |> Ash.Changeset.for_create(:create, %{
+           name: name,
+           domain: domain,
+           org_id: socket.assigns.org_id
+         })
          |> Ash.create() do
       {:ok, site} ->
         {:noreply, assign(socket, created_site: site)}
@@ -40,8 +44,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.NewSiteLive do
     ~H"""
     <div class="pa-container">
       <nav class="pa-breadcrumb">
-        <.link navigate={~p"/dashboard"}>Dashboard</.link> /
-        <strong>Nieuwe website</strong>
+        <.link navigate={~p"/dashboard"}>Dashboard</.link> / <strong>Nieuwe website</strong>
       </nav>
 
       <%= if @created_site do %>

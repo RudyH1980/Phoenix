@@ -63,8 +63,11 @@ defmodule PhoenixAnalyticsWeb.CollectController do
           "site:#{site.id}",
           {:pageview, %{session_hash: session_hash, url: params["u"]}}
         )
+
         :ok
-      {:error, _} -> :ok
+
+      {:error, _} ->
+        :ok
     end
   end
 

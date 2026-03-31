@@ -15,14 +15,10 @@ defmodule PhoenixAnalytics.Workers.DataRetentionWorker do
     cutoff = DateTime.add(DateTime.utc_now(), -@retention_days * 24 * 60 * 60, :second)
 
     {pv_count, _} =
-      PhoenixAnalytics.Repo.delete_all(
-        from(p in "pageviews", where: p.inserted_at < ^cutoff)
-      )
+      PhoenixAnalytics.Repo.delete_all(from(p in "pageviews", where: p.inserted_at < ^cutoff))
 
     {ev_count, _} =
-      PhoenixAnalytics.Repo.delete_all(
-        from(e in "events", where: e.inserted_at < ^cutoff)
-      )
+      PhoenixAnalytics.Repo.delete_all(from(e in "events", where: e.inserted_at < ^cutoff))
 
     {:ok, %{pageviews_deleted: pv_count, events_deleted: ev_count}}
   end

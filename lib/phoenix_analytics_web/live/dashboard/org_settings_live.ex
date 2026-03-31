@@ -37,8 +37,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OrgSettingsLive do
     ~H"""
     <div class="pa-container">
       <nav class="pa-breadcrumb">
-        <.link navigate={~p"/dashboard"}>Dashboard</.link> /
-        <strong>{@org.name}</strong>
+        <.link navigate={~p"/dashboard"}>Dashboard</.link> / <strong>{@org.name}</strong>
       </nav>
 
       <div class="pa-page-header">

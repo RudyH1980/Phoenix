@@ -4,43 +4,43 @@ defmodule PhoenixAnalytics.Analytics.Site do
     data_layer: AshPostgres.DataLayer
 
   postgres do
-    table "sites"
-    repo PhoenixAnalytics.Repo
+    table("sites")
+    repo(PhoenixAnalytics.Repo)
   end
 
   attributes do
-    uuid_primary_key :id
-    attribute :name, :string, allow_nil?: false
-    attribute :domain, :string, allow_nil?: false
-    attribute :token, :string, allow_nil?: false
-    attribute :active, :boolean, default: true
+    uuid_primary_key(:id)
+    attribute(:name, :string, allow_nil?: false)
+    attribute(:domain, :string, allow_nil?: false)
+    attribute(:token, :string, allow_nil?: false)
+    attribute(:active, :boolean, default: true)
     # Multi-tenant: site hoort bij een organisatie (nullable voor bestaande data)
-    attribute :org_id, :uuid
+    attribute(:org_id, :uuid)
     timestamps()
   end
 
   identities do
-    identity :unique_domain, [:domain]
-    identity :unique_token, [:token]
+    identity(:unique_domain, [:domain])
+    identity(:unique_token, [:token])
   end
 
   actions do
-    defaults [:read, :destroy]
+    defaults([:read, :destroy])
 
     create :create do
-      accept [:name, :domain, :org_id]
+      accept([:name, :domain, :org_id])
 
-      change fn changeset, _ ->
+      change(fn changeset, _ ->
         Ash.Changeset.force_change_attribute(
           changeset,
           :token,
           Base.url_encode64(:crypto.strong_rand_bytes(24), padding: false)
         )
-      end
+      end)
     end
 
     update :update do
-      accept [:name, :active]
+      accept([:name, :active])
     end
   end
 
