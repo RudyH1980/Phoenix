@@ -6,7 +6,7 @@ defmodule PhoenixAnalytics.Emails.MagicLinkEmail do
 
     new()
     |> to(to_email)
-    |> from({"Phoenix Analytics", "noreply@yourdomain.com"})
+    |> from({"Phoenix Analytics", System.get_env("MAIL_FROM") || "onboarding@resend.dev"})
     |> subject("Jouw inloglink voor Phoenix Analytics")
     |> text_body("""
     Hallo,
