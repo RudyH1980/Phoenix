@@ -19,7 +19,7 @@ jobs:
       - uses: superfly/flyctl-actions/setup-flyctl@master
 
       - name: Deploy naar staging
-        run: fly deploy --remote-only --app phoenix-analytics-staging
+        run: flyctl deploy --remote-only --app phoenix-analytics-staging
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
@@ -35,6 +35,6 @@ jobs:
       - uses: superfly/flyctl-actions/setup-flyctl@master
 
       - name: Deploy naar productie
-        run: fly deploy --remote-only --app phoenix-analytics
+        run: flyctl deploy --remote-only --app phoenix-analytics
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
