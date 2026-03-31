@@ -28,7 +28,7 @@ defmodule PhoenixAnalytics.Accounts.Membership do
     defaults([:read, :destroy])
 
     create :create do
-      accept([:role])
+      accept([:role, :org_id, :user_id])
     end
 
     update :update do
