@@ -15,10 +15,15 @@ defmodule PhoenixAnalytics.Accounts do
   # --- Magic link flow ---
 
   def request_magic_link(email) do
-    with {:ok, user} <- find_or_create_user(email) do
-      MagicToken
-      |> Ash.Changeset.for_create(:create, %{user_id: user.id})
-      |> Ash.create()
+    if email_allowed?(email) do
+      with {:ok, user} <- find_or_create_user(email) do
+        MagicToken
+        |> Ash.Changeset.for_create(:create, %{user_id: user.id})
+        |> Ash.create()
+      end
+    else
+      # Geef altijd :ok terug -- geen e-mail enumeration
+      {:ok, :not_allowed}
     end
   end
 
@@ -27,6 +32,19 @@ defmodule PhoenixAnalytics.Accounts do
       MagicToken
       |> Ash.Changeset.for_create(:create, %{user_id: user.id, invite_org_id: org_id})
       |> Ash.create()
+    end
+  end
+
+  defp email_allowed?(email) do
+    case System.get_env("ALLOWED_EMAILS") do
+      nil -> true
+      "" -> true
+      allowed ->
+        allowed
+        |> String.split(",")
+        |> Enum.map(&String.trim/1)
+        |> Enum.map(&String.downcase/1)
+        |> Enum.member?(String.downcase(email))
     end
   end
 
