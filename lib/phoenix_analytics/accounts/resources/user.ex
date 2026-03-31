@@ -27,6 +27,11 @@ defmodule PhoenixAnalytics.Accounts.User do
       accept [:email, :name]
     end
 
+    update :set_password_hash do
+      accept [:hashed_password]
+      require_atomic? false
+    end
+
     update :set_password do
       accept []
       require_atomic? false

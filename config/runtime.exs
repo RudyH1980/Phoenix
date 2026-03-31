@@ -99,7 +99,12 @@ if config_env() == :prod do
   #
   # Check `Plug.SSL` for all available options in `force_ssl`.
 
-  config :phoenix_analytics, PhoenixAnalytics.Mailer,
-    adapter: Swoosh.Adapters.Resend,
-    api_key: System.get_env("RESEND_API_KEY") || raise("RESEND_API_KEY ontbreekt")
+  if resend_key = System.get_env("RESEND_API_KEY") do
+    config :phoenix_analytics, PhoenixAnalytics.Mailer,
+      adapter: Swoosh.Adapters.Resend,
+      api_key: resend_key
+  else
+    config :phoenix_analytics, PhoenixAnalytics.Mailer,
+      adapter: Swoosh.Adapters.Local
+  end
 end

@@ -91,6 +91,18 @@ defmodule PhoenixAnalytics.Accounts do
     end
   end
 
+  def set_initial_password_hash(email, hash) do
+    with {:ok, user} <- find_or_create_user(email) do
+      if is_nil(user.hashed_password) do
+        user
+        |> Ash.Changeset.for_update(:set_password_hash, %{hashed_password: hash})
+        |> Ash.update()
+      else
+        {:ok, user}
+      end
+    end
+  end
+
   def verify_token(token_string) do
     query =
       MagicToken

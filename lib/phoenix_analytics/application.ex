@@ -7,6 +7,9 @@ defmodule PhoenixAnalytics.Application do
 
   @impl true
   def start(_type, _args) do
+    run_migrations()
+    set_initial_password()
+
     children = [
       PhoenixAnalyticsWeb.Telemetry,
       PhoenixAnalytics.Repo,
@@ -25,6 +28,27 @@ defmodule PhoenixAnalytics.Application do
 
   # Tell Phoenix to update the endpoint configuration
   # whenever the application is updated.
+  defp run_migrations do
+    if Application.get_env(:phoenix_analytics, :env) == :prod do
+      PhoenixAnalytics.Release.migrate()
+    end
+  end
+
+  defp set_initial_password do
+    with hash when is_binary(hash) <- System.get_env("INITIAL_PASSWORD_HASH"),
+         emails when is_binary(emails) <- System.get_env("ALLOWED_EMAILS") do
+      email = emails |> String.split(",") |> List.first() |> String.trim()
+
+      Task.start(fn ->
+        :timer.sleep(2000)
+        case PhoenixAnalytics.Accounts.set_initial_password_hash(email, hash) do
+          {:ok, _} -> :ok
+          _ -> :ok
+        end
+      end)
+    end
+  end
+
   @impl true
   def config_change(changed, _new, removed) do
     PhoenixAnalyticsWeb.Endpoint.config_change(changed, removed)
