@@ -29,6 +29,7 @@ RUN mix assets.deploy
 # Build release
 RUN mix compile
 COPY config/runtime.exs config/
+COPY rel rel
 RUN mix release
 
 # Runner stage
