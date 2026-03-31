@@ -2,6 +2,6 @@ defmodule PhoenixAnalyticsWeb.PageController do
   use PhoenixAnalyticsWeb, :controller
 
   def home(conn, _params) do
-    render(conn, :home)
+    redirect(conn, to: ~p"/login")
   end
 end
