@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="nl" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="csrf-token" content={get_csrf_token()} />
+    <.live_title default="Phoenix Analytics" suffix=" · Phoenix Analytics">
+      {assigns[:page_title]}
+    </.live_title>
+
+    <%!-- Critical inline CSS: voorkom FOUC, geen render-blocking --%>
+    <style nonce={assigns[:csp_nonce]}>
+      *,*::before,*::after{box-sizing:border-box}
+      html{scroll-behavior:smooth}
+      body{margin:0;background:oklch(12% 0.016 250);color:oklch(90% 0.01 250);font-family:system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+    </style>
+
+    <link rel="stylesheet" href={~p"/assets/css/app.css"} />
+
+    <%!-- JS defer: nooit render-blocking --%>
+    <script
+      defer
+      phx-track-static
+      type="text/javascript"
+      src={~p"/assets/js/app.js"}
+      nonce={assigns[:csp_nonce]}
+    >
+    </script>
+  </head>
+  <body>
+    {@inner_content}
+  </body>
+</html>

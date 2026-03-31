@@ -1,0 +1,1098 @@
+/* See the Tailwind configuration guide for advanced usage
+   https://tailwindcss.com/docs/configuration */
+
+@import "tailwindcss" source(none);
+@source "../css";
+@source "../js";
+@source "../../lib/phoenix_analytics_web";
+
+/* A Tailwind plugin that makes "hero-#{ICON}" classes available.
+   The heroicons installation itself is managed by your mix.exs */
+@plugin "../vendor/heroicons";
+
+/* daisyUI Tailwind Plugin */
+@plugin "../vendor/daisyui" {
+  themes: false;
+}
+
+/* ============================================================
+   THEME — Professional teal/dark analytics palette
+   ============================================================ */
+
+@plugin "../vendor/daisyui-theme" {
+  name: "dark";
+  default: true;
+  prefersdark: true;
+  color-scheme: "dark";
+  --color-base-100: oklch(14% 0.018 250);
+  --color-base-200: oklch(17% 0.02 250);
+  --color-base-300: oklch(20% 0.022 250);
+  --color-base-content: oklch(90% 0.01 250);
+  --color-primary: oklch(72% 0.15 194);
+  --color-primary-content: oklch(15% 0.03 194);
+  --color-secondary: oklch(60% 0.12 220);
+  --color-secondary-content: oklch(96% 0.01 220);
+  --color-accent: oklch(78% 0.17 165);
+  --color-accent-content: oklch(15% 0.03 165);
+  --color-neutral: oklch(28% 0.02 250);
+  --color-neutral-content: oklch(75% 0.01 250);
+  --color-info: oklch(62% 0.17 240);
+  --color-info-content: oklch(97% 0.01 240);
+  --color-success: oklch(67% 0.16 150);
+  --color-success-content: oklch(15% 0.03 150);
+  --color-warning: oklch(75% 0.17 65);
+  --color-warning-content: oklch(15% 0.03 65);
+  --color-error: oklch(60% 0.22 20);
+  --color-error-content: oklch(96% 0.015 20);
+  --radius-selector: 0.375rem;
+  --radius-field: 0.375rem;
+  --radius-box: 0.625rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+@plugin "../vendor/daisyui-theme" {
+  name: "light";
+  default: false;
+  prefersdark: false;
+  color-scheme: "light";
+  --color-base-100: oklch(98% 0 0);
+  --color-base-200: oklch(95% 0.005 240);
+  --color-base-300: oklch(91% 0.008 240);
+  --color-base-content: oklch(18% 0.01 250);
+  --color-primary: oklch(55% 0.17 194);
+  --color-primary-content: oklch(98% 0.01 194);
+  --color-secondary: oklch(48% 0.14 220);
+  --color-secondary-content: oklch(98% 0.01 220);
+  --color-accent: oklch(55% 0.18 150);
+  --color-accent-content: oklch(98% 0.01 150);
+  --color-neutral: oklch(55% 0.02 250);
+  --color-neutral-content: oklch(98% 0 0);
+  --color-info: oklch(55% 0.17 240);
+  --color-info-content: oklch(97% 0.01 240);
+  --color-success: oklch(55% 0.16 150);
+  --color-success-content: oklch(98% 0.01 150);
+  --color-warning: oklch(65% 0.17 65);
+  --color-warning-content: oklch(15% 0.03 65);
+  --color-error: oklch(52% 0.22 20);
+  --color-error-content: oklch(96% 0.015 20);
+  --radius-selector: 0.375rem;
+  --radius-field: 0.375rem;
+  --radius-box: 0.625rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+/* Add variants based on LiveView classes */
+@custom-variant phx-click-loading (.phx-click-loading&, .phx-click-loading &);
+@custom-variant phx-submit-loading (.phx-submit-loading&, .phx-submit-loading &);
+@custom-variant phx-change-loading (.phx-change-loading&, .phx-change-loading &);
+
+/* Make LiveView wrapper divs transparent for layout */
+[data-phx-session] { display: contents }
+
+@layer components {
+
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================ */
+:root {
+  --pa-surface:        oklch(17% 0.02 250);
+  --pa-surface-raised: oklch(20% 0.022 250);
+  --pa-border:         oklch(26% 0.025 250);
+  --pa-border-subtle:  oklch(22% 0.02 250);
+  --pa-text:           oklch(90% 0.01 250);
+  --pa-text-muted:     oklch(60% 0.012 250);
+  --pa-text-faint:     oklch(42% 0.01 250);
+  --pa-teal:           oklch(72% 0.15 194);
+  --pa-teal-dim:       oklch(72% 0.15 194 / 0.12);
+  --pa-teal-glow:      oklch(72% 0.15 194 / 0.25);
+  --pa-green:          oklch(67% 0.16 150);
+  --pa-green-dim:      oklch(67% 0.16 150 / 0.12);
+  --pa-amber:          oklch(75% 0.17 65);
+  --pa-amber-dim:      oklch(75% 0.17 65 / 0.12);
+  --pa-red:            oklch(60% 0.22 20);
+  --pa-red-dim:        oklch(60% 0.22 20 / 0.12);
+  --pa-blue:           oklch(62% 0.17 240);
+  --pa-blue-dim:       oklch(62% 0.17 240 / 0.12);
+
+  --pa-radius-sm:  0.375rem;
+  --pa-radius:     0.625rem;
+  --pa-radius-lg:  0.875rem;
+
+  --pa-transition: 150ms ease;
+}
+
+/* ============================================================
+   BASE
+   ============================================================ */
+body {
+  background: oklch(12% 0.016 250);
+  color: var(--pa-text);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+.pa-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .pa-container { padding: 2rem 1.5rem; }
+}
+
+@media (min-width: 1024px) {
+  .pa-container { padding: 2.5rem 2rem; }
+}
+
+.pa-two-col {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .pa-two-col { grid-template-columns: 1fr 1fr; }
+}
+
+/* ============================================================
+   TYPOGRAPHY
+   ============================================================ */
+h1, h2, h3, h4 {
+  color: var(--pa-text);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+h1 { font-size: 1.75rem; line-height: 1.2; font-weight: 700; }
+h2 { font-size: 1.25rem; line-height: 1.3; }
+h3 { font-size: 1rem;    line-height: 1.4; }
+
+/* ============================================================
+   HEADER & NAV
+   ============================================================ */
+.pa-header {
+  padding: 2rem 0 1.5rem;
+  border-bottom: 1px solid var(--pa-border-subtle);
+  margin-bottom: 2rem;
+}
+
+.pa-header h1 {
+  background: linear-gradient(135deg, var(--pa-teal), oklch(72% 0.15 194 / 0.6));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.pa-header p {
+  color: var(--pa-text-muted);
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+}
+
+.pa-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--pa-text-muted);
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.pa-breadcrumb a {
+  color: var(--pa-text-muted);
+  text-decoration: none;
+  transition: color var(--pa-transition);
+}
+
+.pa-breadcrumb a:hover { color: var(--pa-teal); }
+
+.pa-breadcrumb strong {
+  color: var(--pa-text);
+  font-weight: 500;
+}
+
+/* ============================================================
+   PAGE HEADER
+   ============================================================ */
+.pa-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.pa-page-header h2 {
+  font-size: 1.375rem;
+  font-weight: 700;
+}
+
+.pa-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex-wrap: wrap;
+}
+
+.pa-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+/* ============================================================
+   PERIOD TABS
+   ============================================================ */
+.pa-period-tabs {
+  display: flex;
+  gap: 0.25rem;
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-border);
+  border-radius: var(--pa-radius);
+  padding: 0.25rem;
+  margin-bottom: 1.75rem;
+  width: fit-content;
+  overflow-x: auto;
+}
+
+.pa-tab {
+  padding: 0.35rem 0.9rem;
+  border-radius: calc(var(--pa-radius) - 2px);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--pa-text-muted);
+  text-decoration: none;
+  transition: all var(--pa-transition);
+  white-space: nowrap;
+}
+
+.pa-tab:hover { color: var(--pa-text); background: var(--pa-surface-raised); }
+
+.pa-tab.active {
+  background: var(--pa-teal);
+  color: oklch(15% 0.03 194);
+  font-weight: 600;
+}
+
+/* ============================================================
+   STATS GRID
+   ============================================================ */
+.pa-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 480px) {
+  .pa-stats-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (min-width: 768px) {
+  .pa-stats-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.pa-stat-card {
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-border);
+  border-radius: var(--pa-radius);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  transition: border-color var(--pa-transition);
+}
+
+.pa-stat-card:hover { border-color: var(--pa-teal); }
+
+.pa-stat-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--pa-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.pa-stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--pa-text);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+.pa-card {
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-border);
+  border-radius: var(--pa-radius);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.pa-card h3 {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--pa-text-muted);
+  margin-bottom: 1rem;
+}
+
+/* ============================================================
+   DATA LIST
+   ============================================================ */
+.pa-data-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.pa-data-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--pa-radius-sm);
+  transition: background var(--pa-transition);
+}
+
+.pa-data-list li:hover { background: var(--pa-surface-raised); }
+
+.pa-url {
+  font-size: 0.85rem;
+  color: var(--pa-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.pa-count {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--pa-teal);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   SITE LIST
+   ============================================================ */
+.pa-site-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.pa-site-list a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-border);
+  border-radius: var(--pa-radius);
+  text-decoration: none;
+  transition: all var(--pa-transition);
+}
+
+.pa-site-list a:hover {
+  border-color: var(--pa-teal);
+  background: var(--pa-surface-raised);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px oklch(72% 0.15 194 / 0.08);
+}
+
+.pa-site-list strong {
+  display: block;
+  color: var(--pa-text);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.pa-site-list span {
+  color: var(--pa-text-muted);
+  font-size: 0.8rem;
+}
+
+.pa-site-arrow {
+  color: var(--pa-text-faint);
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.pa-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--pa-radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: all var(--pa-transition);
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.pa-btn:disabled,
+.pa-btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.pa-btn--primary {
+  background: var(--pa-teal);
+  color: oklch(15% 0.03 194);
+  border-color: var(--pa-teal);
+}
+
+.pa-btn--primary:hover {
+  background: oklch(76% 0.15 194);
+  box-shadow: 0 0 0 3px var(--pa-teal-glow);
+}
+
+.pa-btn--ghost {
+  background: transparent;
+  color: var(--pa-text-muted);
+  border-color: var(--pa-border);
+}
+
+.pa-btn--ghost:hover {
+  background: var(--pa-surface-raised);
+  color: var(--pa-text);
+  border-color: oklch(35% 0.025 250);
+}
+
+.pa-btn--danger {
+  background: var(--pa-red-dim);
+  color: var(--pa-red);
+  border-color: oklch(60% 0.22 20 / 0.3);
+}
+
+.pa-btn--danger:hover {
+  background: var(--pa-red);
+  color: oklch(96% 0.015 20);
+}
+
+.pa-btn--full { width: 100%; }
+
+/* Loading spinner op phx-submit */
+.phx-submit-loading .pa-btn--primary::after {
+  content: "";
+  width: 0.8em;
+  height: 0.8em;
+  border: 2px solid oklch(15% 0.03 194 / 0.4);
+  border-top-color: oklch(15% 0.03 194);
+  border-radius: 50%;
+  animation: pa-spin 0.6s linear infinite;
+  margin-left: 0.25rem;
+}
+
+@keyframes pa-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================================
+   BADGES
+   ============================================================ */
+.pa-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pa-badge--draft {
+  background: oklch(28% 0.02 250);
+  color: var(--pa-text-muted);
+  border: 1px solid var(--pa-border);
+}
+
+.pa-badge--running {
+  background: var(--pa-green-dim);
+  color: var(--pa-green);
+  border: 1px solid oklch(67% 0.16 150 / 0.25);
+}
+
+.pa-badge--stopped {
+  background: var(--pa-amber-dim);
+  color: var(--pa-amber);
+  border: 1px solid oklch(75% 0.17 65 / 0.25);
+}
+
+.pa-badge--archived {
+  background: oklch(22% 0.015 250);
+  color: var(--pa-text-faint);
+  border: 1px solid var(--pa-border-subtle);
+}
+
+/* ============================================================
+   ALERTS
+   ============================================================ */
+.pa-alert {
+  padding: 0.875rem 1rem;
+  border-radius: var(--pa-radius);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.pa-alert p { margin: 0.125rem 0; }
+.pa-alert p:first-child { margin-top: 0; }
+.pa-alert p:last-child { margin-bottom: 0; }
+
+.pa-alert--success {
+  background: var(--pa-green-dim);
+  border: 1px solid oklch(67% 0.16 150 / 0.25);
+  color: oklch(78% 0.12 150);
+}
+
+.pa-alert--warning {
+  background: var(--pa-amber-dim);
+  border: 1px solid oklch(75% 0.17 65 / 0.25);
+  color: oklch(80% 0.13 65);
+}
+
+.pa-alert--info {
+  background: var(--pa-blue-dim);
+  border: 1px solid oklch(62% 0.17 240 / 0.25);
+  color: oklch(75% 0.12 240);
+}
+
+.pa-alert--error {
+  background: var(--pa-red-dim);
+  border: 1px solid oklch(60% 0.22 20 / 0.25);
+  color: oklch(72% 0.16 20);
+}
+
+/* ============================================================
+   FORMS
+   ============================================================ */
+.pa-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 480px;
+}
+
+.pa-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.pa-field label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--pa-text-muted);
+  letter-spacing: 0.02em;
+}
+
+.pa-field input,
+.pa-form input[type="text"],
+.pa-form input[type="email"],
+.pa-form input[type="password"],
+.pa-form select,
+.pa-form textarea {
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-border);
+  border-radius: var(--pa-radius-sm);
+  color: var(--pa-text);
+  padding: 0.625rem 0.875rem;
+  font-size: 0.9rem;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color var(--pa-transition), box-shadow var(--pa-transition);
+  outline: none;
+}
+
+.pa-field input::placeholder,
+.pa-form input::placeholder {
+  color: var(--pa-text-faint);
+}
+
+.pa-field input:focus,
+.pa-form input:focus,
+.pa-form select:focus,
+.pa-form textarea:focus {
+  border-color: var(--pa-teal);
+  box-shadow: 0 0 0 3px var(--pa-teal-dim);
+}
+
+.pa-hint {
+  font-size: 0.775rem;
+  color: var(--pa-text-faint);
+  margin-top: 0.125rem;
+}
+
+/* Variant rows in new experiment form */
+.pa-variant-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
+  align-items: end;
+}
+
+/* ============================================================
+   AUTH
+   ============================================================ */
+.pa-auth-container {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: oklch(11% 0.014 250);
+}
+
+.pa-auth-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-border);
+  border-radius: var(--pa-radius-lg);
+  padding: 2.25rem 2rem;
+  box-shadow: 0 20px 60px oklch(0% 0 0 / 0.4);
+}
+
+.pa-auth-card h1 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 0.25rem;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, var(--pa-teal) 0%, oklch(78% 0.17 165) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.pa-auth-card p {
+  color: var(--pa-text-muted);
+  font-size: 0.875rem;
+  text-align: center;
+  margin: 0 0 1.5rem;
+}
+
+.pa-auth-card .pa-form {
+  max-width: 100%;
+}
+
+/* ============================================================
+   CHART
+   ============================================================ */
+.pa-chart {
+  margin-top: 0.5rem;
+}
+
+.pa-chart-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.pa-chart-bar {
+  fill: var(--pa-teal);
+  opacity: 0.7;
+  transition: opacity var(--pa-transition);
+}
+
+.pa-chart-bar:hover { opacity: 1; }
+
+.pa-chart-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  font-size: 0.72rem;
+  color: var(--pa-text-faint);
+}
+
+.pa-chart-empty {
+  padding: 2rem;
+  text-align: center;
+  color: var(--pa-text-faint);
+  font-size: 0.875rem;
+  font-style: italic;
+}
+
+/* ============================================================
+   REALTIME BADGE
+   ============================================================ */
+.pa-realtime-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.75rem;
+  background: var(--pa-green-dim);
+  border: 1px solid oklch(67% 0.16 150 / 0.25);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--pa-green);
+}
+
+.pa-realtime-dot {
+  width: 7px;
+  height: 7px;
+  background: var(--pa-green);
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: pa-pulse 2s ease-in-out infinite;
+}
+
+@keyframes pa-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.8); }
+}
+
+/* ============================================================
+   EXPERIMENTS
+   ============================================================ */
+.pa-experiment-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.pa-experiment-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex-wrap: wrap;
+}
+
+.pa-experiment-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.pa-experiment-list a {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 1rem 1.25rem;
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-border);
+  border-radius: var(--pa-radius);
+  text-decoration: none;
+  transition: all var(--pa-transition);
+}
+
+.pa-experiment-list a:hover {
+  border-color: var(--pa-teal);
+  background: var(--pa-surface-raised);
+  transform: translateY(-1px);
+}
+
+.pa-experiment-list strong {
+  color: var(--pa-text);
+  font-weight: 600;
+  flex: 1;
+}
+
+.pa-goal {
+  font-size: 0.78rem;
+  color: var(--pa-text-faint);
+}
+
+.pa-goal-label {
+  font-size: 0.875rem;
+  color: var(--pa-text-muted);
+  margin: 0.25rem 0 0;
+}
+
+.pa-goal-label strong {
+  color: var(--pa-teal);
+  font-weight: 600;
+}
+
+/* ============================================================
+   VARIANT CARDS
+   ============================================================ */
+.pa-variants-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+@media (min-width: 600px) {
+  .pa-variants-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 900px) {
+  .pa-variants-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.pa-variant-card {
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-border);
+  border-radius: var(--pa-radius);
+  padding: 1.25rem;
+  transition: border-color var(--pa-transition);
+}
+
+.pa-variant-card:hover { border-color: oklch(35% 0.025 250); }
+
+.pa-variant-card h3 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--pa-text);
+  margin-bottom: 1rem;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.pa-variant-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.pa-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.pa-stat span {
+  font-size: 0.72rem;
+  color: var(--pa-text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 500;
+}
+
+.pa-stat strong {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--pa-text);
+}
+
+.pa-stat--highlight strong {
+  color: var(--pa-teal);
+  font-size: 1.5rem;
+}
+
+/* Winnaar-highlighting */
+.pa-variant-card--winner {
+  border-color: var(--pa-green);
+  background: var(--pa-green-dim);
+}
+
+.pa-variant-card--winner h3::after {
+  content: " ★";
+  color: var(--pa-green);
+  font-size: 0.85em;
+}
+
+/* ============================================================
+   SIGNIFICANCE CARD
+   ============================================================ */
+.pa-significance-card {
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-border);
+  border-radius: var(--pa-radius);
+  padding: 1.25rem 1.5rem;
+  margin-top: 1rem;
+}
+
+.pa-significance-card h3 {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--pa-text-muted);
+  margin-bottom: 0.875rem;
+}
+
+/* ============================================================
+   SUCCESS CARD
+   ============================================================ */
+.pa-success-card {
+  background: var(--pa-green-dim);
+  border: 1px solid oklch(67% 0.16 150 / 0.25);
+  border-radius: var(--pa-radius-lg);
+  padding: 2rem;
+  margin-top: 1rem;
+}
+
+.pa-success-card h2 {
+  color: var(--pa-green);
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pa-success-card h2::before {
+  content: "✓";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  background: var(--pa-green);
+  color: oklch(15% 0.03 150);
+  border-radius: 50%;
+  font-size: 0.85rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.pa-success-card p {
+  color: oklch(78% 0.1 150);
+  margin: 0 0 1.25rem;
+}
+
+/* ============================================================
+   CODE SNIPPET
+   ============================================================ */
+.pa-snippet-box {
+  background: oklch(12% 0.014 250);
+  border: 1px solid var(--pa-border);
+  border-radius: var(--pa-radius);
+  padding: 1.25rem 1.5rem;
+  margin: 1rem 0;
+}
+
+.pa-snippet-box h3 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--pa-text);
+  margin-bottom: 0.5rem;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.pa-snippet-hint {
+  font-size: 0.8rem;
+  color: var(--pa-text-muted);
+  margin: 0 0 0.75rem;
+}
+
+.pa-snippet-hint code {
+  background: oklch(20% 0.02 250);
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.25rem;
+  font-family: ui-monospace, monospace;
+  font-size: 0.8em;
+  color: var(--pa-teal);
+}
+
+.pa-code {
+  background: oklch(10% 0.012 250);
+  border: 1px solid var(--pa-border-subtle);
+  border-radius: var(--pa-radius-sm);
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  margin: 0;
+  font-family: ui-monospace, "Cascadia Code", "Fira Code", monospace;
+  font-size: 0.825rem;
+  line-height: 1.6;
+  color: oklch(80% 0.05 180);
+}
+
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+.pa-empty {
+  color: var(--pa-text-faint);
+  font-size: 0.875rem;
+  font-style: italic;
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+/* ============================================================
+   NEW SITE FORM
+   ============================================================ */
+.pa-new-site-header {
+  margin-bottom: 1.5rem;
+}
+
+.pa-new-site-header h2 {
+  font-size: 1.375rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.pa-new-site-header p {
+  color: var(--pa-text-muted);
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+/* ============================================================
+   OVERVIEW SITES SECTION
+   ============================================================ */
+.pa-sites-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.pa-sites-section-header h2 {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--pa-text-muted);
+}
+
+/* ============================================================
+   UTILITY
+   ============================================================ */
+.pa-divider {
+  border: none;
+  border-top: 1px solid var(--pa-border-subtle);
+  margin: 1.5rem 0;
+}
+
+} /* end @layer components */

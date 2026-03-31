@@ -1,0 +1,146 @@
+defmodule PhoenixAnalytics.Accounts do
+  use Ash.Domain
+
+  require Ash.Query
+
+  alias PhoenixAnalytics.Accounts.{User, MagicToken, Organization, Membership}
+
+  resources do
+    resource User
+    resource MagicToken
+    resource Organization
+    resource Membership
+  end
+
+  # --- Magic link flow ---
+
+  def request_magic_link(email) do
+    with {:ok, user} <- find_or_create_user(email) do
+      MagicToken
+      |> Ash.Changeset.for_create(:create, %{user_id: user.id})
+      |> Ash.create()
+    end
+  end
+
+  def request_invite_link(email, org_id) do
+    with {:ok, user} <- find_or_create_user(email) do
+      MagicToken
+      |> Ash.Changeset.for_create(:create, %{user_id: user.id, invite_org_id: org_id})
+      |> Ash.create()
+    end
+  end
+
+  defp find_or_create_user(email) do
+    case User
+         |> Ash.Query.filter(email == ^email)
+         |> Ash.read_one() do
+      {:ok, nil} ->
+        User
+        |> Ash.Changeset.for_create(:create, %{email: email})
+        |> Ash.create()
+
+      {:ok, user} ->
+        {:ok, user}
+
+      error ->
+        error
+    end
+  end
+
+  def verify_token(token_string) do
+    query =
+      MagicToken
+      |> Ash.Query.for_read(:valid, %{token: token_string})
+      |> Ash.Query.load(:user)
+
+    with {:ok, [magic_token]} <- Ash.read(query),
+         {:ok, _} <-
+           magic_token
+           |> Ash.Changeset.for_update(:use)
+           |> Ash.update() do
+      {:ok, magic_token.user, magic_token.invite_org_id}
+    else
+      {:ok, []} -> {:error, :invalid_or_expired}
+      error -> error
+    end
+  end
+
+  # --- Organisatie flow ---
+
+  def get_or_create_default_org(user) do
+    case user_orgs(user.id) do
+      [] ->
+        org_name = user.name || user.email |> to_string() |> String.split("@") |> hd()
+        create_org_with_owner(org_name, user.id)
+
+      [membership | _] ->
+        {:ok, membership.org}
+    end
+  end
+
+  def user_orgs(user_id) do
+    Membership
+    |> Ash.Query.filter(user_id == ^user_id)
+    |> Ash.Query.load(:org)
+    |> Ash.read!()
+  end
+
+  def user_org_ids(user_id) do
+    user_orgs(user_id) |> Enum.map(& &1.org_id)
+  end
+
+  def create_org_with_owner(name, user_id) do
+    with {:ok, org} <-
+           Organization
+           |> Ash.Changeset.for_create(:create, %{name: name})
+           |> Ash.create(),
+         {:ok, _} <-
+           Membership
+           |> Ash.Changeset.for_create(:create, %{org_id: org.id, user_id: user_id, role: :owner})
+           |> Ash.create() do
+      {:ok, org}
+    end
+  end
+
+  def accept_invite(user_id, org_id) do
+    # Upsert: als lidmaatschap al bestaat, geen actie
+    case Membership
+         |> Ash.Query.filter(user_id == ^user_id and org_id == ^org_id)
+         |> Ash.read_one() do
+      {:ok, nil} ->
+        Membership
+        |> Ash.Changeset.for_create(:create, %{org_id: org_id, user_id: user_id, role: :member})
+        |> Ash.create()
+
+      {:ok, membership} ->
+        {:ok, membership}
+
+      error ->
+        error
+    end
+  end
+
+  def org_members(org_id) do
+    Membership
+    |> Ash.Query.filter(org_id == ^org_id)
+    |> Ash.Query.load(:user)
+    |> Ash.read!()
+  end
+
+  def remove_member(membership_id) do
+    case Ash.get(Membership, membership_id) do
+      {:ok, membership} -> Ash.destroy(membership)
+      error -> error
+    end
+  end
+
+  def is_org_owner?(user_id, org_id) do
+    case Membership
+         |> Ash.Query.filter(user_id == ^user_id and org_id == ^org_id and role == "owner")
+         |> Ash.read_one() do
+      {:ok, nil} -> false
+      {:ok, _} -> true
+      _ -> false
+    end
+  end
+end

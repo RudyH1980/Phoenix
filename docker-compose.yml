@@ -1,0 +1,62 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "4095:4000"
+    volumes:
+      - .:/app
+      - build_cache:/app/_build
+      - deps_cache:/app/deps
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/phoenix_analytics_dev
+      PHX_HOST: localhost
+      PORT: "4000"
+      SECRET_KEY_BASE: "dev_secret_key_base_phoenix_analytics_lang_genoeg_64chars_minimum"
+      MIX_ENV: dev
+      SMTP_HOST: mailpit
+      SMTP_PORT: "1025"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: >
+      sh -c "mix deps.get &&
+             mix ecto.create --quiet &&
+             mix ash.migrate &&
+             mix phx.server"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+    stdin_open: true
+    tty: true
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "1034:1025"
+      - "8034:8025"
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: phoenix_analytics_dev
+    ports:
+      - "5445:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+
+volumes:
+  postgres_data:
+  build_cache:
+  deps_cache:

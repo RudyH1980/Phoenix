@@ -1,0 +1,18 @@
+# Exclude build artifacts
+/_build/
+/deps/
+/priv/static/assets/
+
+# Dev/test files
+/.elixir_ls/
+/cover/
+/doc/
+/tmp/
+
+# Git
+/.git/
+/.github/
+
+# Dev config
+.env
+.env.*

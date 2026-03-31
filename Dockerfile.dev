@@ -1,0 +1,11 @@
+FROM elixir:1.18-slim
+
+RUN apt-get update && apt-get install -y \
+    build-essential git inotify-tools curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+RUN mix local.hex --force && mix local.rebar --force
+
+CMD ["mix", "phx.server"]

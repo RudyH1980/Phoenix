@@ -1,0 +1,26 @@
+defmodule PhoenixAnalytics.Emails.InviteEmail do
+  import Swoosh.Email
+
+  def build(token, org, to_email) do
+    link = PhoenixAnalyticsWeb.Endpoint.url() <> "/auth/verify?token=#{token.token}"
+
+    new()
+    |> to(to_email)
+    |> from({"Phoenix Analytics", "noreply@yourdomain.com"})
+    |> subject("Uitnodiging: #{org.name} op Phoenix Analytics")
+    |> text_body("""
+    Hallo,
+
+    Je bent uitgenodigd om lid te worden van #{org.name} op Phoenix Analytics.
+
+    Klik op onderstaande link om je account aan te maken en de uitnodiging te accepteren.
+    Deze link is 15 minuten geldig.
+
+    #{link}
+
+    Als je dit niet verwacht had, kun je dit bericht negeren.
+
+    Phoenix Analytics
+    """)
+  end
+end
