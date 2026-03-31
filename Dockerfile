@@ -53,6 +53,8 @@ RUN chown nobody /app
 
 COPY --from=builder --chown=nobody:root /app/_build/prod/rel/phoenix_analytics ./
 
+RUN chmod +x /app/bin/server /app/bin/phoenix_analytics
+
 USER nobody
 
 CMD ["/app/bin/server"]
