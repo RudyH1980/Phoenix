@@ -1,5 +1,5 @@
 # Build stage
-FROM hexpm/elixir:1.19.5-erlang-27.3.4-debian-bookworm-20250317-slim AS builder
+FROM hexpm/elixir:1.18.3-erlang-27.3.4-debian-bookworm-20260316-slim AS builder
 
 # Build tools
 RUN apt-get update -y && apt-get install -y build-essential git curl \
@@ -32,7 +32,7 @@ COPY config/runtime.exs config/
 RUN mix release
 
 # Runner stage
-FROM debian:bookworm-20250317-slim AS app
+FROM debian:bookworm-20260316-slim AS app
 
 RUN apt-get update -y && apt-get install -y libstdc++6 openssl libncurses5 locales ca-certificates \
     && apt-get clean && rm -f /var/lib/apt/lists/*_*
