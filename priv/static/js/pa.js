@@ -1,4 +1,4 @@
-/* Phoenix Analytics tracker -- cookieloos, ~800 bytes */
+/* Phoenix Analytics tracker -- cookieloos, ~1KB */
 (function () {
   var d = document, w = window;
   var endpoint = d.currentScript.dataset.api || "/api/collect";
@@ -28,13 +28,37 @@
   // Pageview
   send(base("pv"));
 
-  // Klik-tracking (event delegation -- geen listeners per element)
+  // Tijd op pagina -- stuur bij weggaan
+  var startTime = Date.now();
+  function sendDuration() {
+    var seconds = Math.round((Date.now() - startTime) / 1000);
+    if (seconds < 2) return;
+    send(base("ev", { n: "time_on_page", m: { seconds: seconds } }));
+  }
+  d.addEventListener("visibilitychange", function () {
+    if (d.visibilityState === "hidden") sendDuration();
+  });
+  w.addEventListener("pagehide", sendDuration, { passive: true });
+
+  // Custom event tracking via data-pa-event attribuut
   d.addEventListener("click", function (e) {
     var el = e.target.closest("[data-pa-event]");
     if (!el) return;
     send(base("ev", {
       n: el.dataset.paEvent,
       m: el.dataset.paMeta ? JSON.parse(el.dataset.paMeta) : null
+    }));
+  }, { passive: true });
+
+  // Auto-click tracking: knoppen en links zonder data-pa-event
+  d.addEventListener("click", function (e) {
+    var el = e.target.closest("button, a, [role=button]");
+    if (!el || el.dataset.paEvent) return;
+    var label = (el.getAttribute("aria-label") || el.innerText || el.getAttribute("title") || "").trim().replace(/\s+/g, " ").slice(0, 64);
+    if (!label) return;
+    send(base("ev", {
+      n: "click:" + el.tagName.toLowerCase(),
+      m: { label: label, id: el.id || null }
     }));
   }, { passive: true });
 
@@ -50,7 +74,11 @@
   var _push = history.pushState;
   history.pushState = function () {
     _push.apply(this, arguments);
+    startTime = Date.now();
     send(base("pv"));
   };
-  w.addEventListener("popstate", function () { send(base("pv")); });
+  w.addEventListener("popstate", function () {
+    startTime = Date.now();
+    send(base("pv"));
+  });
 }());

@@ -129,6 +129,41 @@ defmodule PhoenixAnalytics.Analytics.Stats do
     )
   end
 
+  def top_events(site_id, period, limit \\ 10) do
+    since = period_start(period)
+    sid = to_binary_uuid(site_id)
+
+    Repo.all(
+      from e in "events",
+        where:
+          e.site_id == ^sid and
+            e.inserted_at >= ^since and
+            e.event_name != "heatmap_click" and
+            e.event_name != "time_on_page",
+        group_by: e.event_name,
+        order_by: [desc: count(e.id)],
+        limit: ^limit,
+        select: %{event_name: e.event_name, count: count(e.id)}
+    )
+  end
+
+  def avg_time_on_page(site_id, period) do
+    since = period_start(period)
+    sid = to_binary_uuid(site_id)
+
+    result =
+      Repo.one(
+        from e in "events",
+          where:
+            e.site_id == ^sid and
+              e.event_name == "time_on_page" and
+              e.inserted_at >= ^since,
+          select: avg(fragment("(metadata->>'seconds')::numeric"))
+      )
+
+    if result, do: result |> Decimal.to_float() |> Float.round(0) |> trunc(), else: 0
+  end
+
   def heatmap_clicks(site_id, period, url) do
     since = period_start(period)
     sid = to_binary_uuid(site_id)

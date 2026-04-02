@@ -59,8 +59,10 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
       pageviews: Stats.pageview_count(site_id, period),
       visitors: Stats.unique_visitors(site_id, period),
       bounce_rate: Stats.bounce_rate(site_id, period),
+      avg_time: Stats.avg_time_on_page(site_id, period),
       top_pages: Stats.top_pages(site_id, period),
       top_referrers: Stats.top_referrers(site_id, period),
+      top_events: Stats.top_events(site_id, period),
       device_breakdown: Stats.device_breakdown(site_id, period),
       country_breakdown: Stats.country_breakdown(site_id, period),
       timeline: Stats.pageviews_timeline(site_id, period)
@@ -122,6 +124,10 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
         <div class="pa-stat-card">
           <span class="pa-stat-label">Bouncepercentage</span>
           <span class="pa-stat-value">{@bounce_rate}%</span>
+        </div>
+        <div class="pa-stat-card">
+          <span class="pa-stat-label">Gem. tijd op pagina</span>
+          <span class="pa-stat-value">{format_duration(@avg_time)}</span>
         </div>
       </div>
 
@@ -198,6 +204,24 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
         </section>
       </div>
 
+      <section class="pa-card">
+        <h3>Klikken &amp; events</h3>
+        <%= if Enum.empty?(@top_events) do %>
+          <p class="pa-empty">
+            Nog geen events. Zorg dat de tracker draait en bezoekers op knoppen klikken.
+          </p>
+        <% else %>
+          <ul class="pa-data-list">
+            <%= for ev <- @top_events do %>
+              <li>
+                <span class="pa-url" title={ev.event_name}>{truncate_url(ev.event_name)}</span>
+                <span class="pa-count">{format_number(ev.count)}</span>
+              </li>
+            <% end %>
+          </ul>
+        <% end %>
+      </section>
+
       <div class="pa-snippet-box">
         <h3>Tracker snippet</h3>
         <pre class="pa-code"><code>&lt;script async src="https://yourdomain.com/js/pa.js" data-site="{@site.token}"&gt;&lt;/script&gt;</code></pre>
@@ -212,6 +236,10 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
 
   defp truncate_url(url) when byte_size(url) > 50, do: String.slice(url, 0, 47) <> "..."
   defp truncate_url(url), do: url
+
+  defp format_duration(0), do: "—"
+  defp format_duration(s) when s < 60, do: "#{s}s"
+  defp format_duration(s), do: "#{div(s, 60)}m #{rem(s, 60)}s"
 
   # Landvlag emoji via country code (NL -> 🇳🇱)
   defp flag(nil), do: "🌐"
