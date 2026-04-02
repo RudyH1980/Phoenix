@@ -26,7 +26,9 @@ defmodule PhoenixAnalyticsWeb.CollectController do
   defp find_site(nil), do: {:error, :site_not_found}
 
   defp find_site(token) do
-    case Ash.read_one(Analytics.Site, filter: [token: token, active: true]) do
+    case Analytics.Site
+         |> Ash.Query.filter(token == ^token and active == true)
+         |> Ash.read_one(domain: Analytics) do
       {:ok, nil} -> {:error, :site_not_found}
       {:ok, site} -> {:ok, site}
       {:error, _} -> {:error, :site_not_found}
