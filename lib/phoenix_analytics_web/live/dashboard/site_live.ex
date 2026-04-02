@@ -8,18 +8,32 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
 
   @impl true
   def mount(%{"site_id" => site_id}, _session, socket) do
-    site = Ash.get!(Analytics.Site, site_id)
+    case Ash.get(Analytics.Site, site_id) do
+      {:ok, site} when not is_nil(site) ->
+        if site.org_id not in socket.assigns.current_org_ids do
+          {:ok,
+           socket
+           |> put_flash(:error, "Geen toegang tot deze website.")
+           |> push_navigate(to: ~p"/dashboard")}
+        else
+          if connected?(socket) do
+            Phoenix.PubSub.subscribe(PhoenixAnalytics.PubSub, "site:#{site_id}")
+          end
 
-    if connected?(socket) do
-      Phoenix.PubSub.subscribe(PhoenixAnalytics.PubSub, "site:#{site_id}")
+          socket =
+            socket
+            |> assign(site: site, period: "7d", page_title: site.name, realtime_count: 0)
+            |> load_stats("7d")
+
+          {:ok, socket}
+        end
+
+      _ ->
+        {:ok,
+         socket
+         |> put_flash(:error, "Website niet gevonden.")
+         |> push_navigate(to: ~p"/dashboard")}
     end
-
-    socket =
-      socket
-      |> assign(site: site, period: "7d", page_title: site.name, realtime_count: 0)
-      |> load_stats("7d")
-
-    {:ok, socket}
   end
 
   @impl true

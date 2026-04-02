@@ -5,16 +5,35 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.NewExperimentLive do
 
   @impl true
   def mount(%{"site_id" => site_id}, _session, socket) do
-    site = Ash.get!(Analytics.Site, site_id)
+    case Ash.get(Analytics.Site, site_id) do
+      {:ok, site} when not is_nil(site) ->
+        if site.org_id not in socket.assigns.current_org_ids do
+          {:ok,
+           socket
+           |> put_flash(:error, "Geen toegang tot deze website.")
+           |> push_navigate(to: ~p"/dashboard")}
+        else
+          {:ok,
+           assign(socket,
+             site: site,
+             form:
+               to_form(%{
+                 "name" => "",
+                 "description" => "",
+                 "goal_event" => "",
+                 "webhook_url" => ""
+               }),
+             variants: [%{name: "Controle", weight: 50}, %{name: "Variant B", weight: 50}],
+             page_title: "Nieuw experiment"
+           )}
+        end
 
-    {:ok,
-     assign(socket,
-       site: site,
-       form:
-         to_form(%{"name" => "", "description" => "", "goal_event" => "", "webhook_url" => ""}),
-       variants: [%{name: "Controle", weight: 50}, %{name: "Variant B", weight: 50}],
-       page_title: "Nieuw experiment"
-     )}
+      _ ->
+        {:ok,
+         socket
+         |> put_flash(:error, "Website niet gevonden.")
+         |> push_navigate(to: ~p"/dashboard")}
+    end
   end
 
   @impl true

@@ -5,38 +5,55 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
 
   @impl true
   def mount(_params, _session, socket) do
+    peer_data = get_connect_info(socket, :peer_data)
+    ip = if peer_data, do: peer_data.address |> Tuple.to_list() |> Enum.join("."), else: "unknown"
+
     {:ok,
      assign(socket,
        form: to_form(%{"email" => "", "password" => ""}),
        magic_form: to_form(%{"email" => ""}),
        sent: false,
        error: nil,
-       page_title: "Inloggen"
+       page_title: "Inloggen",
+       remote_ip: ip
      )}
   end
 
   @impl true
   def handle_event("password_login", %{"email" => email, "password" => password}, socket) do
-    case Accounts.authenticate(email, password) do
-      {:ok, user} ->
+    case PhoenixAnalytics.RateLimiter.hit("login:#{socket.assigns.remote_ip}", 10 * 60_000, 5) do
+      {:deny, _} ->
         {:noreply,
-         socket
-         |> put_flash(:info, "Welkom terug!")
-         |> redirect(to: "/auth/verify_password?user_id=#{user.id}")}
+         assign(socket, error: "Te veel pogingen. Probeer het over 10 minuten opnieuw.")}
 
-      {:error, _} ->
-        {:noreply, assign(socket, error: "Ongeldig e-mailadres of wachtwoord.")}
+      {:allow, _} ->
+        case Accounts.authenticate(email, password) do
+          {:ok, user} ->
+            {:noreply,
+             socket
+             |> put_flash(:info, "Welkom terug!")
+             |> redirect(to: "/auth/verify_password?user_id=#{user.id}")}
+
+          {:error, _} ->
+            {:noreply, assign(socket, error: "Ongeldig e-mailadres of wachtwoord.")}
+        end
     end
   end
 
   def handle_event("magic_link", %{"email" => email}, socket) do
-    case Accounts.request_magic_link(email) do
-      {:ok, magic_token} ->
-        send_magic_link_email(email, magic_token.token)
+    case PhoenixAnalytics.RateLimiter.hit("login:#{socket.assigns.remote_ip}", 10 * 60_000, 5) do
+      {:deny, _} ->
         {:noreply, assign(socket, sent: true)}
 
-      _ ->
-        {:noreply, assign(socket, sent: true)}
+      {:allow, _} ->
+        case Accounts.request_magic_link(email) do
+          {:ok, magic_token} ->
+            send_magic_link_email(email, magic_token.token)
+            {:noreply, assign(socket, sent: true)}
+
+          _ ->
+            {:noreply, assign(socket, sent: true)}
+        end
     end
   end
 

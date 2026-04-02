@@ -5,7 +5,26 @@ defmodule PhoenixAnalyticsWeb.ExportController do
   alias PhoenixAnalytics.Analytics.Stats
 
   def csv(conn, %{"site_id" => site_id} = params) do
-    site = Ash.get!(Analytics.Site, site_id)
+    case Ash.get(Analytics.Site, site_id) do
+      {:ok, site} when not is_nil(site) ->
+        if site.org_id not in conn.assigns.current_org_ids do
+          conn
+          |> put_flash(:error, "Geen toegang tot deze website.")
+          |> redirect(to: ~p"/dashboard")
+          |> halt()
+        else
+          do_csv(conn, site, params)
+        end
+
+      _ ->
+        conn
+        |> put_flash(:error, "Website niet gevonden.")
+        |> redirect(to: ~p"/dashboard")
+        |> halt()
+    end
+  end
+
+  defp do_csv(conn, site, params) do
     period = Map.get(params, "period", "30d")
     rows = Stats.pageviews_for_export(site.id, period)
 

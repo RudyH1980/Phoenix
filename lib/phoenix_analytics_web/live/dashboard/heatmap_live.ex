@@ -10,22 +10,37 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.HeatmapLive do
 
   @impl true
   def mount(%{"site_id" => site_id}, _session, socket) do
-    site = Ash.get!(Analytics.Site, site_id)
-    top_pages = Stats.top_pages(site_id, "7d", 20)
+    case Ash.get(Analytics.Site, site_id) do
+      {:ok, site} when not is_nil(site) ->
+        if site.org_id not in socket.assigns.current_org_ids do
+          {:ok,
+           socket
+           |> put_flash(:error, "Geen toegang tot deze website.")
+           |> push_navigate(to: ~p"/dashboard")}
+        else
+          top_pages = Stats.top_pages(site_id, "7d", 20)
 
-    socket =
-      assign(socket,
-        site: site,
-        period: "7d",
-        top_pages: top_pages,
-        selected_url: nil,
-        grid_cells: [],
-        total_clicks: 0,
-        max_density: 1,
-        page_title: "Heatmap - #{site.name}"
-      )
+          socket =
+            assign(socket,
+              site: site,
+              period: "7d",
+              top_pages: top_pages,
+              selected_url: nil,
+              grid_cells: [],
+              total_clicks: 0,
+              max_density: 1,
+              page_title: "Heatmap - #{site.name}"
+            )
 
-    {:ok, socket}
+          {:ok, socket}
+        end
+
+      _ ->
+        {:ok,
+         socket
+         |> put_flash(:error, "Website niet gevonden.")
+         |> push_navigate(to: ~p"/dashboard")}
+    end
   end
 
   @impl true
