@@ -55,14 +55,14 @@ defmodule PhoenixAnalytics.Analytics.Stats do
           select: count(p.session_hash, :distinct)
       ) || 0
 
-    bounced =
-      Repo.one(
-        from p in "pageviews",
-          where: p.site_id == ^sid and p.inserted_at >= ^since,
-          group_by: p.session_hash,
-          having: count(p.id) == 1,
-          select: count(p.session_hash)
-      ) || 0
+    bounced_subq =
+      from p in "pageviews",
+        where: p.site_id == ^sid and p.inserted_at >= ^since,
+        group_by: p.session_hash,
+        having: count(p.id) == 1,
+        select: %{session_hash: p.session_hash}
+
+    bounced = Repo.one(from s in subquery(bounced_subq), select: count()) || 0
 
     if total > 0, do: Float.round(bounced / total * 100, 1), else: 0.0
   end

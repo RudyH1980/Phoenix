@@ -1,6 +1,8 @@
 defmodule PhoenixAnalyticsWeb.AuthController do
   use PhoenixAnalyticsWeb, :controller
 
+  require Logger
+
   alias PhoenixAnalytics.Accounts
 
   def verify(conn, %{"token" => token}) do
@@ -11,6 +13,13 @@ defmodule PhoenixAnalyticsWeb.AuthController do
 
         # Zorg voor standaard org bij eerste login
         {:ok, _org} = Accounts.get_or_create_default_org(user)
+
+        Logger.info("LOGIN via magic_link",
+          user_id: user.id,
+          email: user.email,
+          ip: conn.remote_ip |> Tuple.to_list() |> Enum.join("."),
+          at: DateTime.utc_now() |> DateTime.to_iso8601()
+        )
 
         conn
         |> put_session(:user_id, user.id)
@@ -31,6 +40,13 @@ defmodule PhoenixAnalyticsWeb.AuthController do
     case Ash.get(Accounts.User, user_id) do
       {:ok, user} ->
         {:ok, _org} = Accounts.get_or_create_default_org(user)
+
+        Logger.info("LOGIN via password",
+          user_id: user.id,
+          email: user.email,
+          ip: conn.remote_ip |> Tuple.to_list() |> Enum.join("."),
+          at: DateTime.utc_now() |> DateTime.to_iso8601()
+        )
 
         conn
         |> put_session(:user_id, user.id)
