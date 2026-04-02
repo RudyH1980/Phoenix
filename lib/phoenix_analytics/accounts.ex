@@ -1,4 +1,5 @@
 defmodule PhoenixAnalytics.Accounts do
+  @moduledoc false
   use Ash.Domain
 
   require Ash.Query

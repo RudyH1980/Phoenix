@@ -1,4 +1,5 @@
 defmodule PhoenixAnalyticsWeb.LiveAuth do
+  @moduledoc false
   import Phoenix.LiveView
   alias PhoenixAnalytics.Accounts
 
