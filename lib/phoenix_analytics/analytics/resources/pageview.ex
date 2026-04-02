@@ -35,6 +35,7 @@ defmodule PhoenixAnalytics.Analytics.Pageview do
 
     create :record do
       accept([
+        :site_id,
         :session_hash,
         :url,
         :referrer,

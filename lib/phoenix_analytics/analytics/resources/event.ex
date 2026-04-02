@@ -30,7 +30,15 @@ defmodule PhoenixAnalytics.Analytics.Event do
     defaults([:read, :destroy])
 
     create :record do
-      accept([:session_hash, :event_name, :url, :metadata, :experiment_id, :variant_name])
+      accept([
+        :site_id,
+        :session_hash,
+        :event_name,
+        :url,
+        :metadata,
+        :experiment_id,
+        :variant_name
+      ])
     end
   end
 
