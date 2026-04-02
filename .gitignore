@@ -35,3 +35,4 @@ phoenix_analytics-*.tar
 npm-debug.log
 /assets/node_modules/
 
+_build2/
