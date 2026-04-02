@@ -1,7 +1,9 @@
 /* Phoenix Analytics tracker -- cookieloos, ~1KB */
 (function () {
   var d = document, w = window;
-  var endpoint = d.currentScript.dataset.api || "/api/collect";
+  var scriptSrc = d.currentScript.src;
+  var scriptOrigin = scriptSrc.substring(0, scriptSrc.indexOf("/js/"));
+  var endpoint = d.currentScript.dataset.api || (scriptOrigin + "/api/collect");
   var siteToken = d.currentScript.dataset.site || "";
 
   // Stabiele visitor-ID via localStorage (geen cookie, geen cookiebanner nodig)

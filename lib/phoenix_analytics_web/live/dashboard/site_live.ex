@@ -256,7 +256,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
 
       <div class="pa-snippet-box">
         <h3>Tracker snippet</h3>
-        <pre class="pa-code"><code>&lt;script async src="https://yourdomain.com/js/pa.js" data-site="{@site.token}"&gt;&lt;/script&gt;</code></pre>
+        <pre class="pa-code"><code>&lt;script async src="{PhoenixAnalyticsWeb.Endpoint.url()}/js/pa.js" data-site="{@site.token}"&gt;&lt;/script&gt;</code></pre>
       </div>
     </div>
     """
