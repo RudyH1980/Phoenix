@@ -3,6 +3,8 @@ defmodule PhoenixAnalyticsWeb.CollectController do
 
   alias PhoenixAnalytics.Analytics
 
+  require Ash.Query
+
   @doc """
   POST /api/collect
 
