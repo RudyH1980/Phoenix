@@ -24,17 +24,14 @@
   var vid = getVid();
 
   function send(payload) {
-    var body = JSON.stringify(payload);
-    if (w.navigator.sendBeacon) {
-      // sendBeacon stuurt standaard text/plain -- Blob forceert application/json zodat de server het correct parst
-      var blob = new Blob([body], { type: "application/json" });
-      navigator.sendBeacon(endpoint, blob);
-    } else {
-      var r = new XMLHttpRequest();
-      r.open("POST", endpoint, true);
-      r.setRequestHeader("Content-Type", "application/json");
-      r.send(body);
-    }
+    try {
+      fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        keepalive: true
+      });
+    } catch (e) {}
   }
 
   function base(type, extra) {
