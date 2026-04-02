@@ -42,16 +42,24 @@ defmodule PhoenixAnalyticsWeb.Router do
   scope "/", PhoenixAnalyticsWeb do
     pipe_through [:browser, :require_auth]
 
-    live "/dashboard", Live.Dashboard.OverviewLive, :index
-    live "/dashboard/sites/new", Live.Dashboard.NewSiteLive, :index
-    live "/dashboard/sites/:site_id", Live.Dashboard.SiteLive, :index
-    live "/dashboard/sites/:site_id/experiments", Live.Dashboard.ExperimentsLive, :index
-    live "/dashboard/sites/:site_id/experiments/new", Live.Dashboard.NewExperimentLive, :index
-    live "/dashboard/sites/:site_id/experiments/:id", Live.Dashboard.ExperimentDetailLive, :index
-    live "/dashboard/sites/:site_id/heatmap", Live.Dashboard.HeatmapLive, :index
     get "/dashboard/sites/:site_id/export", ExportController, :csv
-    live "/dashboard/orgs/:org_id", Live.Dashboard.OrgSettingsLive, :index
-    live "/dashboard/orgs/:org_id/invite", Live.Dashboard.InviteLive, :index
+
+    live_session :require_auth,
+      on_mount: [{PhoenixAnalyticsWeb.LiveAuth, :ensure_authenticated}] do
+      live "/dashboard", Live.Dashboard.OverviewLive, :index
+      live "/dashboard/sites/new", Live.Dashboard.NewSiteLive, :index
+      live "/dashboard/sites/:site_id", Live.Dashboard.SiteLive, :index
+      live "/dashboard/sites/:site_id/experiments", Live.Dashboard.ExperimentsLive, :index
+      live "/dashboard/sites/:site_id/experiments/new", Live.Dashboard.NewExperimentLive, :index
+
+      live "/dashboard/sites/:site_id/experiments/:id",
+           Live.Dashboard.ExperimentDetailLive,
+           :index
+
+      live "/dashboard/sites/:site_id/heatmap", Live.Dashboard.HeatmapLive, :index
+      live "/dashboard/orgs/:org_id", Live.Dashboard.OrgSettingsLive, :index
+      live "/dashboard/orgs/:org_id/invite", Live.Dashboard.InviteLive, :index
+    end
   end
 
   if Application.compile_env(:phoenix_analytics, :dev_routes) do
