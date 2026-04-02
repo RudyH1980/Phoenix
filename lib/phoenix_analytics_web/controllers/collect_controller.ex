@@ -11,6 +11,8 @@ defmodule PhoenixAnalyticsWeb.CollectController do
   Accepteert pageview (pv) en event (ev) payloads van de tracker snippet.
   Session hashing: IP + UA, dagelijks geroteerd via Date.utc_today() -- nooit raw IP opslaan.
   """
+  def preflight(conn, _params), do: send_resp(conn, 204, "")
+
   def create(conn, params) do
     with {:ok, site} <- find_site(params["s"]),
          session_hash <- build_session_hash(conn),

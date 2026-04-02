@@ -13,6 +13,9 @@ defmodule PhoenixAnalyticsWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug(:put_resp_header, "access-control-allow-origin", "*")
+    plug(:put_resp_header, "access-control-allow-methods", "POST, OPTIONS")
+    plug(:put_resp_header, "access-control-allow-headers", "content-type")
     plug PhoenixAnalyticsWeb.Plugs.RateLimit
   end
 
@@ -25,6 +28,7 @@ defmodule PhoenixAnalyticsWeb.Router do
     pipe_through :api
 
     post "/collect", CollectController, :create
+    options "/collect", CollectController, :preflight
   end
 
   # Publieke routes
