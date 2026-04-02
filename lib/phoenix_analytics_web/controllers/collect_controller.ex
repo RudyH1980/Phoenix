@@ -138,15 +138,37 @@ defmodule PhoenixAnalyticsWeb.CollectController do
   defp lookup_country({10, _, _, _}), do: nil
   defp lookup_country({192, 168, _, _}), do: nil
   defp lookup_country({172, b, _, _}) when b in 16..31, do: nil
+  # IPv4-mapped IPv6 loopback en private ranges
+  defp lookup_country({0, 0, 0, 0, 0, 65535, a, b}) do
+    lookup_country({div(a, 256), rem(a, 256), div(b, 256), rem(b, 256)})
+  end
 
-  defp lookup_country(remote_ip) do
+  defp lookup_country({0, 0, 0, 0, 0, 0, 0, 1}), do: nil
+
+  defp lookup_country(remote_ip) when tuple_size(remote_ip) == 4 do
     ip = remote_ip |> Tuple.to_list() |> Enum.join(".")
 
-    case Req.get("http://ip-api.com/json/#{ip}?fields=countryCode", receive_timeout: 1000) do
-      {:ok, %{status: 200, body: %{"countryCode" => code}}} -> code
+    case Req.get("http://ip-api.com/json/#{ip}?fields=countryCode", receive_timeout: 2000) do
+      {:ok, %{status: 200, body: %{"countryCode" => code}}} when is_binary(code) -> code
       _ -> nil
     end
   end
+
+  defp lookup_country(remote_ip) when tuple_size(remote_ip) == 8 do
+    ip =
+      remote_ip
+      |> Tuple.to_list()
+      |> Enum.map(&Integer.to_string(&1, 16))
+      |> Enum.join(":")
+      |> String.downcase()
+
+    case Req.get("http://ip-api.com/json/#{ip}?fields=countryCode", receive_timeout: 2000) do
+      {:ok, %{status: 200, body: %{"countryCode" => code}}} when is_binary(code) -> code
+      _ -> nil
+    end
+  end
+
+  defp lookup_country(_), do: nil
 
   defp classify_device(nil), do: "unknown"
 

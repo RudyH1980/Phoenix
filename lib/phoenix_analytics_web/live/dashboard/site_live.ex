@@ -64,6 +64,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
       top_pages: Stats.top_pages(site_id, period),
       top_referrers: Stats.top_referrers(site_id, period),
       top_events: Stats.top_events(site_id, period),
+      section_views: Stats.section_views(site_id, period),
       device_breakdown: Stats.device_breakdown(site_id, period),
       os_breakdown: Stats.os_breakdown(site_id, period),
       country_breakdown: Stats.country_breakdown(site_id, period),
@@ -123,10 +124,19 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
           <span class="pa-stat-label">Unieke bezoekers</span>
           <span class="pa-stat-value">{format_number(@visitors)}</span>
         </div>
-        <div class="pa-stat-card">
-          <span class="pa-stat-label">Bouncepercentage</span>
-          <span class="pa-stat-value">{@bounce_rate}%</span>
-        </div>
+        <%= if Enum.empty?(@section_views) do %>
+          <div class="pa-stat-card">
+            <span class="pa-stat-label">Bouncepercentage</span>
+            <span class="pa-stat-value">{@bounce_rate}%</span>
+          </div>
+        <% else %>
+          <%= for s <- Enum.take(@section_views, 1) do %>
+            <div class="pa-stat-card">
+              <span class="pa-stat-label">Sectie "{s.section}"</span>
+              <span class="pa-stat-value">{format_number(s.count)} views</span>
+            </div>
+          <% end %>
+        <% end %>
         <div class="pa-stat-card">
           <span class="pa-stat-label">Gem. tijd op pagina</span>
           <span class="pa-stat-value">{format_duration(@avg_time)}</span>
@@ -235,6 +245,20 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
           <% end %>
         </section>
       </div>
+
+      <%= if not Enum.empty?(@section_views) do %>
+        <section class="pa-card">
+          <h3>Secties bereikt</h3>
+          <ul class="pa-data-list">
+            <%= for s <- @section_views do %>
+              <li>
+                <span>{s.section}</span>
+                <span class="pa-count">{format_number(s.count)}</span>
+              </li>
+            <% end %>
+          </ul>
+        </section>
+      <% end %>
 
       <section class="pa-card">
         <h3>Klikken &amp; events</h3>

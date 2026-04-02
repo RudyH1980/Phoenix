@@ -90,6 +90,24 @@
     send(base("ev", { n: "heatmap_click", m: { x: x, y: y } }));
   }, { passive: true });
 
+  // Sectie-tracking via data-pa-section attribuut (Intersection Observer)
+  if (w.IntersectionObserver) {
+    var seen = {};
+    var observer = new w.IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        var name = entry.target.dataset.paSection;
+        if (!name || seen[name]) return;
+        seen[name] = true;
+        send(base("ev", { n: "section_view", m: { section: name } }));
+      });
+    }, { threshold: 0.3 });
+
+    d.querySelectorAll("[data-pa-section]").forEach(function (el) {
+      observer.observe(el);
+    });
+  }
+
   // SPA navigatie (pushState / replaceState)
   var _push = history.pushState;
   history.pushState = function () {

@@ -167,6 +167,24 @@ defmodule PhoenixAnalytics.Analytics.Stats do
     %{new: max(total - returning, 0), returning: returning, total: total}
   end
 
+  def section_views(site_id, period) do
+    since = period_start(period)
+    sid = to_binary_uuid(site_id)
+
+    Repo.all(
+      from e in "events",
+        where:
+          e.site_id == ^sid and
+            e.event_name == "section_view" and
+            e.inserted_at >= ^since,
+        select: e.metadata
+    )
+    |> Enum.group_by(& &1["section"])
+    |> Enum.map(fn {section, rows} -> %{section: section, count: length(rows)} end)
+    |> Enum.filter(& &1.section)
+    |> Enum.sort_by(& &1.count, :desc)
+  end
+
   def top_events(site_id, period, limit \\ 10) do
     since = period_start(period)
     sid = to_binary_uuid(site_id)
