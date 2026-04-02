@@ -15,7 +15,7 @@ defmodule PhoenixAnalyticsWeb.CollectController do
 
   def create(conn, params) do
     with {:ok, site} <- find_site(params["s"]),
-         session_hash <- build_session_hash(conn),
+         session_hash <- build_session_hash(conn, params["vid"]),
          :ok <- process_event(conn, site, session_hash, params) do
       send_resp(conn, 204, "")
     else
@@ -40,8 +40,14 @@ defmodule PhoenixAnalyticsWeb.CollectController do
   end
 
   # Privacy by design: IP wordt NOOIT opgeslagen.
-  # Hash combineert IP + UA + dagelijkse zout -- uniek per dag, onherleidbaar.
-  defp build_session_hash(conn) do
+  # Vid (localStorage) is stabiel per bezoeker -- correct terugkerende bezoekers tellen.
+  # Fallback: IP + UA + dagelijkse zout als localStorage niet beschikbaar is.
+  defp build_session_hash(_conn, vid) when is_binary(vid) and byte_size(vid) > 4 do
+    :crypto.hash(:sha256, "vid:#{vid}")
+    |> Base.encode16(case: :lower)
+  end
+
+  defp build_session_hash(conn, _) do
     ip = conn.remote_ip |> Tuple.to_list() |> Enum.join(".")
     ua = get_req_header(conn, "user-agent") |> List.first("") |> String.slice(0, 100)
     date = Date.utc_today() |> Date.to_string()

@@ -142,6 +142,31 @@ defmodule PhoenixAnalytics.Analytics.Stats do
     )
   end
 
+  def new_vs_returning(site_id, period) do
+    since = period_start(period)
+    sid = to_binary_uuid(site_id)
+
+    period_sessions =
+      from p in "pageviews",
+        where: p.site_id == ^sid and p.inserted_at >= ^since,
+        select: p.session_hash,
+        distinct: true
+
+    total = Repo.one(from s in subquery(period_sessions), select: count()) || 0
+
+    returning =
+      Repo.one(
+        from p in "pageviews",
+          where:
+            p.site_id == ^sid and
+              p.inserted_at < ^since and
+              p.session_hash in subquery(period_sessions),
+          select: count(p.session_hash, :distinct)
+      ) || 0
+
+    %{new: max(total - returning, 0), returning: returning, total: total}
+  end
+
   def top_events(site_id, period, limit \\ 10) do
     since = period_start(period)
     sid = to_binary_uuid(site_id)

@@ -4,6 +4,23 @@
   var endpoint = d.currentScript.dataset.api || "/api/collect";
   var siteToken = d.currentScript.dataset.site || "";
 
+  // Stabiele visitor-ID via localStorage (geen cookie, geen cookiebanner nodig)
+  function getVid() {
+    try {
+      var key = "pa_vid";
+      var vid = localStorage.getItem(key);
+      if (!vid) {
+        vid = Math.random().toString(36).slice(2) + Date.now().toString(36);
+        localStorage.setItem(key, vid);
+      }
+      return vid;
+    } catch (e) {
+      return "";
+    }
+  }
+
+  var vid = getVid();
+
   function send(payload) {
     if (w.navigator.sendBeacon) {
       navigator.sendBeacon(endpoint, JSON.stringify(payload));
@@ -21,7 +38,8 @@
       s: siteToken,
       u: w.location.href,
       r: d.referrer || null,
-      w: w.innerWidth
+      w: w.innerWidth,
+      vid: vid
     }, extra || {});
   }
 

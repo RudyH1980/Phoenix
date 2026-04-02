@@ -60,6 +60,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
       visitors: Stats.unique_visitors(site_id, period),
       bounce_rate: Stats.bounce_rate(site_id, period),
       avg_time: Stats.avg_time_on_page(site_id, period),
+      visitor_types: Stats.new_vs_returning(site_id, period),
       top_pages: Stats.top_pages(site_id, period),
       top_referrers: Stats.top_referrers(site_id, period),
       top_events: Stats.top_events(site_id, period),
@@ -170,6 +171,20 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
           <% end %>
         </section>
       </div>
+
+      <section class="pa-card">
+        <h3>Nieuwe vs terugkerende bezoekers</h3>
+        <ul class="pa-data-list">
+          <li>
+            <span>🆕 Nieuw</span>
+            <span class="pa-count">{format_number(@visitor_types.new)}</span>
+          </li>
+          <li>
+            <span>🔄 Terugkerend</span>
+            <span class="pa-count">{format_number(@visitor_types.returning)}</span>
+          </li>
+        </ul>
+      </section>
 
       <div class="pa-two-col">
         <section class="pa-card">
