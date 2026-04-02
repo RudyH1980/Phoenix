@@ -1,5 +1,6 @@
 defmodule PhoenixAnalyticsWeb.LiveAuth do
   import Phoenix.LiveView
+  import Phoenix.Component, only: [assign: 3]
   alias PhoenixAnalytics.Accounts
 
   def on_mount(:ensure_authenticated, _params, session, socket) do
