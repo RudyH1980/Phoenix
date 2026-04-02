@@ -154,14 +154,19 @@ defmodule PhoenixAnalytics.Analytics.Stats do
 
     total = Repo.one(from s in subquery(period_sessions), select: count()) || 0
 
+    # Terugkerend = sessies die op meer dan 1 dag bezochten (ooit)
+    multi_day =
+      from p in "pageviews",
+        where: p.site_id == ^sid,
+        group_by: p.session_hash,
+        having: count(fragment("DISTINCT DATE(inserted_at)")) > 1,
+        select: p.session_hash
+
     returning =
       Repo.one(
-        from p in "pageviews",
-          where:
-            p.site_id == ^sid and
-              p.inserted_at < ^since and
-              p.session_hash in subquery(period_sessions),
-          select: count(p.session_hash, :distinct)
+        from s in subquery(period_sessions),
+          where: s.session_hash in subquery(multi_day),
+          select: count()
       ) || 0
 
     %{new: max(total - returning, 0), returning: returning, total: total}
