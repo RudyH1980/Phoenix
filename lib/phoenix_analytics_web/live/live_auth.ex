@@ -1,6 +1,5 @@
 defmodule PhoenixAnalyticsWeb.LiveAuth do
   import Phoenix.LiveView
-  import Phoenix.Component, only: [assign: 3]
   alias PhoenixAnalytics.Accounts
 
   def on_mount(:ensure_authenticated, _params, session, socket) do
@@ -14,9 +13,10 @@ defmodule PhoenixAnalyticsWeb.LiveAuth do
             org_ids = Accounts.user_org_ids(user_id)
 
             {:cont,
-             socket
-             |> assign(:current_user, user)
-             |> assign(:current_org_ids, org_ids)}
+             Phoenix.Component.assign(socket,
+               current_user: user,
+               current_org_ids: org_ids
+             )}
 
           _ ->
             {:halt, redirect(socket, to: "/login")}
