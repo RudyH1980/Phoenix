@@ -64,6 +64,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
       top_referrers: Stats.top_referrers(site_id, period),
       top_events: Stats.top_events(site_id, period),
       device_breakdown: Stats.device_breakdown(site_id, period),
+      os_breakdown: Stats.os_breakdown(site_id, period),
       country_breakdown: Stats.country_breakdown(site_id, period),
       timeline: Stats.pageviews_timeline(site_id, period)
     )
@@ -188,6 +189,22 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
         </section>
 
         <section class="pa-card">
+          <h3>Besturingssysteem</h3>
+          <%= if Enum.empty?(@os_breakdown) do %>
+            <p class="pa-empty">Nog geen data.</p>
+          <% else %>
+            <ul class="pa-data-list">
+              <%= for o <- @os_breakdown do %>
+                <li>
+                  <span>{os_icon(o.os)} {o.os || "Onbekend"}</span>
+                  <span class="pa-count">{format_number(o.count)}</span>
+                </li>
+              <% end %>
+            </ul>
+          <% end %>
+        </section>
+
+        <section class="pa-card">
           <h3>Landen</h3>
           <%= if Enum.empty?(@country_breakdown) do %>
             <p class="pa-empty">Nog geen data.</p>
@@ -236,6 +253,13 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
 
   defp truncate_url(url) when byte_size(url) > 50, do: String.slice(url, 0, 47) <> "..."
   defp truncate_url(url), do: url
+
+  defp os_icon("iOS"), do: "🍎"
+  defp os_icon("macOS"), do: "🍎"
+  defp os_icon("Android"), do: "🤖"
+  defp os_icon("Windows"), do: "🪟"
+  defp os_icon("Linux"), do: "🐧"
+  defp os_icon(_), do: "💻"
 
   defp format_duration(0), do: "—"
   defp format_duration(s) when s < 60, do: "#{s}s"

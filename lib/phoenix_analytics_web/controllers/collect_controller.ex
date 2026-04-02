@@ -51,6 +51,8 @@ defmodule PhoenixAnalyticsWeb.CollectController do
   end
 
   defp process_event(conn, site, session_hash, %{"t" => "pv"} = params) do
+    ua = get_req_header(conn, "user-agent") |> List.first("")
+
     Analytics.Pageview
     |> Ash.Changeset.for_create(:record, %{
       site_id: site.id,
@@ -58,7 +60,8 @@ defmodule PhoenixAnalyticsWeb.CollectController do
       url: params["u"],
       referrer: params["r"],
       device_type: classify_device(params["w"]),
-      browser: extract_browser(params),
+      browser: extract_browser(ua),
+      os: extract_os(ua),
       country: lookup_country(conn.remote_ip)
     })
     |> Ash.create()
@@ -97,10 +100,11 @@ defmodule PhoenixAnalyticsWeb.CollectController do
 
   defp process_event(_conn, _site, _session_hash, _params), do: :ok
 
-  defp extract_browser(%{"ua" => ua}) when is_binary(ua) do
+  defp extract_browser(ua) when is_binary(ua) and ua != "" do
     cond do
       String.contains?(ua, "Firefox") -> "Firefox"
-      String.contains?(ua, "Edg") -> "Edge"
+      String.contains?(ua, "Edg/") -> "Edge"
+      String.contains?(ua, "OPR/") or String.contains?(ua, "Opera") -> "Opera"
       String.contains?(ua, "Chrome") -> "Chrome"
       String.contains?(ua, "Safari") -> "Safari"
       true -> "Other"
@@ -108,6 +112,19 @@ defmodule PhoenixAnalyticsWeb.CollectController do
   end
 
   defp extract_browser(_), do: "Other"
+
+  defp extract_os(ua) when is_binary(ua) and ua != "" do
+    cond do
+      String.contains?(ua, "iPhone") or String.contains?(ua, "iPad") -> "iOS"
+      String.contains?(ua, "Android") -> "Android"
+      String.contains?(ua, "Windows") -> "Windows"
+      String.contains?(ua, "Macintosh") or String.contains?(ua, "Mac OS X") -> "macOS"
+      String.contains?(ua, "Linux") -> "Linux"
+      true -> "Other"
+    end
+  end
+
+  defp extract_os(_), do: "Other"
 
   # Landen lookup via ip-api.com (gratis, 45 req/min, geen auth)
   # Lokale/private IPs worden overgeslagen

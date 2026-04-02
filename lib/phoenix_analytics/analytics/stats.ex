@@ -112,6 +112,19 @@ defmodule PhoenixAnalytics.Analytics.Stats do
     )
   end
 
+  def os_breakdown(site_id, period) do
+    since = period_start(period)
+    sid = to_binary_uuid(site_id)
+
+    Repo.all(
+      from p in "pageviews",
+        where: p.site_id == ^sid and p.inserted_at >= ^since,
+        group_by: p.os,
+        order_by: [desc: count(p.id)],
+        select: %{os: p.os, count: count(p.id)}
+    )
+  end
+
   def country_breakdown(site_id, period, limit \\ 10) do
     since = period_start(period)
     sid = to_binary_uuid(site_id)
