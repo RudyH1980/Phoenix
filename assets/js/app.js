@@ -215,6 +215,8 @@ function initMatrix(opts) {
   let midpointFired = false
   const FONT_SIZE = 14
   const COL_WIDTH = 16
+  const SPEED = opts.speed || 4
+  let frameCount = 0
   let logicalW = window.innerWidth
   let logicalH = window.innerHeight
 
@@ -239,8 +241,14 @@ function initMatrix(opts) {
   window.addEventListener('resize', () => setupCols(false))
 
   function draw() {
+    frameCount++
+    const step = frameCount % SPEED === 0
+
     ctx.fillStyle = 'rgba(13, 17, 23, 0.06)'
     ctx.fillRect(0, 0, logicalW, logicalH)
+
+    if (!step) { animId = requestAnimationFrame(draw); return }
+
     ctx.font = `${FONT_SIZE}px monospace`
 
     const midRow = Math.floor(logicalH / 2 / FONT_SIZE)
