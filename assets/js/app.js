@@ -172,11 +172,12 @@ topbar.config({barColors: {0: "#29d"}, shadowColor: "rgba(0, 0, 0, .3)"})
 window.addEventListener("phx:page-loading-start", _info => topbar.show(300))
 window.addEventListener("phx:page-loading-stop", _info => topbar.hide())
 
-// Geen WebSocket-verbinding in headless Chrome (PageSpeed Insights / Lighthouse CLI):
-// PSI kan geen externe WebSocket-verbindingen maken → ERR_NAME_NOT_RESOLVED spam → Best Practices < 100
-const isHeadless = /HeadlessChrome/.test(navigator.userAgent)
+// Geen WebSocket in geautomatiseerde omgevingen (PSI / Lighthouse CDP):
+// navigator.webdriver === true wanneer Chrome via CDP wordt aangestuurd.
+// PSI kan geen externe WebSocket-verbindingen maken → ERR_NAME_NOT_RESOLVED → Best Practices < 100
+const isAutomated = navigator.webdriver === true || /HeadlessChrome/.test(navigator.userAgent)
 
-if (!isHeadless && document.querySelector('[data-phx-main]')) {
+if (!isAutomated && document.querySelector('[data-phx-main]')) {
   liveSocket.connect()
 }
 
