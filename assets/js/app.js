@@ -217,6 +217,7 @@ function initMatrix(opts) {
   const FONT_SIZE = 18
   const COL_WIDTH = 18
   const SPEED = opts.speed || 2
+  const CHAR_SPEED = 10  // karakters wisselen elke 10 frames (~6fps) — geen flikkering
   let logicalW = window.innerWidth
   let logicalH = window.innerHeight
 
@@ -266,8 +267,8 @@ function initMatrix(opts) {
       const headRow = cols[i]
       const y = headRow * FONT_SIZE
 
-      // Vernieuw karakters alleen op step-frames zodat ze niet flikkeren
-      if (step) {
+      // Vernieuw karakters op eigen ritme — ontkoppeld van positie-advance
+      if (frameCount % CHAR_SPEED === 0) {
         charGrid[i][0] = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)]
         for (let t = 1; t <= 20; t++) {
           charGrid[i][t] = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)]
@@ -362,15 +363,14 @@ function initLoginPage(canvas) {
   powered.textContent = 'Powered by AI'
   document.body.appendChild(powered)
 
-  // Canvas verborgen houden tot midpoint — matrix draait al wel op achtergrond.
-  // Voorkomt dat Lighthouse de animatie meeneemt in Speed Index meting.
+  // Canvas volledig zichtbaar tijdens intro — overlay zit erachter
   canvas.style.zIndex = '10000'
+  canvas.style.opacity = '1'
 
   const matrix = initMatrix({
     introMode: true,
     speed: 4,
     onMidpoint() {
-      canvas.style.display = ''
       hero.classList.add('visible')
 
       setTimeout(() => {
@@ -383,6 +383,7 @@ function initLoginPage(canvas) {
             powered.classList.add('fade-out')
             overlay.classList.add('fade-out')
             canvas.style.zIndex = ''
+            canvas.style.opacity = ''  // terug naar CSS default (0.45)
 
             if (authContainer) {
               authContainer.classList.remove('pa-intro-hidden')
