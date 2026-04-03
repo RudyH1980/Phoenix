@@ -1735,7 +1735,8 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   letter-spacing: 0.02em;
   text-transform: uppercase;
   flex-shrink: 0;
-  color: white;
+  color: #00d4b8;
+  border: 1px solid rgba(0, 212, 184, 0.2);
 }
 
 /* ============================================================

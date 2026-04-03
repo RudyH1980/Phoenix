@@ -102,17 +102,18 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OverviewLive do
   defp format_number(n) when n >= 1_000, do: "#{Float.round(n / 1_000, 1)}k"
   defp format_number(n), do: to_string(n)
 
-  # Genereer een avatar kleur op basis van een hash van de sitenaam
+  # Genereer een avatar achtergrondkleur op basis van een hash van de sitenaam
+  # Alle kleuren zijn donkere Neo/Matrix-teal varianten — tekst altijd teal via CSS
   defp avatar_color(name) do
     colors = [
-      "#0ea5e9",
-      "#8b5cf6",
-      "#f59e0b",
-      "#10b981",
-      "#ef4444",
-      "#ec4899",
-      "#14b8a6",
-      "#f97316"
+      "#0a2420",
+      "#0d1a26",
+      "#0f1f1a",
+      "#0a1520",
+      "#162014",
+      "#0d2030",
+      "#0a1d1a",
+      "#111e1c"
     ]
 
     idx = :erlang.phash2(name, length(colors))
