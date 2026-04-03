@@ -113,7 +113,7 @@ Hooks.PasskeyRegister = {
           }
         })
       } catch (e) {
-        console.error('Passkey registration failed:', e)
+        console.warn('Passkey registration failed:', e)
         this.pushEvent('register_response', { error: e.message })
       }
     })
@@ -152,7 +152,7 @@ Hooks.PasskeyLogin = {
           }
         })
       } catch (e) {
-        console.error('Passkey login failed:', e)
+        console.warn('Passkey login failed:', e)
         btn.disabled = false
       }
     })

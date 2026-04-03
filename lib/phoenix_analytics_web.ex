@@ -19,7 +19,7 @@ defmodule PhoenixAnalyticsWeb do
 
   def static_paths,
     do:
-      ~w(assets fonts images js favicon.ico favicon.svg favicon-16x16.png favicon-32x32.png apple-touch-icon.png site.webmanifest robots.txt pa.js)
+      ~w(assets fonts images js favicon.ico favicon.svg favicon-16x16.png favicon-32x32.png apple-touch-icon.png icon-192x192.png icon-512x512.png site.webmanifest robots.txt pa.js)
 
   def router do
     quote do
