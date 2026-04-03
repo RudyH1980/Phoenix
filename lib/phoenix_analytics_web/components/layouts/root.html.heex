@@ -8,7 +8,9 @@
       name="description"
       content="Neo Analytics — privacy-first web analytics zonder cookies. Inzicht in paginaweergaven, bezoekers, apparaten en meer."
     />
-    <link rel="canonical" href="https://phoenix-analytics.fly.dev/" />
+    <%= if assigns[:canonical_url] do %>
+      <link rel="canonical" href={@canonical_url} />
+    <% end %>
     <meta property="og:title" content="Neo Analytics — Privacy-First Web Analytics" />
     <meta
       property="og:description"

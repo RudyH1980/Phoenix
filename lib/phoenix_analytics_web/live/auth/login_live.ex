@@ -31,6 +31,7 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
        error: nil,
        show_magic_form: false,
        page_title: "Inloggen",
+       canonical_url: "https://phoenix-analytics.fly.dev/login",
        remote_ip: ip,
        passkey_challenge: Base.url_encode64(challenge.bytes, padding: false),
        passkey_session_key: session_key,
