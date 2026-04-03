@@ -9,7 +9,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OrgSettingsLive do
     user_id = session["user_id"]
     org = Ash.get!(Organization, org_id)
     members = Accounts.org_members(org_id)
-    is_owner = Accounts.is_org_owner?(user_id, org_id)
+    is_owner = Accounts.org_owner?(user_id, org_id)
 
     {:ok,
      assign(socket,

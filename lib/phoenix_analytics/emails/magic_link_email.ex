@@ -1,4 +1,5 @@
 defmodule PhoenixAnalytics.Emails.MagicLinkEmail do
+  @moduledoc false
   import Swoosh.Email
 
   def build(to_email, token) do

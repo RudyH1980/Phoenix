@@ -11,7 +11,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.InviteLive do
     user_id = session["user_id"]
     org = Ash.get!(Organization, org_id)
 
-    unless Accounts.is_org_owner?(user_id, org_id) do
+    unless Accounts.org_owner?(user_id, org_id) do
       raise PhoenixAnalyticsWeb.ForbiddenError
     end
 

@@ -185,7 +185,7 @@ defmodule PhoenixAnalyticsWeb.CollectController do
   defp lookup_geo({192, 168, _, _}), do: {nil, nil, nil}
   defp lookup_geo({172, b, _, _}) when b in 16..31, do: {nil, nil, nil}
 
-  defp lookup_geo({0, 0, 0, 0, 0, 65535, a, b}) do
+  defp lookup_geo({0, 0, 0, 0, 0, 65_535, a, b}) do
     lookup_geo({div(a, 256), rem(a, 256), div(b, 256), rem(b, 256)})
   end
 

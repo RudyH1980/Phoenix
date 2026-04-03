@@ -1,4 +1,5 @@
 defmodule PhoenixAnalytics.Emails.InviteEmail do
+  @moduledoc false
   import Swoosh.Email
 
   def build(token, org, to_email) do

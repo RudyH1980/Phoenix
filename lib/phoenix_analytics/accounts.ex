@@ -198,7 +198,7 @@ defmodule PhoenixAnalytics.Accounts do
     end
   end
 
-  def is_org_owner?(user_id, org_id) do
+  def org_owner?(user_id, org_id) do
     case Membership
          |> Ash.Query.filter(user_id == ^user_id and org_id == ^org_id and role == "owner")
          |> Ash.read_one() do
