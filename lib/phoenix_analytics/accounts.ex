@@ -7,6 +7,7 @@ defmodule PhoenixAnalytics.Accounts do
   alias PhoenixAnalytics.Accounts.MagicToken
   alias PhoenixAnalytics.Accounts.Membership
   alias PhoenixAnalytics.Accounts.Organization
+  alias PhoenixAnalytics.Accounts.Passkey
   alias PhoenixAnalytics.Accounts.User
 
   resources do
@@ -14,6 +15,7 @@ defmodule PhoenixAnalytics.Accounts do
     resource(MagicToken)
     resource(Organization)
     resource(Membership)
+    resource(Passkey)
   end
 
   # --- Magic link flow ---
@@ -205,6 +207,46 @@ defmodule PhoenixAnalytics.Accounts do
       {:ok, nil} -> false
       {:ok, _} -> true
       _ -> false
+    end
+  end
+
+  # --- Passkey flow ---
+
+  def list_passkeys(user_id) do
+    Passkey
+    |> Ash.Query.filter(user_id == ^user_id)
+    |> Ash.read!()
+  end
+
+  def create_passkey(user_id, credential_id, public_key, sign_count, name) do
+    Passkey
+    |> Ash.Changeset.for_create(:create, %{
+      user_id: user_id,
+      credential_id: credential_id,
+      public_key: public_key,
+      sign_count: sign_count,
+      name: name
+    })
+    |> Ash.create()
+  end
+
+  def get_passkey_by_credential_id(credential_id) do
+    Passkey
+    |> Ash.Query.filter(credential_id == ^credential_id)
+    |> Ash.Query.load(:user)
+    |> Ash.read_one()
+  end
+
+  def update_passkey_sign_count(passkey, sign_count) do
+    passkey
+    |> Ash.Changeset.for_update(:update_sign_count, %{sign_count: sign_count})
+    |> Ash.update()
+  end
+
+  def delete_passkey(passkey_id) do
+    case Ash.get(Passkey, passkey_id) do
+      {:ok, passkey} -> Ash.destroy(passkey)
+      error -> error
     end
   end
 end

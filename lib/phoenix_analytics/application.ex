@@ -16,6 +16,7 @@ defmodule PhoenixAnalytics.Application do
       {DNSCluster, query: Application.get_env(:phoenix_analytics, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: PhoenixAnalytics.PubSub},
       PhoenixAnalytics.RateLimiter,
+      {PhoenixAnalytics.PasskeyChallengeStore, []},
       {Oban, Application.fetch_env!(:phoenix_analytics, Oban)},
       PhoenixAnalyticsWeb.Endpoint
     ]

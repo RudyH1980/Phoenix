@@ -77,6 +77,9 @@ defmodule PhoenixAnalytics.MixProject do
       # Rate limiting
       {:hammer, "~> 7.0"},
 
+      # WebAuthn/FIDO2 passkeys
+      {:wax_, "~> 0.6"},
+
       # Security & analysis
       {:sobelow, "~> 0.13", only: [:dev, :test], runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},

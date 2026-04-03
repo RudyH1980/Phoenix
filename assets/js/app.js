@@ -84,6 +84,84 @@ Hooks.LineChart = {
   }
 }
 
+Hooks.PasskeyRegister = {
+  mounted() {
+    this.handleEvent('passkey_register_challenge', async (options) => {
+      try {
+        const cred = await navigator.credentials.create({
+          publicKey: {
+            ...options,
+            challenge: base64urlDecode(options.challenge),
+            user: {
+              ...options.user,
+              id: base64urlDecode(options.user.id)
+            },
+            excludeCredentials: (options.excludeCredentials || []).map(c => ({
+              ...c,
+              id: base64urlDecode(c.id)
+            }))
+          }
+        })
+
+        const name = prompt('Geef deze passkey een naam (bijv. iPhone 15):') || 'Passkey'
+
+        this.pushEvent('register_response', {
+          name,
+          response: {
+            id: base64urlEncode(cred.rawId),
+            clientDataJSON: base64urlEncode(cred.response.clientDataJSON),
+            attestationObject: base64urlEncode(cred.response.attestationObject)
+          }
+        })
+      } catch (e) {
+        console.error('Passkey registration failed:', e)
+        this.pushEvent('register_response', { error: e.message })
+      }
+    })
+  }
+}
+
+Hooks.PasskeyLogin = {
+  mounted() {
+    this.handleEvent('passkey_auth_challenge', async (options) => {
+      try {
+        const cred = await navigator.credentials.get({
+          publicKey: {
+            challenge: base64urlDecode(options.challenge),
+            rpId: options.rpId,
+            userVerification: options.userVerification,
+            timeout: options.timeout
+          }
+        })
+
+        this.pushEvent('passkey_login_response', {
+          response: {
+            id: base64urlEncode(cred.rawId),
+            authenticatorData: base64urlEncode(cred.response.authenticatorData),
+            clientDataJSON: base64urlEncode(cred.response.clientDataJSON),
+            signature: base64urlEncode(cred.response.signature)
+          }
+        })
+      } catch (e) {
+        console.error('Passkey login failed:', e)
+      }
+    })
+  }
+}
+
+function base64urlDecode(str) {
+  const base64 = str.replace(/-/g, '+').replace(/_/g, '/')
+  const bin = atob(base64)
+  return Uint8Array.from(bin, c => c.charCodeAt(0))
+}
+
+function base64urlEncode(buffer) {
+  const bytes = new Uint8Array(buffer)
+  let bin = ''
+  for (const b of bytes) bin += String.fromCharCode(b)
+  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
+}
+
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
   params: {_csrf_token: csrfToken},

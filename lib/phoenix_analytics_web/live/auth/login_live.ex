@@ -4,6 +4,7 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
   alias PhoenixAnalytics.Accounts
   alias PhoenixAnalytics.Emails.MagicLinkEmail
   alias PhoenixAnalytics.Mailer
+  alias PhoenixAnalytics.PasskeyChallengeStore
   alias PhoenixAnalytics.RateLimiter
 
   @impl true
@@ -18,7 +19,8 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
        sent: false,
        error: nil,
        page_title: "Inloggen",
-       remote_ip: ip
+       remote_ip: ip,
+       passkey_session_key: nil
      )}
   end
 
@@ -60,6 +62,72 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
     end
   end
 
+  def handle_event("start_passkey_login", _params, socket) do
+    origin = PhoenixAnalyticsWeb.Endpoint.url()
+    rp_id = PhoenixAnalyticsWeb.Endpoint.host()
+
+    challenge =
+      Wax.new_authentication_challenge(
+        origin: origin,
+        rp_id: rp_id,
+        user_verification: "preferred"
+      )
+
+    session_key = Base.url_encode64(:crypto.strong_rand_bytes(16), padding: false)
+    PasskeyChallengeStore.put("auth:#{session_key}", challenge)
+
+    {:noreply,
+     socket
+     |> assign(passkey_session_key: session_key)
+     |> push_event("passkey_auth_challenge", %{
+       challenge: Base.url_encode64(challenge.bytes, padding: false),
+       rpId: rp_id,
+       userVerification: "preferred",
+       timeout: 60_000
+     })}
+  end
+
+  def handle_event("passkey_login_response", %{"response" => resp}, socket) do
+    session_key = socket.assigns[:passkey_session_key]
+
+    with {:ok, challenge} <- PasskeyChallengeStore.get("auth:#{session_key}"),
+         credential_id = Base.url_decode64!(resp["id"], padding: false),
+         {:ok, passkey} <- Accounts.get_passkey_by_credential_id(credential_id),
+         {:ok, new_sign_count} <- verify_authentication(resp, passkey, challenge) do
+      PasskeyChallengeStore.delete("auth:#{session_key}")
+      Accounts.update_passkey_sign_count(passkey, new_sign_count)
+
+      {:noreply,
+       socket
+       |> put_flash(:info, "Welkom terug!")
+       |> redirect(to: "/auth/verify_password?user_id=#{passkey.user.id}&passkey=true")}
+    else
+      _ ->
+        {:noreply, assign(socket, error: "Passkey verificatie mislukt. Probeer opnieuw.")}
+    end
+  end
+
+  defp verify_authentication(resp, passkey, challenge) do
+    cose_key = :erlang.binary_to_term(passkey.public_key, [:safe])
+    auth_data_bin = Base.url_decode64!(resp["authenticatorData"], padding: false)
+    sig = Base.url_decode64!(resp["signature"], padding: false)
+    client_data_json_raw = Base.url_decode64!(resp["clientDataJSON"], padding: false)
+
+    challenge_with_creds =
+      %{challenge | allow_credentials: [{passkey.credential_id, cose_key}]}
+
+    case Wax.authenticate(
+           passkey.credential_id,
+           auth_data_bin,
+           sig,
+           client_data_json_raw,
+           challenge_with_creds
+         ) do
+      {:ok, auth_data} -> {:ok, auth_data.sign_count}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
   defp send_magic_link_email(email, token) do
     Mailer.deliver(MagicLinkEmail.build(email, token))
   end
@@ -67,7 +135,7 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="pa-auth-container">
+    <div class="pa-auth-container" id="login-container" phx-hook="PasskeyLogin">
       <div class="pa-auth-card">
         <h1>Phoenix Analytics</h1>
 
@@ -99,6 +167,15 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
             Inloggen
           </button>
         </.form>
+
+        <hr style="border-color:var(--pa-border-subtle);margin:1.5rem 0;" />
+        <button
+          phx-click="start_passkey_login"
+          class="pa-btn pa-btn--ghost pa-btn--full"
+          style="margin-top:0.5rem;"
+        >
+          Inloggen met passkey
+        </button>
 
         <hr style="border-color:var(--pa-border-subtle);margin:1.5rem 0;" />
 
