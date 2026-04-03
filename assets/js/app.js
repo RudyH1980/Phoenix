@@ -345,7 +345,7 @@ function initAppPage(canvas) {
   if (isNeoLogin && !pillChosen) {
     runPillSequence(canvas)
   } else {
-    const pill = pillChosen || 'red'
+    const pill = pillChosen || 'blue'
     applyPillTheme(pill)
     const matrix = startMatrixForPill(pill, canvas)
     injectPillTogglers(canvas, pill, matrix)
@@ -353,16 +353,16 @@ function initAppPage(canvas) {
 }
 
 // Pas thema aan op basis van pilkeuze
-// Rode pil = in de Matrix blijven (dark + matrix), blauwe pil = uit de Matrix (light)
+// Blauwe pil = in de Matrix blijven (dark + matrix), rode pil = uit de Matrix (light)
 function applyPillTheme(pill) {
-  const theme = pill === 'blue' ? 'light' : 'dark'
+  const theme = pill === 'red' ? 'light' : 'dark'
   document.documentElement.setAttribute('data-theme', theme)
   localStorage.setItem('pa-theme', theme)
 }
 
 // Start (of stop) matrix op basis van pilkeuze; geeft matrix-instantie terug
 function startMatrixForPill(pill, canvas) {
-  if (pill === 'blue') {
+  if (pill === 'red') {
     canvas.style.display = 'none'
     return null
   }
@@ -385,13 +385,13 @@ function injectPillTogglers(canvas, activePill, existingMatrix) {
 
   const blue = document.createElement('button')
   blue.className = 'pa-pill-toggler pa-pill-toggler--blue'
-  blue.title = 'Light mode + Matrix uit'
-  blue.setAttribute('aria-label', 'Schakel naar light mode zonder Matrix')
+  blue.title = 'Dark mode + Matrix aan'
+  blue.setAttribute('aria-label', 'Schakel naar dark mode met Matrix')
 
   const red = document.createElement('button')
   red.className = 'pa-pill-toggler pa-pill-toggler--red'
-  red.title = 'Dark mode + Matrix aan'
-  red.setAttribute('aria-label', 'Schakel naar dark mode met Matrix')
+  red.title = 'Light mode + Matrix uit'
+  red.setAttribute('aria-label', 'Schakel naar light mode zonder Matrix')
 
   container.appendChild(blue)
   container.appendChild(red)
@@ -406,7 +406,7 @@ function injectPillTogglers(canvas, activePill, existingMatrix) {
     blue.classList.toggle('active', pill === 'blue')
     red.classList.toggle('active', pill === 'red')
 
-    if (pill === 'red') {
+    if (pill === 'blue') {
       canvas.style.display = ''
       if (!matrix) matrix = initMatrix({ speed: 2 })
       matrix && matrix.start()
@@ -501,13 +501,13 @@ function handlePillChoice(pill, overlay, seq, matrix, canvas) {
     // Pas thema toe vóór tekst verschijnt (matrix/light wisselt al)
     applyPillTheme(pill)
 
-    if (pill === 'blue') {
+    if (pill === 'red') {
       matrix && matrix.stop()
       canvas.style.display = 'none'
     }
 
     if (chooseText) {
-      chooseText.textContent = pill === 'red'
+      chooseText.textContent = pill === 'blue'
         ? 'Staying in the simulation.'
         : 'Welcome to the real world.'
       chooseText.className = 'pa-neo-text pa-neo-text--consequence'
@@ -529,7 +529,7 @@ function handlePillChoice(pill, overlay, seq, matrix, canvas) {
         history.replaceState(null, '', window.location.pathname)
 
         // Matrix loopt al voor blauwe keuze; voor rood is hij gestopt
-        const activeMatrix = pill === 'red' ? matrix : null
+        const activeMatrix = pill === 'blue' ? matrix : null
         injectPillTogglers(canvas, pill, activeMatrix)
       }, 1200)
     }, 1800)
