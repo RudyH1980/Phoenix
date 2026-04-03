@@ -244,7 +244,7 @@ function initMatrix(opts) {
     frameCount++
     const step = frameCount % SPEED === 0
 
-    ctx.fillStyle = 'rgba(13, 17, 23, 0.05)'
+    ctx.fillStyle = 'rgba(13, 17, 23, 0.15)'
     ctx.fillRect(0, 0, logicalW, logicalH)
     ctx.font = `${FONT_SIZE}px 'Courier New', monospace`
     ctx.textBaseline = 'top'
