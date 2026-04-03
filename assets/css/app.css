@@ -1634,7 +1634,121 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   font-weight: 600;
 }
 
+/* ============================================================
+   DEMO PAGINA
+   ============================================================ */
+.pa-demo-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: oklch(from var(--pa-teal) l c h / 0.12);
+  border: 1px solid oklch(from var(--pa-teal) l c h / 0.35);
+  border-radius: var(--pa-radius-lg);
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+  color: var(--pa-text-muted);
+}
+
+.pa-demo-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.pa-demo-badge {
+  background: var(--pa-teal);
+  color: oklch(12% 0.016 250);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 0.2em 0.6em;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.pa-demo-sites {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.pa-demo-site-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.6rem 1.1rem;
+  border: 1px solid var(--pa-border);
+  border-radius: var(--pa-radius-md);
+  color: var(--pa-text-muted);
+  text-decoration: none;
+  transition: border-color var(--pa-transition), color var(--pa-transition), background var(--pa-transition);
+  cursor: pointer;
+}
+
+.pa-demo-site-tab strong {
+  font-size: 0.875rem;
+  color: var(--pa-text);
+}
+
+.pa-demo-site-domain {
+  font-size: 0.75rem;
+  color: var(--pa-text-faint);
+}
+
+.pa-demo-site-tab.active,
+.pa-demo-site-tab:hover {
+  border-color: var(--pa-teal);
+  color: var(--pa-teal);
+  background: oklch(from var(--pa-teal) l c h / 0.08);
+}
+
+.pa-demo-site-tab.active strong,
+.pa-demo-site-tab:hover strong {
+  color: var(--pa-teal);
+}
+
+.pa-demo-cta {
+  margin-top: 3rem;
+  text-align: center;
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-border);
+  border-radius: var(--pa-radius-lg);
+  padding: 3rem 2rem;
+}
+
+.pa-demo-cta h2 {
+  font-size: 1.75rem;
+  margin: 0 0 0.75rem;
+}
+
+.pa-demo-cta p {
+  color: var(--pa-text-muted);
+  max-width: 480px;
+  margin: 0 auto 1.5rem;
+  line-height: 1.6;
+}
+
 } /* end @layer components */
+
+/* ============================================================
+   AUTH — verbergen tijdens intro (voorkomt wachtwoord-manager popup)
+   ============================================================ */
+.pa-auth-container.pa-intro-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.pa-auth-container.pa-intro-reveal {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 2s ease, visibility 0s linear 0s;
+}
 
 /* ============================================================
    MATRIX INTRO OVERLAY

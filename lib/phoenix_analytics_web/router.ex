@@ -34,6 +34,7 @@ defmodule PhoenixAnalyticsWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    live "/demo", Live.Demo.DemoLive, :index
     live "/login", Live.Auth.LoginLive, :index
     get "/auth/verify", AuthController, :verify
     get "/auth/verify_password", AuthController, :verify_password

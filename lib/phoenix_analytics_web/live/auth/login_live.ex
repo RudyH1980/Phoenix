@@ -14,7 +14,6 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
 
     {:ok,
      assign(socket,
-       form: to_form(%{"email" => "", "password" => ""}),
        magic_form: to_form(%{"email" => ""}),
        sent: false,
        error: nil,
@@ -22,27 +21,6 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
        remote_ip: ip,
        passkey_session_key: nil
      )}
-  end
-
-  @impl true
-  def handle_event("password_login", %{"email" => email, "password" => password}, socket) do
-    case RateLimiter.hit("login:#{socket.assigns.remote_ip}", 10 * 60_000, 5) do
-      {:deny, _} ->
-        {:noreply,
-         assign(socket, error: "Te veel pogingen. Probeer het over 10 minuten opnieuw.")}
-
-      {:allow, _} ->
-        case Accounts.authenticate(email, password) do
-          {:ok, user} ->
-            {:noreply,
-             socket
-             |> put_flash(:info, "Welkom terug!")
-             |> redirect(to: "/auth/verify_password?user_id=#{user.id}")}
-
-          {:error, _} ->
-            {:noreply, assign(socket, error: "Ongeldig e-mailadres of wachtwoord.")}
-        end
-    end
   end
 
   def handle_event("magic_link", %{"email" => email}, socket) do
@@ -145,33 +123,10 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
           </div>
         <% end %>
 
-        <p>Inloggen met wachtwoord</p>
-        <.form for={@form} phx-submit="password_login" class="pa-form">
-          <div class="pa-field">
-            <label for="email">E-mailadres</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={@form[:email].value}
-              placeholder="jij@voorbeeld.nl"
-              required
-            />
-          </div>
-          <div class="pa-field">
-            <label for="password">Wachtwoord</label>
-            <input type="password" id="password" name="password" required />
-          </div>
-          <button type="submit" class="pa-btn pa-btn--primary pa-btn--full">
-            Inloggen
-          </button>
-        </.form>
-
-        <hr style="border-color:var(--pa-border-subtle);margin:1.5rem 0;" />
         <button
           phx-click="start_passkey_login"
-          class="pa-btn pa-btn--ghost pa-btn--full"
-          style="margin-top:0.5rem;"
+          class="pa-btn pa-btn--primary pa-btn--full"
+          style="margin-bottom:1rem;"
         >
           Inloggen met passkey
         </button>

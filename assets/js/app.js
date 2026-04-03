@@ -376,6 +376,11 @@ document.addEventListener('DOMContentLoaded', () => {
     canvas.style.display = ''
     canvas.style.zIndex = '10000'
 
+    // Verberg auth-kaart zodat wachtwoordmanager niet verschijnt vóór intro klaar is.
+    // visibility:hidden houdt het formulier buiten het bereik van de browser autofill.
+    const authContainer = document.querySelector('.pa-auth-container')
+    if (authContainer) authContainer.classList.add('pa-intro-hidden')
+
     const matrix = initMatrix({
       introMode: true,
       speed: 4,
@@ -396,10 +401,13 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
               powered.classList.add('fade-out')
               overlay.classList.add('fade-out')
-              // Canvas nu al terugzetten naar achtergrond-z-index zodat de
-              // login-kaart tijdens de overlay-fade soepel zichtbaar wordt
-              // (geen plotselinge z-index-sprong halverwege de fade).
               canvas.style.zIndex = ''
+              // Auth-kaart nu zichtbaar maken — gelijktijdig met overlay fade-out
+              // zodat ze allebei 2.2s duren en synchroon verlopen.
+              if (authContainer) {
+                authContainer.classList.remove('pa-intro-hidden')
+                authContainer.classList.add('pa-intro-reveal')
+              }
 
               // Stap 5: opruimen na voltooide fade (wacht tot overlay-transitie klaar is)
               setTimeout(() => {
