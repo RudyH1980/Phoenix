@@ -365,8 +365,8 @@ function initLoginPage(canvas) {
               powered.remove()
               overlay.remove()
               // Matrix blijft actief als achtergrond op loginpagina
-            }, 2300)
-          }, 1800)
+            }, 3500)
+          }, 2800)
         }, 700)
       }, 3800)
     }
@@ -783,12 +783,12 @@ function handlePillChoice(pill, overlay, seq, textWrap, pillsWrap, speechEl, mat
 
       // Stap 2: consequentietekst + overlay faden samen met identieke timing
       setTimeout(() => {
-        resultEl.style.transition = 'opacity 0.95s ease'
+        resultEl.style.transition = 'opacity 1.8s ease'
         resultEl.style.opacity = '0'
-        overlay.style.transition = 'opacity 0.95s ease'
+        overlay.style.transition = 'opacity 1.8s ease'
         overlay.classList.add('fade-out')
 
-        // Stap 3: DOM opruimen nadat alles klaar is (950ms + buffer)
+        // Stap 3: DOM opruimen nadat alles klaar is
         setTimeout(() => {
           seq.remove()
           overlay.remove()
@@ -797,7 +797,7 @@ function handlePillChoice(pill, overlay, seq, textWrap, pillsWrap, speechEl, mat
           const activeMatrix = pill === 'red' ? matrix : null
           injectPillTogglers(canvas, pill, activeMatrix)
           if (pill === 'red') injectMatrixToggle(canvas, true, activeMatrix)
-        }, 1050)
+        }, 1900)
       }, 300)
     })
   }, 500)

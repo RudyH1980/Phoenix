@@ -2050,7 +2050,7 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
-  transition: opacity 2s ease, visibility 0s linear 0s;
+  transition: opacity 3s ease 0.5s, visibility 0s linear 0s;
 }
 
 /* ============================================================
@@ -2062,7 +2062,7 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   z-index: 9990;
   background: oklch(5% 0.01 250 / 0.82);
   pointer-events: none;
-  transition: opacity 0.95s ease;
+  transition: opacity 1.8s ease;
 }
 
 #pa-neo-overlay.fade-out { opacity: 0; }
@@ -2622,7 +2622,7 @@ h3 { font-size: 1rem;    line-height: 1.4; }
 
 #pa-intro-powered.fade-out {
   opacity: 0;
-  transition: opacity 1s ease;
+  transition: opacity 1.8s ease;
 }
 
 /* ============================================================
