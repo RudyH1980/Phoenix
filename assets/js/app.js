@@ -687,6 +687,7 @@ function runPillSequence(canvas) {
 
             // ── Fase 0d: Morpheus verschijnt, matrix stopt ───────────
             morpheusImg.classList.add('visible')
+            textWrap.classList.add('pa-neo-text-wrap--morpheus')
             canvas.style.transition = 'opacity 1s ease'
             canvas.style.opacity = '0'
             setTimeout(() => {
