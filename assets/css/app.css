@@ -1681,13 +1681,15 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   font-size: clamp(2.8rem, 8.5vw, 6rem);
   font-weight: 900;
   letter-spacing: -0.03em;
-  line-height: 1.05;
+  line-height: 1.2;
+  padding-bottom: 0.1em;
   white-space: nowrap;
   background: linear-gradient(135deg, oklch(78% 0.15 194) 0%, oklch(92% 0.1 160) 55%, oklch(78% 0.15 194) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(0 0 48px oklch(72% 0.15 194 / 0.75)) drop-shadow(0 0 16px oklch(72% 0.15 194 / 0.4));
+  overflow: visible;
 }
 
 /* Subtitel verschijnt 0.9s na hero met eigen fade-in */
