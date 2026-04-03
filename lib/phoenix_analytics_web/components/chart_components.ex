@@ -130,50 +130,49 @@ defmodule PhoenixAnalyticsWeb.ChartComponents do
     """
   end
 
+  defp prepare_line_chart(%{data: []} = assigns) do
+    assign(assigns,
+      line_points: "",
+      fill_points: "",
+      dot_points: [],
+      width: 600,
+      first_label: "",
+      last_label: ""
+    )
+  end
+
   defp prepare_line_chart(assigns) do
     data = assigns.data
     height = assigns.height
     width = 600
+    points = build_line_points(data, height, width)
+    line_points = Enum.map_join(points, " ", &"#{&1.x},#{&1.y}")
+    first = List.first(points)
+    last = List.last(points)
+
+    assign(assigns,
+      line_points: line_points,
+      fill_points: "#{first.x},#{height} #{line_points} #{last.x},#{height}",
+      dot_points: points,
+      width: width,
+      first_label: format_date(List.first(data).date),
+      last_label: format_date(List.last(data).date)
+    )
+  end
+
+  defp build_line_points(data, height, width) do
     n = length(data)
+    max_count = data |> Enum.max_by(& &1.count) |> Map.get(:count) |> max(1)
+    pad_top = 10
+    pad_bottom = 4
 
-    if n == 0 do
-      assign(assigns,
-        line_points: "",
-        fill_points: "",
-        dot_points: [],
-        width: width,
-        first_label: "",
-        last_label: ""
-      )
-    else
-      max_count = Enum.max_by(data, & &1.count).count |> max(1)
-      pad_top = 10
-      pad_bottom = 4
-
-      points =
-        data
-        |> Enum.with_index()
-        |> Enum.map(fn {pt, i} ->
-          x = if n == 1, do: div(width, 2), else: round(i / (n - 1) * width)
-          y = round(pad_top + (1 - pt.count / max_count) * (height - pad_top - pad_bottom))
-          %{x: x, y: y, count: pt.count, label: format_date(pt.date)}
-        end)
-
-      line_points = Enum.map_join(points, " ", &"#{&1.x},#{&1.y}")
-
-      first = List.first(points)
-      last = List.last(points)
-      fill_points = "#{first.x},#{height} #{line_points} #{last.x},#{height}"
-
-      assign(assigns,
-        line_points: line_points,
-        fill_points: fill_points,
-        dot_points: points,
-        width: width,
-        first_label: format_date(List.first(data).date),
-        last_label: format_date(List.last(data).date)
-      )
-    end
+    data
+    |> Enum.with_index()
+    |> Enum.map(fn {pt, i} ->
+      x = if n == 1, do: div(width, 2), else: round(i / (n - 1) * width)
+      y = round(pad_top + (1 - pt.count / max_count) * (height - pad_top - pad_bottom))
+      %{x: x, y: y, count: pt.count, label: format_date(pt.date)}
+    end)
   end
 
   defp format_date(%Date{} = date), do: Calendar.strftime(date, "%d %b")

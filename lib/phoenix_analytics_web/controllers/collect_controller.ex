@@ -193,8 +193,7 @@ defmodule PhoenixAnalyticsWeb.CollectController do
     ip =
       remote_ip
       |> Tuple.to_list()
-      |> Enum.map(&Integer.to_string(&1, 16))
-      |> Enum.join(":")
+      |> Enum.map_join(":", &Integer.to_string(&1, 16))
       |> String.downcase()
 
     fetch_geo(ip)
