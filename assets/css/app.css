@@ -1652,35 +1652,89 @@ h3 { font-size: 1rem;    line-height: 1.4; }
 
 #pa-intro-overlay.fade-out { opacity: 0; }
 
-/* Titel staat BOVEN canvas (z-index 10000) en overlay (9999) */
-#pa-intro-title {
+/* Hero wrapper — centreert title + subtitle als groep */
+#pa-intro-hero {
   position: fixed;
   z-index: 10001;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, calc(-50% + 20px));
-  font-size: clamp(3rem, 9vw, 6.5rem);
-  font-weight: 900;
-  letter-spacing: -0.03em;
+  transform: translate(-50%, calc(-50% + 24px));
+  text-align: center;
+  pointer-events: none;
   opacity: 0;
   transition: opacity 2s ease, transform 2s ease;
-  background: linear-gradient(135deg, oklch(78% 0.15 194) 0%, oklch(90% 0.1 160) 60%, oklch(78% 0.15 194) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 40px oklch(72% 0.15 194 / 0.7));
-  white-space: nowrap;
-  text-align: center;
 }
 
-#pa-intro-title.visible {
+#pa-intro-hero.visible {
   opacity: 1;
   transform: translate(-50%, -50%);
 }
 
-#pa-intro-title.fade-out {
+#pa-intro-hero.fade-out {
   opacity: 0;
-  transition: opacity 1.5s ease;
+  transform: translate(-50%, calc(-50% - 12px));
+  transition: opacity 1.5s ease, transform 1.5s ease;
+}
+
+/* Grote teal-glow titel */
+#pa-intro-title {
+  font-size: clamp(2.8rem, 8.5vw, 6rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  white-space: nowrap;
+  background: linear-gradient(135deg, oklch(78% 0.15 194) 0%, oklch(92% 0.1 160) 55%, oklch(78% 0.15 194) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 48px oklch(72% 0.15 194 / 0.75)) drop-shadow(0 0 16px oklch(72% 0.15 194 / 0.4));
+}
+
+/* Subtitel verschijnt 0.9s na hero met eigen fade-in */
+#pa-intro-subtitle {
+  font-size: clamp(0.85rem, 2vw, 1.2rem);
+  font-weight: 300;
+  letter-spacing: 0.22em;
+  text-transform: none;
+  color: oklch(76% 0.07 194);
+  text-shadow: 0 0 18px oklch(72% 0.15 194 / 0.45);
+  white-space: nowrap;
+  margin-top: 0.7rem;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 1.6s ease 0.9s, transform 1.6s ease 0.9s;
+}
+
+#pa-intro-hero.visible #pa-intro-subtitle {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* "Powered by AI" — apart element, verschijnt na hero fade-out */
+#pa-intro-powered {
+  position: fixed;
+  z-index: 10001;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: clamp(0.75rem, 1.6vw, 1rem);
+  font-weight: 400;
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+  color: oklch(66% 0.07 194);
+  text-shadow: 0 0 14px oklch(72% 0.15 194 / 0.35);
+  opacity: 0;
+  transition: opacity 1.2s ease;
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+#pa-intro-powered.visible { opacity: 1; }
+
+#pa-intro-powered.fade-out {
+  opacity: 0;
+  transition: opacity 1s ease;
 }
 
 /* ============================================================

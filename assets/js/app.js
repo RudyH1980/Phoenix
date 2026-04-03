@@ -334,16 +334,32 @@ document.addEventListener('DOMContentLoaded', () => {
   // bij interne navigatie -- alleen bij echte browser refreshes.
   if (true) {
 
-    // Achtergrond-overlay (verbergt pagina-inhoud)
+    // Donkere overlay verbergt pagina-inhoud
     const overlay = document.createElement('div')
     overlay.id = 'pa-intro-overlay'
     document.body.appendChild(overlay)
 
-    // Titel los van overlay zodat hij boven canvas kan staan
-    const title = document.createElement('div')
-    title.id = 'pa-intro-title'
-    title.innerHTML = 'Phoenix&nbsp;Analytics'
-    document.body.appendChild(title)
+    // Hero wrapper met titel + subtitel
+    const hero = document.createElement('div')
+    hero.id = 'pa-intro-hero'
+
+    const titleEl = document.createElement('div')
+    titleEl.id = 'pa-intro-title'
+    titleEl.textContent = 'Neo Analytics'
+    hero.appendChild(titleEl)
+
+    const subtitleEl = document.createElement('div')
+    subtitleEl.id = 'pa-intro-subtitle'
+    subtitleEl.textContent = 'Unveiling the Patterns'
+    hero.appendChild(subtitleEl)
+
+    document.body.appendChild(hero)
+
+    // "Powered by AI" — apart, verschijnt na hero fade-out
+    const powered = document.createElement('div')
+    powered.id = 'pa-intro-powered'
+    powered.textContent = 'Powered by AI'
+    document.body.appendChild(powered)
 
     // Canvas boven overlay tijdens intro
     canvas.style.display = ''
@@ -351,24 +367,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const matrix = initMatrix({
       introMode: true,
-      speed: 4,  // langzamer vallen tijdens intro
+      speed: 4,
       onMidpoint() {
-        title.classList.add('visible')
+        // Stap 1: hero (titel + subtitel) verschijnt
+        // subtitel volgt automatisch 0.9s later via CSS transition-delay
+        hero.classList.add('visible')
 
-        // 4 seconden titel zichtbaar, dan langzaam outfaden
+        // Stap 2: na 3.8s hero laten uitfaden
         setTimeout(() => {
-          overlay.classList.add('fade-out')
-          title.classList.add('fade-out')
+          hero.classList.add('fade-out')
+
+          // Stap 3: tijdens hero fade-out verschijnt "Powered by AI"
           setTimeout(() => {
-            overlay.remove()
-            title.remove()
-            // Canvas blijft doorlopen — zet z-index terug en activeer als achtergrond
-            canvas.style.zIndex = ''
-            active = true
-            localStorage.setItem('pa-matrix', 'on')
-            attachToggle(matrix)
-          }, 1500)
-        }, 4000)
+            powered.classList.add('visible')
+
+            // Stap 4: na 1.8s "Powered by AI" + overlay uitfaden
+            setTimeout(() => {
+              powered.classList.add('fade-out')
+              overlay.classList.add('fade-out')
+
+              // Stap 5: opruimen en canvas terugzetten als achtergrond
+              setTimeout(() => {
+                hero.remove()
+                powered.remove()
+                overlay.remove()
+                canvas.style.zIndex = ''
+                active = true
+                localStorage.setItem('pa-matrix', 'on')
+                attachToggle(matrix)
+              }, 1200)
+            }, 1800)
+          }, 700)
+        }, 3800)
       }
     })
 
