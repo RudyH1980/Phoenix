@@ -18,6 +18,8 @@ defmodule PhoenixAnalytics.Analytics.Site do
     attribute(:tags, {:array, :string}, default: [])
     # Multi-tenant: site hoort bij een organisatie (nullable voor bestaande data)
     attribute(:org_id, :uuid)
+    # Soft delete: nil = actief, timestamp = verwijderd (data bewaard 6 maanden)
+    attribute(:deleted_at, :utc_datetime_usec, allow_nil?: true)
     timestamps()
   end
 
@@ -43,6 +45,12 @@ defmodule PhoenixAnalytics.Analytics.Site do
 
     update :update do
       accept([:name, :domain, :active, :tags])
+    end
+
+    update :soft_delete do
+      accept([])
+      change(set_attribute(:deleted_at, &DateTime.utc_now/0))
+      change(set_attribute(:active, false))
     end
   end
 

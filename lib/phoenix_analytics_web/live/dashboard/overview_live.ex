@@ -5,7 +5,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OverviewLive do
   import PhoenixAnalyticsWeb.ChartComponents
 
   alias PhoenixAnalytics.{Accounts, Repo}
-  alias PhoenixAnalytics.Analytics.Stats
+  alias PhoenixAnalytics.Analytics.{Stats, Site}
 
   @impl true
   def mount(_params, session, socket) do
@@ -61,8 +61,11 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OverviewLive do
     total_yesterday = Enum.reduce(yesterday_counts, 0, fn {_, v}, acc -> acc + v end)
     total_trend = calc_trend(total_pageviews, total_yesterday)
 
+    deleted_sites = load_deleted_sites(org_ids)
+
     assign(socket,
       sites: sites_with_counts,
+      deleted_sites: deleted_sites,
       timeline: timeline,
       total_pageviews: total_pageviews,
       total_visitors: total_visitors,
@@ -86,7 +89,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OverviewLive do
 
     Repo.all(
       from s in "sites",
-        where: s.org_id in ^binary_ids and s.active == true,
+        where: s.org_id in ^binary_ids and s.active == true and is_nil(s.deleted_at),
         order_by: [asc: s.name],
         select: %{
           id: type(s.id, Ecto.UUID),
@@ -94,6 +97,24 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OverviewLive do
           domain: s.domain,
           org_id: type(s.org_id, Ecto.UUID),
           tags: s.tags
+        }
+    )
+  end
+
+  defp load_deleted_sites([]), do: []
+
+  defp load_deleted_sites(org_ids) do
+    binary_ids = Enum.map(org_ids, &Ecto.UUID.dump!/1)
+
+    Repo.all(
+      from s in "sites",
+        where: s.org_id in ^binary_ids and not is_nil(s.deleted_at),
+        order_by: [desc: s.deleted_at],
+        select: %{
+          id: type(s.id, Ecto.UUID),
+          name: s.name,
+          domain: s.domain,
+          deleted_at: s.deleted_at
         }
     )
   end
@@ -153,6 +174,71 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OverviewLive do
       y = pad + (1 - pt.count / max_v) * (h - 2 * pad)
       "#{Float.round(x, 1)},#{Float.round(y, 1)}"
     end)
+  end
+
+  @impl true
+  def handle_event("delete_site", %{"id" => id}, socket) do
+    if socket.assigns[:is_demo] do
+      {:noreply, socket}
+    else
+      org_ids = socket.assigns.org_ids
+
+      case get_site_for_org(id, org_ids) do
+        nil ->
+          {:noreply, socket}
+
+        site ->
+          site |> Ash.Changeset.for_update(:soft_delete) |> Ash.update()
+          {:noreply, load_overview(socket, socket.assigns.period)}
+      end
+    end
+  end
+
+  def handle_event("permanently_delete_site", %{"id" => id}, socket) do
+    if socket.assigns[:is_demo] do
+      {:noreply, socket}
+    else
+      org_ids = socket.assigns.org_ids
+
+      case get_deleted_site_for_org(id, org_ids) do
+        nil ->
+          {:noreply, socket}
+
+        site ->
+          Ash.destroy!(site)
+          {:noreply, load_overview(socket, socket.assigns.period)}
+      end
+    end
+  end
+
+  defp get_site_for_org(id, org_ids) do
+    binary_ids = Enum.map(org_ids, &Ecto.UUID.dump!/1)
+    {:ok, bin_id} = Ecto.UUID.dump(id)
+
+    Repo.one(
+      from s in Site,
+        where: s.id == ^bin_id and s.org_id in ^binary_ids and is_nil(s.deleted_at)
+    )
+  rescue
+    _ -> nil
+  end
+
+  defp get_deleted_site_for_org(id, org_ids) do
+    binary_ids = Enum.map(org_ids, &Ecto.UUID.dump!/1)
+    {:ok, bin_id} = Ecto.UUID.dump(id)
+
+    Repo.one(
+      from s in Site,
+        where: s.id == ^bin_id and s.org_id in ^binary_ids and not is_nil(s.deleted_at)
+    )
+  rescue
+    _ -> nil
+  end
+
+  defp permanent_delete_date(%{deleted_at: deleted_at}) do
+    deleted_at
+    |> DateTime.add(6 * 30 * 24 * 3600, :second)
+    |> Calendar.strftime("%d %b %Y")
   end
 
   @impl true
@@ -294,7 +380,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OverviewLive do
         <% else %>
           <ul class="pa-site-list pa-site-list--stats">
             <%= for site <- @sites do %>
-              <li>
+              <li class="pa-site-list-item">
                 <.link navigate={~p"/dashboard/sites/#{site.id}"} class="pa-site-row">
                   <div
                     class="pa-site-avatar"
@@ -342,11 +428,63 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OverviewLive do
                   <% end %>
                   <span class="pa-site-arrow">›</span>
                 </.link>
+                <%= unless @is_demo do %>
+                  <button
+                    class="pa-site-delete-btn"
+                    phx-click="delete_site"
+                    phx-value-id={site.id}
+                    phx-confirm={"Verwijder #{site.name}? De data blijft 6 maanden bewaard."}
+                    aria-label={"Verwijder #{site.name}"}
+                  >
+                    ✕
+                  </button>
+                <% end %>
               </li>
             <% end %>
           </ul>
         <% end %>
       </section>
+
+      <%= if @deleted_sites != [] do %>
+        <section class="pa-sites-section" style="margin-top: 2rem;">
+          <div class="pa-sites-section-header" style="margin-bottom: 0.75rem;">
+            <h2 style="font-size: 0.85rem; opacity: 0.5; text-transform: uppercase; letter-spacing: 0.08em;">
+              Verwijderd
+            </h2>
+          </div>
+          <ul class="pa-site-list">
+            <%= for site <- @deleted_sites do %>
+              <li class="pa-site-list-item pa-site-list-item--deleted">
+                <div class="pa-site-row pa-site-row--deleted">
+                  <div
+                    class="pa-site-avatar"
+                    style={"background: #{avatar_color(site.name)}; opacity: 0.4;"}
+                    aria-hidden="true"
+                  >
+                    {avatar_initials(site.name)}
+                  </div>
+                  <div class="pa-site-info">
+                    <strong style="opacity: 0.5;">{site.name}</strong>
+                    <span class="pa-site-domain" style="opacity: 0.4;">{site.domain}</span>
+                  </div>
+                  <span class="pa-site-delete-expiry">
+                    Permanent verwijderd op {permanent_delete_date(site)}
+                  </span>
+                </div>
+                <button
+                  class="pa-site-delete-btn pa-site-delete-btn--permanent"
+                  phx-click="permanently_delete_site"
+                  phx-value-id={site.id}
+                  phx-confirm={"Permanent verwijderen? #{site.name} en alle bijbehorende data wordt onherroepelijk gewist."}
+                  aria-label={"Permanent verwijder #{site.name}"}
+                >
+                  ✕
+                </button>
+              </li>
+            <% end %>
+          </ul>
+        </section>
+      <% end %>
     </div>
     """
   end
