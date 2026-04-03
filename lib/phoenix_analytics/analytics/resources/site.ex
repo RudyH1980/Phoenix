@@ -14,6 +14,7 @@ defmodule PhoenixAnalytics.Analytics.Site do
     attribute(:domain, :string, allow_nil?: false)
     attribute(:token, :string, allow_nil?: false)
     attribute(:active, :boolean, default: true)
+    attribute(:tags, {:array, :string}, default: [])
     # Multi-tenant: site hoort bij een organisatie (nullable voor bestaande data)
     attribute(:org_id, :uuid)
     timestamps()
@@ -40,7 +41,7 @@ defmodule PhoenixAnalytics.Analytics.Site do
     end
 
     update :update do
-      accept([:name, :active])
+      accept([:name, :domain, :active, :tags])
     end
   end
 

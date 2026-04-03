@@ -32,10 +32,16 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OverviewLive do
           id: type(s.id, Ecto.UUID),
           name: s.name,
           domain: s.domain,
-          org_id: type(s.org_id, Ecto.UUID)
+          org_id: type(s.org_id, Ecto.UUID),
+          tags: s.tags
         }
     )
   end
+
+  defp tag_color("Prod"), do: "green"
+  defp tag_color("Test"), do: "yellow"
+  defp tag_color("Staging"), do: "blue"
+  defp tag_color(_), do: "default"
 
   @impl true
   def render(assigns) do
@@ -83,6 +89,13 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OverviewLive do
                   <div>
                     <strong>{site.name}</strong>
                     <span>{site.domain}</span>
+                    <%= if site.tags && site.tags != [] do %>
+                      <span style="display:flex; gap:0.25rem; flex-wrap:wrap; margin-top:0.2rem;">
+                        <%= for tag <- site.tags do %>
+                          <span class={"pa-tag pa-tag--#{tag_color(tag)} pa-tag--sm"}>{tag}</span>
+                        <% end %>
+                      </span>
+                    <% end %>
                   </div>
                   <span class="pa-site-arrow">›</span>
                 </.link>

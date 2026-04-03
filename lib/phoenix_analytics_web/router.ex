@@ -51,6 +51,7 @@ defmodule PhoenixAnalyticsWeb.Router do
       live "/dashboard", Live.Dashboard.OverviewLive, :index
       live "/dashboard/sites/new", Live.Dashboard.NewSiteLive, :index
       live "/dashboard/sites/:site_id", Live.Dashboard.SiteLive, :index
+      live "/dashboard/sites/:site_id/edit", Live.Dashboard.EditSiteLive, :index
       live "/dashboard/sites/:site_id/experiments", Live.Dashboard.ExperimentsLive, :index
       live "/dashboard/sites/:site_id/experiments/new", Live.Dashboard.NewExperimentLive, :index
 

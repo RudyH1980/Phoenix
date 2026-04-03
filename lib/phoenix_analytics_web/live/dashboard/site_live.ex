@@ -90,6 +90,9 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
               {@realtime_count} nieuwe views
             </span>
           <% end %>
+          <.link navigate={~p"/dashboard/sites/#{@site.id}/edit"} class="pa-btn pa-btn--ghost">
+            Bewerken
+          </.link>
           <.link navigate={~p"/dashboard/sites/#{@site.id}/heatmap"} class="pa-btn pa-btn--ghost">
             Heatmap
           </.link>
