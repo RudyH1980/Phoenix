@@ -486,13 +486,12 @@ function injectPillTogglers(canvas, activePill, existingMatrix) {
     red.classList.toggle('active', pill === 'red')
 
     if (pill === 'red') {
-      const matrixOn = localStorage.getItem('pa-matrix') !== 'off'
-      if (matrixOn) {
-        canvas.style.display = ''
-        if (!matrix) matrix = initMatrix({ speed: 4 })
-        matrix && matrix.start()
-      }
-      injectMatrixToggle(canvas, matrixOn, matrix)
+      // Overschakelen naar dark mode reset altijd de matrix naar aan
+      localStorage.setItem('pa-matrix', 'on')
+      canvas.style.display = ''
+      if (!matrix) matrix = initMatrix({ speed: 4 })
+      matrix && matrix.start()
+      injectMatrixToggle(canvas, true, matrix)
     } else {
       matrix && matrix.stop()
       canvas.style.display = 'none'
@@ -756,6 +755,7 @@ function handlePillChoice(pill, overlay, seq, textWrap, pillsWrap, matrix, canva
       matrix && matrix.stop()
       canvas.style.display = 'none'
     } else {
+      localStorage.setItem('pa-matrix', 'on')
       canvas.style.transition = ''
       canvas.style.opacity = '1'
       matrix && matrix.start()
@@ -775,12 +775,19 @@ function handlePillChoice(pill, overlay, seq, textWrap, pillsWrap, matrix, canva
       : 'Down the rabbit hole you go.'
 
     typeSegments(resultEl, [{text: resultText}], 55, () => {
-      // ── Fase 5: fade-out → dashboard ──────────────────────────────────
+      // ── Fase 5: fade-out → dashboard (vloeiend gesynchroniseerd) ──────
+      // Stap 1: speech verdwijnt eerst subtiel
+      speechEl.style.transition = 'opacity 0.4s ease'
+      speechEl.style.opacity = '0'
+
+      // Stap 2: consequentietekst + overlay faden samen met identieke timing
       setTimeout(() => {
-        resultEl.style.transition = 'opacity 0.8s ease'
+        resultEl.style.transition = 'opacity 0.95s ease'
         resultEl.style.opacity = '0'
+        overlay.style.transition = 'opacity 0.95s ease'
         overlay.classList.add('fade-out')
 
+        // Stap 3: DOM opruimen nadat alles klaar is (950ms + buffer)
         setTimeout(() => {
           seq.remove()
           overlay.remove()
@@ -789,8 +796,8 @@ function handlePillChoice(pill, overlay, seq, textWrap, pillsWrap, matrix, canva
           const activeMatrix = pill === 'red' ? matrix : null
           injectPillTogglers(canvas, pill, activeMatrix)
           if (pill === 'red') injectMatrixToggle(canvas, true, activeMatrix)
-        }, 1200)
-      }, 1600)
+        }, 1050)
+      }, 300)
     })
   }, 500)
 }
