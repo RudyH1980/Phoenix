@@ -82,6 +82,27 @@ defmodule PhoenixAnalyticsWeb.AuthController do
     end
   end
 
+  def demo(conn, _params) do
+    case PhoenixAnalytics.DemoSeeder.ensure_demo_account() do
+      {:ok, user} ->
+        Logger.info("DEMO LOGIN",
+          user_id: user.id,
+          ip: conn.remote_ip |> Tuple.to_list() |> Enum.join("."),
+          at: DateTime.utc_now() |> DateTime.to_iso8601()
+        )
+
+        conn
+        |> put_session(:user_id, user.id)
+        |> put_session(:demo, true)
+        |> redirect(to: ~p"/dashboard?neo=1")
+
+      _ ->
+        conn
+        |> put_flash(:error, "Demo niet beschikbaar. Probeer het later opnieuw.")
+        |> redirect(to: ~p"/login")
+    end
+  end
+
   def logout(conn, _params) do
     conn
     |> clear_session()

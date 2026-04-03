@@ -115,17 +115,29 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
       <div class="pa-auth-card">
         <h1>Neo Analytics</h1>
 
+        <%!-- Demo blok — meest prominent --%>
+        <div class="pa-demo-login-block">
+          <div class="pa-demo-login-header">
+            <span class="pa-demo-badge">DEMO</span>
+            <span class="pa-demo-login-title">Bekijk het dashboard</span>
+          </div>
+          <p class="pa-demo-login-desc">
+            3 websites · 6 maanden data · geen account nodig
+          </p>
+          <a href="/auth/demo" class="pa-btn pa-btn--demo pa-btn--full">
+            Probeer de demo →
+          </a>
+        </div>
+
+        <div class="pa-or-divider">of log in</div>
+
         <%= if @error do %>
           <div class="pa-alert pa-alert--error" style="margin-bottom:1rem;">
             <p>{@error}</p>
           </div>
         <% end %>
 
-        <button
-          id="passkey-btn"
-          class="pa-btn pa-btn--primary pa-btn--full"
-          style="margin-bottom:1rem;"
-        >
+        <button id="passkey-btn" class="pa-btn pa-btn--ghost pa-btn--full" style="margin-bottom:1rem;">
           Inloggen met passkey
         </button>
 

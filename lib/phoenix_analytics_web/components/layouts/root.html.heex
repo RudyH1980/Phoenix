@@ -41,6 +41,15 @@
   </head>
   <body>
     <canvas id="pa-matrix-canvas" aria-hidden="true" style="display:none;"></canvas>
+    <%= if assigns[:is_demo] do %>
+      <div class="pa-demo-topbar" role="alert">
+        <span class="pa-demo-badge">DEMO</span>
+        <span>Je bekijkt een demo account met gesimuleerde data van 3 fictieve websites.</span>
+        <a href="/login" class="pa-demo-topbar-exit">
+          Eigen account aanmaken →
+        </a>
+      </div>
+    <% end %>
     <main>
       {@inner_content}
     </main>

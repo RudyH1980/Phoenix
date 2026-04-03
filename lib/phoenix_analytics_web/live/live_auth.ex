@@ -12,11 +12,13 @@ defmodule PhoenixAnalyticsWeb.LiveAuth do
         case Ash.get(Accounts.User, user_id) do
           {:ok, user} ->
             org_ids = Accounts.user_org_ids(user_id)
+            is_demo = session["demo"] == true
 
             {:cont,
              Phoenix.Component.assign(socket,
                current_user: user,
-               current_org_ids: org_ids
+               current_org_ids: org_ids,
+               is_demo: is_demo
              )}
 
           _ ->

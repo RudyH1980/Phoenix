@@ -409,7 +409,7 @@ function startMatrixForPill(pill, canvas, matrixOn = true) {
     return null
   }
   canvas.style.display = ''
-  const m = initMatrix({ speed: 2 })
+  const m = initMatrix({ speed: 4 })
   m && m.start()
   return m
 }
@@ -425,7 +425,7 @@ function injectMatrixToggle(canvas, matrixOn, matrixRef) {
   btn.id = 'pa-matrix-toggle'
   btn.title = 'Matrix aan/uit'
   btn.setAttribute('aria-label', 'Matrix animatie aan of uit zetten')
-  btn.textContent = '░▒▓'
+  btn.innerHTML = '<span aria-hidden="true" class="pa-matrix-toggle-icon"></span>'
   btn.classList.toggle('active', on)
   btn.classList.toggle('off', !on)
   document.body.appendChild(btn)
@@ -438,7 +438,7 @@ function injectMatrixToggle(canvas, matrixOn, matrixRef) {
 
     if (on) {
       canvas.style.display = ''
-      if (!matrix) matrix = initMatrix({ speed: 2 })
+      if (!matrix) matrix = initMatrix({ speed: 4 })
       matrix && matrix.start()
     } else {
       matrix && matrix.stop()
@@ -485,7 +485,7 @@ function injectPillTogglers(canvas, activePill, existingMatrix) {
       const matrixOn = localStorage.getItem('pa-matrix') !== 'off'
       if (matrixOn) {
         canvas.style.display = ''
-        if (!matrix) matrix = initMatrix({ speed: 2 })
+        if (!matrix) matrix = initMatrix({ speed: 4 })
         matrix && matrix.start()
       }
       injectMatrixToggle(canvas, matrixOn, matrix)
@@ -570,7 +570,7 @@ function skipPillSequence(canvas, overlay, seq, skipBar, matrix) {
     const matrixOn = pill === 'red' && localStorage.getItem('pa-matrix') !== 'off'
     if (matrixOn) {
       canvas.style.display = ''
-      if (!matrix) { const m = initMatrix({ speed: 2 }); m && m.start(); injectPillTogglers(canvas, pill, m); injectMatrixToggle(canvas, true, m); return }
+      if (!matrix) { const m = initMatrix({ speed: 4 }); m && m.start(); injectPillTogglers(canvas, pill, m); injectMatrixToggle(canvas, true, m); return }
       matrix && matrix.start()
     } else {
       canvas.style.display = 'none'
@@ -585,7 +585,7 @@ function skipPillSequence(canvas, overlay, seq, skipBar, matrix) {
 function runPillSequence(canvas) {
   canvas.style.display = ''
   canvas.style.zIndex = '0'
-  const matrix = initMatrix({ speed: 2 })
+  const matrix = initMatrix({ speed: 4 })
   matrix && matrix.start()
 
   const overlay = document.createElement('div')
@@ -595,6 +595,23 @@ function runPillSequence(canvas) {
   const seq = document.createElement('div')
   seq.id = 'pa-neo-sequence'
   document.body.appendChild(seq)
+
+  // Morpheus afbeelding — rechts, fade-in na korte vertraging
+  const morpheusWrap = document.createElement('div')
+  morpheusWrap.className = 'pa-neo-morpheus-wrap'
+  const morpheusImg = document.createElement('img')
+  morpheusImg.src = '/images/morpheus.png'
+  morpheusImg.className = 'pa-neo-morpheus-img'
+  morpheusImg.alt = ''
+  morpheusImg.setAttribute('aria-hidden', 'true')
+  morpheusWrap.appendChild(morpheusImg)
+  seq.appendChild(morpheusWrap)
+  setTimeout(() => morpheusImg.classList.add('visible'), 600)
+
+  // Tekst container — links
+  const textWrap = document.createElement('div')
+  textWrap.className = 'pa-neo-text-wrap'
+  seq.appendChild(textWrap)
 
   // Skip-balk onderaan — altijd zichtbaar tijdens de sequence
   const skipBar = document.createElement('div')
@@ -615,7 +632,7 @@ function runPillSequence(canvas) {
   // ── Fase 1: "Welcome at NEO" getypt in groot ──────────────────────────
   const welcomeEl = document.createElement('div')
   welcomeEl.className = 'pa-neo-text pa-neo-text--large pa-neo-typed'
-  seq.appendChild(welcomeEl)
+  textWrap.appendChild(welcomeEl)
 
   requestAnimationFrame(() => requestAnimationFrame(() => {
     welcomeEl.classList.add('visible')
@@ -633,7 +650,7 @@ function runPillSequence(canvas) {
         // ── Fase 2: Morpheus speech ────────────────────────────────────
         const speechEl = document.createElement('div')
         speechEl.className = 'pa-neo-speech'
-        seq.appendChild(speechEl)
+        textWrap.appendChild(speechEl)
 
         requestAnimationFrame(() => requestAnimationFrame(() => {
           speechEl.classList.add('visible')
@@ -658,40 +675,40 @@ function runPillSequence(canvas) {
 
         typeParagraphs(speechEl, paragraphs, 0, 32, () => {
           // ── Fase 3: pillen verschijnen na korte pauze ────────────────
-          setTimeout(() => showPills(seq, speechEl, matrix, canvas, overlay), 1400)
+          setTimeout(() => showPills(seq, textWrap, speechEl, matrix, canvas, overlay), 1400)
         })
       }, 900)
     }, 2000)
   })
 }
 
-function showPills(seq, speechEl, matrix, canvas, overlay) {
+function showPills(seq, textWrap, speechEl, matrix, canvas, overlay) {
   const pillsWrap = document.createElement('div')
   pillsWrap.className = 'pa-neo-pills'
 
   const bluePill = document.createElement('button')
   bluePill.className = 'pa-pill pa-pill--blue'
-  bluePill.setAttribute('aria-label', 'Blauwe pil — in de simulatie blijven')
+  bluePill.setAttribute('aria-label', 'Blauwe pil — light mode, geen matrix')
 
   const redPill = document.createElement('button')
   redPill.className = 'pa-pill pa-pill--red'
-  redPill.setAttribute('aria-label', 'Rode pil — de realiteit in')
+  redPill.setAttribute('aria-label', 'Rode pil — dark mode met matrix')
 
   pillsWrap.appendChild(bluePill)
   pillsWrap.appendChild(redPill)
-  seq.appendChild(pillsWrap)
+  textWrap.appendChild(pillsWrap)
 
   requestAnimationFrame(() => requestAnimationFrame(() => {
     pillsWrap.classList.add('visible')
   }))
 
   bluePill.addEventListener('click', () =>
-    handlePillChoice('blue', overlay, seq, pillsWrap, matrix, canvas))
+    handlePillChoice('blue', overlay, seq, textWrap, pillsWrap, matrix, canvas))
   redPill.addEventListener('click', () =>
-    handlePillChoice('red', overlay, seq, pillsWrap, matrix, canvas))
+    handlePillChoice('red', overlay, seq, textWrap, pillsWrap, matrix, canvas))
 }
 
-function handlePillChoice(pill, overlay, seq, pillsWrap, matrix, canvas) {
+function handlePillChoice(pill, overlay, seq, textWrap, pillsWrap, matrix, canvas) {
   localStorage.setItem('pa-pill', pill)
 
   // Verberg pillen
@@ -708,7 +725,7 @@ function handlePillChoice(pill, overlay, seq, pillsWrap, matrix, canvas) {
     // Korte consequentietekst verschijnt getypt
     const resultEl = document.createElement('div')
     resultEl.className = 'pa-neo-text pa-neo-text--consequence pa-neo-typed'
-    seq.appendChild(resultEl)
+    textWrap.appendChild(resultEl)
 
     requestAnimationFrame(() => requestAnimationFrame(() => {
       resultEl.classList.add('visible')

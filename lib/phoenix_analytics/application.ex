@@ -8,6 +8,7 @@ defmodule PhoenixAnalytics.Application do
   @impl true
   def start(_type, _args) do
     run_migrations()
+    ensure_demo_account()
     set_initial_password()
 
     children = [
@@ -33,6 +34,13 @@ defmodule PhoenixAnalytics.Application do
     if Application.get_env(:phoenix_analytics, :env) == :prod do
       PhoenixAnalytics.Release.migrate()
     end
+  end
+
+  defp ensure_demo_account do
+    Task.start(fn ->
+      :timer.sleep(4000)
+      PhoenixAnalytics.DemoSeeder.ensure_demo_account()
+    end)
   end
 
   defp set_initial_password do

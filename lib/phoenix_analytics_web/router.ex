@@ -38,6 +38,7 @@ defmodule PhoenixAnalyticsWeb.Router do
     live "/login", Live.Auth.LoginLive, :index
     get "/auth/verify", AuthController, :verify
     get "/auth/verify_password", AuthController, :verify_password
+    get "/auth/demo", AuthController, :demo
     delete "/auth/logout", AuthController, :logout
   end
 

@@ -19,10 +19,12 @@ defmodule PhoenixAnalyticsWeb.Plugs.RequireAuth do
         case Ash.get(Accounts.User, user_id) do
           {:ok, user} ->
             org_ids = Accounts.user_org_ids(user_id)
+            is_demo = get_session(conn, :demo) == true
 
             conn
             |> assign(:current_user, user)
             |> assign(:current_org_ids, org_ids)
+            |> assign(:is_demo, is_demo)
 
           _ ->
             conn |> clear_session() |> redirect(to: "/login") |> halt()

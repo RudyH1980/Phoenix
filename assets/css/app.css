@@ -917,6 +917,106 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   max-width: 100%;
 }
 
+/* ── Demo login block (inlogpagina) ──────────────────────────────────────── */
+.pa-demo-login-block {
+  background: oklch(from var(--pa-teal) l c h / 0.08);
+  border: 1px solid oklch(from var(--pa-teal) l c h / 0.3);
+  border-radius: var(--pa-radius-lg);
+  padding: 1.1rem 1.25rem 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.pa-demo-login-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.35rem;
+}
+
+.pa-demo-login-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--pa-text);
+}
+
+.pa-demo-login-desc {
+  font-size: 0.8rem;
+  color: var(--pa-text-muted);
+  text-align: left !important;
+  margin: 0 0 0.9rem !important;
+}
+
+.pa-btn--demo {
+  background: linear-gradient(135deg, var(--pa-teal), oklch(58% 0.22 168));
+  color: oklch(12% 0.016 250);
+  border-color: transparent;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 0.75rem 1.5rem;
+  box-shadow: 0 2px 12px oklch(from var(--pa-teal) l c h / 0.35);
+}
+
+.pa-btn--demo:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 4px 20px oklch(from var(--pa-teal) l c h / 0.5);
+  color: oklch(12% 0.016 250);
+}
+
+/* ── Of-divider ──────────────────────────────────────────────────────────── */
+.pa-or-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--pa-text-faint);
+  margin: 0 0 1.25rem;
+  text-align: center;
+}
+
+.pa-or-divider::before,
+.pa-or-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--pa-border-subtle);
+}
+
+/* ── Demo topbar (overal in dashboard bij demo sessie) ───────────────────── */
+.pa-demo-topbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  background: oklch(from var(--pa-teal) l c h / 0.1);
+  border-bottom: 1px solid oklch(from var(--pa-teal) l c h / 0.25);
+  padding: 0.5rem 1.25rem;
+  font-size: 0.82rem;
+  color: var(--pa-text-muted);
+  position: relative;
+  z-index: 10;
+}
+
+.pa-demo-topbar .pa-demo-badge {
+  flex-shrink: 0;
+}
+
+.pa-demo-topbar > span:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+
+.pa-demo-topbar-exit {
+  color: var(--pa-teal);
+  text-decoration: none;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.pa-demo-topbar-exit:hover {
+  text-decoration: underline;
+}
+
 /* ============================================================
    CHART
    ============================================================ */
@@ -1828,15 +1928,60 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   position: fixed;
   inset: 0;
   z-index: 9995;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Morpheus afbeelding — rechts, volledig scherm hoog */
+.pa-neo-morpheus-wrap {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  width: clamp(280px, 46%, 560px);
+  display: flex;
+  align-items: flex-end;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.pa-neo-morpheus-img {
+  width: 100%;
+  height: auto;
+  max-height: 96vh;
+  object-fit: contain;
+  object-position: bottom right;
+  display: block;
+  opacity: 0;
+  transition: opacity 2.5s ease;
+}
+
+.pa-neo-morpheus-img.visible { opacity: 0.9; }
+
+/* Tekst container — links, gecentreerd verticaal */
+.pa-neo-text-wrap {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 54%;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  gap: 2rem;
-  padding: clamp(1.5rem, 5vw, 4rem) clamp(1.5rem, 8vw, 6rem);
-  text-align: center;
-  pointer-events: none;
-  overflow-y: auto;
+  gap: 0;
+  padding: clamp(1.5rem, 5vw, 4rem) clamp(1.5rem, 6vw, 5rem);
+  padding-bottom: 7rem;
+}
+
+/* Mobiel: Morpheus verbergen, tekst vult alles */
+@media (max-width: 640px) {
+  .pa-neo-morpheus-wrap { display: none; }
+  .pa-neo-text-wrap {
+    width: 100%;
+    align-items: center;
+    padding: 2rem 1.5rem 7rem;
+  }
 }
 
 .pa-neo-text {
@@ -1851,7 +1996,9 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   transform: translateY(10px);
   transition: opacity 1s ease, transform 1s ease;
   line-height: 1.35;
-  max-width: 720px;
+  max-width: 600px;
+  width: 100%;
+  text-align: left;
 }
 
 .pa-neo-text.visible {
@@ -2142,42 +2289,78 @@ h3 { font-size: 1rem;    line-height: 1.4; }
 /* Matrix aan/uit knopje (boven de pilknopjes, alleen dark mode) */
 #pa-matrix-toggle {
   position: fixed;
-  bottom: 3.4rem;
-  right: 1.1rem;
+  bottom: 4.6rem;
+  right: 1.2rem;
   z-index: 100;
-  width: 34px;
-  height: 14px;
-  border-radius: 3px;
-  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid oklch(58% 0.22 168 / 0.35);
   cursor: pointer;
-  background: linear-gradient(135deg, oklch(65% 0.22 168), oklch(40% 0.20 168));
-  box-shadow: 0 0 6px oklch(58% 0.22 168 / 0.35), 0 1px 4px oklch(0% 0 0 / 0.3);
-  opacity: 0.28;
+  background: linear-gradient(145deg, oklch(28% 0.12 168), oklch(18% 0.08 168));
+  box-shadow: 0 0 8px oklch(58% 0.22 168 / 0.3), 0 2px 6px oklch(0% 0 0 / 0.4);
+  opacity: 0.32;
   transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 7px;
-  font-family: monospace;
-  color: oklch(90% 0.15 168);
-  letter-spacing: 0.5px;
   padding: 0;
 }
 
-#pa-matrix-toggle:hover { opacity: 0.75; transform: scale(1.08); }
+.pa-matrix-toggle-icon {
+  display: block;
+  width: 14px;
+  height: 10px;
+  position: relative;
+}
+
+/* Drie vallende streepjes die "matrix rain" symboliseren */
+.pa-matrix-toggle-icon::before,
+.pa-matrix-toggle-icon::after {
+  content: '';
+  position: absolute;
+  width: 2px;
+  border-radius: 1px;
+  background: oklch(72% 0.22 168);
+}
+
+/* Middelste lange balk */
+.pa-matrix-toggle-icon::before {
+  height: 10px;
+  left: 6px;
+  top: 0;
+}
+
+/* Twee korte balkjes links en rechts, op verschillende hoogtes */
+.pa-matrix-toggle-icon::after {
+  height: 6px;
+  left: 2px;
+  top: 2px;
+  box-shadow: 8px -2px 0 oklch(72% 0.22 168);
+}
+
+#pa-matrix-toggle:hover { opacity: 0.8; transform: scale(1.1); }
 
 #pa-matrix-toggle.active {
-  opacity: 0.65;
+  opacity: 0.7;
+  border-color: oklch(62% 0.22 168 / 0.6);
   box-shadow:
-    0 0 10px oklch(58% 0.22 168 / 0.7),
-    0 0 22px oklch(55% 0.20 168 / 0.3),
-    0 1px 5px oklch(0% 0 0 / 0.4);
+    0 0 12px oklch(58% 0.22 168 / 0.65),
+    0 0 24px oklch(55% 0.20 168 / 0.25),
+    0 2px 6px oklch(0% 0 0 / 0.4);
 }
 
 #pa-matrix-toggle.off {
-  opacity: 0.18;
-  background: linear-gradient(135deg, oklch(35% 0.04 168), oklch(25% 0.03 168));
-  box-shadow: none;
+  opacity: 0.2;
+  background: linear-gradient(145deg, oklch(18% 0.03 168), oklch(12% 0.02 168));
+  border-color: oklch(40% 0.05 168 / 0.25);
+  box-shadow: 0 1px 4px oklch(0% 0 0 / 0.3);
+}
+
+#pa-matrix-toggle.off .pa-matrix-toggle-icon::before,
+#pa-matrix-toggle.off .pa-matrix-toggle-icon::after {
+  background: oklch(45% 0.06 168);
+  box-shadow: 8px -2px 0 oklch(45% 0.06 168);
 }
 
 /* ============================================================
