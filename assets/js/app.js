@@ -240,7 +240,7 @@ function initMatrix(opts) {
     frameCount++
     const step = frameCount % SPEED === 0
 
-    ctx.fillStyle = 'rgba(13, 17, 23, 0.04)'
+    ctx.fillStyle = 'rgba(13, 17, 23, 0.12)'
     ctx.fillRect(0, 0, canvas.width, canvas.height)
     ctx.font = `${FONT_SIZE}px monospace`
 
