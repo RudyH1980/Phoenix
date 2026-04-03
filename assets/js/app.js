@@ -109,49 +109,63 @@ window.liveSocket = liveSocket
 // ============================================================
 const MATRIX_CHARS = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEF'
 
-function initMatrix() {
+// opts.introMode  — columns starten bovenaan (voor intro)
+// opts.onMidpoint — callback zodra 60% van columns halverwege scherm zijn
+function initMatrix(opts) {
+  opts = opts || {}
   const canvas = document.getElementById('pa-matrix-canvas')
   if (!canvas) return null
 
   const ctx = canvas.getContext('2d')
   let animId = null
   let cols = []
+  let midpointFired = false
   const FONT_SIZE = 14
   const COL_WIDTH = 16
 
-  function resize() {
+  function setupCols(introMode) {
     canvas.width = window.innerWidth
     canvas.height = window.innerHeight
     cols = Array.from(
       { length: Math.floor(canvas.width / COL_WIDTH) },
-      () => Math.floor(Math.random() * -(canvas.height / FONT_SIZE))
+      () => introMode
+        ? Math.floor(Math.random() * -4)                           // starten aan de top
+        : Math.floor(Math.random() * -(canvas.height / FONT_SIZE)) // verspreid (normaal)
     )
   }
 
-  resize()
-  window.addEventListener('resize', resize)
+  setupCols(opts.introMode)
+  window.addEventListener('resize', () => setupCols(false))
 
   function draw() {
     ctx.fillStyle = 'rgba(13, 17, 23, 0.06)'
     ctx.fillRect(0, 0, canvas.width, canvas.height)
     ctx.font = `${FONT_SIZE}px monospace`
 
+    const midRow = Math.floor(canvas.height / 2 / FONT_SIZE)
+    let atMid = 0
+
     for (let i = 0; i < cols.length; i++) {
       const char = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)]
       const x = i * COL_WIDTH
       const y = cols[i] * FONT_SIZE
 
-      // Leading char: wit
       ctx.fillStyle = '#cffff9'
       ctx.fillText(char, x, y)
 
-      // Trails: teal
       ctx.fillStyle = '#00d4b8'
       const trailChar = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)]
       if (cols[i] > 1) ctx.fillText(trailChar, x, y - FONT_SIZE)
 
+      if (cols[i] >= midRow) atMid++
       if (y > canvas.height && Math.random() > 0.975) cols[i] = 0
       cols[i]++
+    }
+
+    // Trigger zodra 60% van kolommen halverwege zijn
+    if (!midpointFired && opts.onMidpoint && atMid >= Math.floor(cols.length * 0.6)) {
+      midpointFired = true
+      opts.onMidpoint()
     }
 
     animId = requestAnimationFrame(draw)
@@ -167,73 +181,82 @@ function initMatrix() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const matrix = initMatrix()
-  if (!matrix) return
-
-  const btn = document.getElementById('pa-matrix-toggle')
   const canvas = document.getElementById('pa-matrix-canvas')
+  const btn = document.getElementById('pa-matrix-toggle')
+  if (!canvas) return
+
   let active = localStorage.getItem('pa-matrix') === 'on'
 
-  function applyState() {
-    if (active) {
-      canvas.style.display = ''
-      matrix.start()
-      btn && btn.classList.add('active')
-      btn && btn.setAttribute('title', 'Matrix uitzetten')
-    } else {
-      matrix.stop()
-      canvas.style.display = 'none'
-      btn && btn.classList.remove('active')
-      btn && btn.setAttribute('title', 'Matrix aanzetten')
+  function attachToggle(matrix) {
+    function applyState() {
+      if (active) {
+        canvas.style.display = ''
+        matrix.start()
+        btn && btn.classList.add('active')
+        btn && btn.setAttribute('title', 'Matrix uitzetten')
+      } else {
+        matrix.stop()
+        canvas.style.display = 'none'
+        btn && btn.classList.remove('active')
+        btn && btn.setAttribute('title', 'Matrix aanzetten')
+      }
     }
+    applyState()
+    btn && btn.addEventListener('click', () => {
+      active = !active
+      localStorage.setItem('pa-matrix', active ? 'on' : 'off')
+      applyState()
+    })
   }
 
-  // Intro-animatie: één keer per sessie tonen
   const introSeen = sessionStorage.getItem('pa-intro-seen')
   if (!introSeen) {
     sessionStorage.setItem('pa-intro-seen', '1')
-    runMatrixIntro(matrix, canvas, () => applyState())
+
+    // Overlay aanmaken
+    const overlay = document.createElement('div')
+    overlay.id = 'pa-intro-overlay'
+    document.body.appendChild(overlay)
+
+    const title = document.createElement('div')
+    title.id = 'pa-intro-title'
+    title.innerHTML = 'Phoenix&nbsp;Analytics'
+    overlay.appendChild(title)
+
+    // Matrix starten vanuit de top; titel verschijnt op midpoint
+    const matrix = initMatrix({
+      introMode: true,
+      onMidpoint() {
+        title.classList.add('visible')
+
+        // 2.5s zichtbaar, dan outfaden
+        setTimeout(() => {
+          overlay.classList.add('fade-out')
+          setTimeout(() => {
+            overlay.remove()
+            canvas.style.opacity = ''
+            attachToggle(matrix)
+          }, 1000)
+        }, 2500)
+      }
+    })
+
+    if (!matrix) return
+    canvas.style.display = ''
+    canvas.style.opacity = '0.8'
+    matrix.start()
+
+    // Knop alvast koppelen zodat de user de matrix kan uitzetten na de intro
+    btn && btn.addEventListener('click', () => {
+      active = !active
+      localStorage.setItem('pa-matrix', active ? 'on' : 'off')
+    })
   } else {
-    applyState()
+    const matrix = initMatrix({})
+    if (!matrix) return
+    attachToggle(matrix)
   }
-
-  btn && btn.addEventListener('click', () => {
-    active = !active
-    localStorage.setItem('pa-matrix', active ? 'on' : 'off')
-    applyState()
-  })
 })
-
-function runMatrixIntro(matrix, canvas, onDone) {
-  // Overlay bouwen
-  const overlay = document.createElement('div')
-  overlay.id = 'pa-intro-overlay'
-  document.body.appendChild(overlay)
-
-  const title = document.createElement('div')
-  title.id = 'pa-intro-title'
-  title.innerHTML = '<span>Phoenix</span> Analytics'
-  overlay.appendChild(title)
-
-  // Matrix starten op de intro-overlay canvas
-  canvas.style.display = ''
-  canvas.style.opacity = '0.7'
-  matrix.start()
-
-  // Tekst infaden na 0.6s
-  setTimeout(() => { title.classList.add('visible') }, 600)
-
-  // Na 3.2s: alles outfaden
-  setTimeout(() => {
-    overlay.classList.add('fade-out')
-    // Na de fade: overlay verwijderen, matrix-state herstellen
-    setTimeout(() => {
-      overlay.remove()
-      canvas.style.opacity = ''
-      onDone()
-    }, 1000)
-  }, 3200)
-}
 
 // The lines below enable quality of life phoenix_live_reload
 // development features:
