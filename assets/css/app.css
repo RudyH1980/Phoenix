@@ -349,8 +349,8 @@ h3 { font-size: 1rem;    line-height: 1.4; }
 .pa-tab:hover { color: var(--pa-text); background: var(--pa-surface-raised); }
 
 .pa-tab.active {
-  background: var(--pa-teal);
-  color: var(--color-primary-content, oklch(15% 0.03 194));
+  background: var(--pa-text);
+  color: var(--pa-bg);
   font-weight: 600;
 }
 
@@ -378,12 +378,32 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   border-radius: var(--pa-radius);
   padding: 1.25rem 1.5rem;
   display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   transition: border-color var(--pa-transition);
 }
 
 .pa-stat-card:hover { border-color: var(--pa-teal); }
+
+.pa-stat-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.pa-stat-icon-wrap {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--pa-teal-dim, oklch(72% 0.15 194 / 0.12));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--pa-teal);
+  flex-shrink: 0;
+  box-shadow: 0 0 20px var(--pa-teal-glow, oklch(72% 0.15 194 / 0.2));
+}
 
 .pa-stat-label {
   font-size: 0.75rem;
@@ -1206,6 +1226,19 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   color: var(--pa-text-muted);
 }
 
+.pa-section-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--pa-text-muted);
+}
+
+.pa-btn--sm {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.78rem;
+}
+
 /* ============================================================
    HEATMAP
    ============================================================ */
@@ -1343,22 +1376,90 @@ h3 { font-size: 1rem;    line-height: 1.4; }
 .pa-tag-btn.active { border-color: var(--pa-teal); background: var(--pa-teal-dim); color: var(--pa-teal); }
 
 /* ============================================================
-   STAT CARD — ICON VARIANT
+   CHART TITLE
    ============================================================ */
-.pa-stat-card--icon {
-  position: relative;
-  overflow: hidden;
+.pa-chart-title {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--pa-text-muted);
+  margin: 0 0 0.75rem;
 }
 
-.pa-stat-card--icon .pa-stat-icon {
+/* ============================================================
+   CHART TOOLTIP & CROSSHAIR
+   ============================================================ */
+.pa-chart-tooltip {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
-  font-size: 2.25rem;
-  line-height: 1;
-  opacity: 0.35;
+  background: var(--pa-surface-raised);
+  border: 1px solid var(--pa-teal-dim);
+  border-radius: var(--pa-radius-sm);
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8rem;
+  color: var(--pa-text);
   pointer-events: none;
-  user-select: none;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  z-index: 10;
+  box-shadow: 0 4px 12px oklch(0% 0 0 / 0.3);
+}
+
+.pa-chart-tooltip strong { color: var(--pa-teal); margin-right: 0.5rem; }
+
+.pa-chart-crosshair {
+  stroke: var(--pa-teal);
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+  opacity: 0.6;
+}
+
+.pa-chart { position: relative; }
+
+/* ============================================================
+   SITE LIST — COLUMN LAYOUT
+   ============================================================ */
+.pa-site-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-teal-dim, var(--pa-border));
+  border-radius: var(--pa-radius);
+  text-decoration: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  width: 100%;
+}
+
+.pa-site-row:hover {
+  border-color: var(--pa-teal);
+  box-shadow: 0 0 0 1px var(--pa-teal-dim);
+}
+
+.pa-site-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.1rem;
+  min-width: 60px;
+  flex-shrink: 0;
+}
+
+.pa-site-col-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--pa-text);
+  display: flex;
+  align-items: center;
+}
+
+.pa-site-col-label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--pa-text-muted);
 }
 
 .pa-stat-trend {

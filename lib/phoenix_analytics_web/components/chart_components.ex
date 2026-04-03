@@ -86,20 +86,27 @@ defmodule PhoenixAnalyticsWeb.ChartComponents do
   attr :height, :integer, default: 140
   attr :class, :string, default: ""
   attr :color, :string, default: "var(--pa-teal)"
+  attr :id, :string, default: "line-chart"
 
   def line_chart(assigns) do
     assigns = prepare_line_chart(assigns)
 
     ~H"""
-    <div class={["pa-chart", @class]}>
+    <div class={["pa-chart", @class]} phx-hook="LineChart" id={@id}>
       <%= if Enum.empty?(@data) do %>
         <p class="pa-chart-empty">Nog geen data</p>
       <% else %>
+        <p class="pa-chart-title">Alle bezoeken over tijd</p>
         <svg
           viewBox={"0 0 #{@width} #{@height}"}
           preserveAspectRatio="none"
           class="pa-chart-svg"
           aria-label="Bezoeken tijdlijn"
+          data-points={
+            Jason.encode!(
+              Enum.map(@dot_points, &%{x: &1.x, y: &1.y, count: &1.count, label: &1.label})
+            )
+          }
         >
           <defs>
             <linearGradient id="line-fill" x1="0" y1="0" x2="0" y2="1">
@@ -107,15 +114,15 @@ defmodule PhoenixAnalyticsWeb.ChartComponents do
               <stop offset="100%" stop-color={@color} stop-opacity="0.02" />
             </linearGradient>
           </defs>
-          <polygon points={@fill_points} fill="url(#line-fill)" />
-          <polyline
-            points={@line_points}
+          <path d={@fill_path} fill="url(#line-fill)" />
+          <path
+            d={@smooth_path}
             fill="none"
             stroke={@color}
-            stroke-width="2"
+            stroke-width="2.5"
             stroke-linejoin="round"
             stroke-linecap="round"
-            style="filter: drop-shadow(0 0 6px #00d4b8)"
+            style="filter: drop-shadow(0 0 8px #00d4b8)"
           />
           <%= for pt <- @dot_points do %>
             <circle cx={pt.x} cy={pt.y} r="3" fill={@color}>
@@ -134,8 +141,8 @@ defmodule PhoenixAnalyticsWeb.ChartComponents do
 
   defp prepare_line_chart(%{data: []} = assigns) do
     assign(assigns,
-      line_points: "",
-      fill_points: "",
+      smooth_path: "",
+      fill_path: "",
       dot_points: [],
       width: 600,
       first_label: "",
@@ -148,18 +155,49 @@ defmodule PhoenixAnalyticsWeb.ChartComponents do
     height = assigns.height
     width = 600
     points = build_line_points(data, height, width)
-    line_points = Enum.map_join(points, " ", &"#{&1.x},#{&1.y}")
+    smooth_path = build_smooth_path(points)
     first = List.first(points)
     last = List.last(points)
 
+    # Build fill path: start at bottom-left, trace the curve, close at bottom-right
+    curve_without_m =
+      case smooth_path do
+        "M " <> rest ->
+          case String.split(rest, " ", parts: 2) do
+            [_start_point, remainder] -> remainder
+            _ -> ""
+          end
+
+        _ ->
+          ""
+      end
+
+    fill_path =
+      "M #{first.x},#{height} L #{first.x},#{first.y} #{curve_without_m} L #{last.x},#{height} Z"
+
     assign(assigns,
-      line_points: line_points,
-      fill_points: "#{first.x},#{height} #{line_points} #{last.x},#{height}",
+      smooth_path: smooth_path,
+      fill_path: fill_path,
       dot_points: points,
       width: width,
       first_label: format_date(List.first(data).date),
       last_label: format_date(List.last(data).date)
     )
+  end
+
+  defp build_smooth_path([]), do: ""
+
+  defp build_smooth_path([p | _] = points) do
+    segments =
+      points
+      |> Enum.chunk_every(2, 1, :discard)
+      |> Enum.map(fn [p1, p2] ->
+        dx = (p2.x - p1.x) * 0.4
+
+        "C #{Float.round(p1.x + dx, 1)},#{p1.y} #{Float.round(p2.x - dx, 1)},#{p2.y} #{p2.x},#{p2.y}"
+      end)
+
+    "M #{p.x},#{p.y} " <> Enum.join(segments, " ")
   end
 
   defp build_line_points(data, height, width) do

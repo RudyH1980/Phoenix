@@ -25,9 +25,69 @@ import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
+
+const Hooks = {}
+
+Hooks.LineChart = {
+  mounted() {
+    const svg = this.el.querySelector('.pa-chart-svg')
+    if (!svg) return
+
+    const pointsRaw = svg.dataset.points
+    if (!pointsRaw) return
+    const points = JSON.parse(pointsRaw)
+
+    const tooltip = document.createElement('div')
+    tooltip.className = 'pa-chart-tooltip'
+    tooltip.style.display = 'none'
+    this.el.appendChild(tooltip)
+
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line')
+    line.setAttribute('class', 'pa-chart-crosshair')
+    line.setAttribute('y1', '0')
+    line.setAttribute('y2', '100%')
+    line.style.display = 'none'
+    svg.appendChild(line)
+
+    svg.addEventListener('mousemove', (e) => {
+      const rect = svg.getBoundingClientRect()
+      const svgW = svg.viewBox.baseVal.width || rect.width
+      const svgH = svg.viewBox.baseVal.height || rect.height
+      const mouseX = (e.clientX - rect.left) / rect.width * svgW
+
+      // nearest point
+      let nearest = points[0]
+      let minDist = Infinity
+      for (const p of points) {
+        const d = Math.abs(p.x - mouseX)
+        if (d < minDist) { minDist = d; nearest = p }
+      }
+
+      // crosshair
+      line.setAttribute('x1', nearest.x)
+      line.setAttribute('x2', nearest.x)
+      line.style.display = ''
+
+      // tooltip position (convert SVG coords to CSS %)
+      const tooltipX = (nearest.x / svgW) * rect.width
+      const tooltipY = (nearest.y / svgH) * rect.height
+      tooltip.style.display = ''
+      tooltip.style.left = `${tooltipX}px`
+      tooltip.style.top = `${tooltipY - 48}px`
+      tooltip.innerHTML = `<strong>${nearest.label}</strong> Weergaven: ${nearest.count}`
+    })
+
+    svg.addEventListener('mouseleave', () => {
+      tooltip.style.display = 'none'
+      line.style.display = 'none'
+    })
+  }
+}
+
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
-  params: {_csrf_token: csrfToken}
+  params: {_csrf_token: csrfToken},
+  hooks: Hooks
 })
 
 // Show progress bar on live navigation and form submits

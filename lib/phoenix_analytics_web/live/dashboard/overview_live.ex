@@ -66,7 +66,8 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OverviewLive do
       timeline: timeline,
       total_pageviews: total_pageviews,
       total_visitors: total_visitors,
-      total_trend: total_trend
+      total_trend: total_trend,
+      website_count: length(sites_with_counts)
     )
   end
 
@@ -193,28 +194,82 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OverviewLive do
 
       <%!-- Totaal statistieken --%>
       <div class="pa-stats-grid" style="margin-bottom:1.5rem;">
-        <div class="pa-stat-card pa-stat-card--icon">
-          <span class="pa-stat-icon">👁️</span>
-          <span class="pa-stat-label">Totaal paginaweergaven</span>
-          <span class="pa-stat-value">{format_number(@total_pageviews)}</span>
-          <span class={trend_class(@total_trend)}>{trend_label(@total_trend)}</span>
+        <div class="pa-stat-card">
+          <div class="pa-stat-body">
+            <span class="pa-stat-label">TOTAAL PAGINAWEERGAVEN</span>
+            <span class="pa-stat-value">{format_number(@total_pageviews)}</span>
+            <span class={trend_class(@total_trend)}>{trend_label(@total_trend)}</span>
+          </div>
+          <div class="pa-stat-icon-wrap">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
+            </svg>
+          </div>
         </div>
-        <div class="pa-stat-card pa-stat-card--icon">
-          <span class="pa-stat-icon">👤</span>
-          <span class="pa-stat-label">Totaal unieke bezoekers</span>
-          <span class="pa-stat-value">{format_number(@total_visitors)}</span>
+        <div class="pa-stat-card">
+          <div class="pa-stat-body">
+            <span class="pa-stat-label">TOTAAL UNIEKE BEZOEKERS</span>
+            <span class="pa-stat-value">{format_number(@total_visitors)}</span>
+            <span class={trend_class(@total_trend)}>{trend_label(@total_trend)}</span>
+          </div>
+          <div class="pa-stat-icon-wrap">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
+            </svg>
+          </div>
         </div>
-        <div class="pa-stat-card pa-stat-card--icon">
-          <span class="pa-stat-icon">🌐</span>
-          <span class="pa-stat-label">Websites</span>
-          <span class="pa-stat-value">{length(@sites)}</span>
+        <div class="pa-stat-card">
+          <div class="pa-stat-body">
+            <span class="pa-stat-label">WEBSITES</span>
+            <span class="pa-stat-value">{@website_count}</span>
+            <span class={trend_class(@total_trend)}>{trend_label(@total_trend)}</span>
+          </div>
+          <div class="pa-stat-icon-wrap">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2" /><line
+                x1="8"
+                y1="21"
+                x2="16"
+                y2="21"
+              /><line x1="12" y1="17" x2="12" y2="21" />
+            </svg>
+          </div>
         </div>
       </div>
 
       <%!-- Gecombineerde tijdlijn --%>
       <%= if not Enum.empty?(@timeline) do %>
         <div class="pa-card" style="margin-bottom:1.5rem;">
-          <h3>Alle bezoeken over tijd</h3>
           <.line_chart data={@timeline} height={140} />
         </div>
       <% end %>
@@ -222,9 +277,9 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OverviewLive do
       <%!-- Website lijst met aantallen --%>
       <section>
         <div class="pa-sites-section-header">
-          <h2>Websites</h2>
-          <.link navigate={~p"/dashboard/sites/new"} class="pa-btn pa-btn--primary">
-            + Website toevoegen
+          <h2 class="pa-section-title">WEBSITES</h2>
+          <.link navigate={~p"/dashboard/sites/new"} class="pa-btn pa-btn--primary pa-btn--sm">
+            + Add website
           </.link>
         </div>
 
@@ -241,8 +296,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OverviewLive do
           <ul class="pa-site-list pa-site-list--stats">
             <%= for site <- @sites do %>
               <li>
-                <.link navigate={~p"/dashboard/sites/#{site.id}"}>
-                  <%!-- Avatar --%>
+                <.link navigate={~p"/dashboard/sites/#{site.id}"} class="pa-site-row">
                   <div
                     class="pa-site-avatar"
                     style={"background: #{avatar_color(site.name)}"}
@@ -253,47 +307,41 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OverviewLive do
                   <div class="pa-site-info">
                     <strong>{site.name}</strong>
                     <span class="pa-site-domain">{site.domain}</span>
-                    <%= if site.tags && site.tags != [] do %>
-                      <span style="display:flex; gap:0.25rem; flex-wrap:wrap; margin-top:0.2rem;">
-                        <%= for tag <- site.tags do %>
-                          <span class={"pa-tag pa-tag--#{tag_color(tag)} pa-tag--sm"}>{tag}</span>
-                        <% end %>
-                      </span>
-                    <% end %>
                   </div>
-                  <div class="pa-site-counts">
-                    <span class="pa-site-stat">
-                      <span class="pa-site-stat-value">{format_number(site.pageviews)}</span>
-                      <span class="pa-site-stat-label">views</span>
-                    </span>
-                    <span class="pa-site-stat">
-                      <span class="pa-site-stat-value">{format_number(site.visitors)}</span>
-                      <span class="pa-site-stat-label">bezoekers</span>
-                    </span>
-                    <%!-- Trend badge --%>
-                    <%= if site.trend != 0 do %>
-                      <span class={trend_class(site.trend)} style="font-size:0.7rem;">
-                        {trend_label(site.trend)}
-                      </span>
-                    <% end %>
-                    <%!-- Sparkline --%>
-                    <%= if sparkline_points(site.sparkline) do %>
-                      <svg
-                        width="80"
-                        height="24"
-                        viewBox="0 0 80 24"
-                        class="pa-sparkline"
-                        aria-hidden="true"
-                      >
-                        <polyline
-                          points={sparkline_points(site.sparkline)}
-                          class="pa-sparkline-line"
-                          style="filter: drop-shadow(0 0 3px #00d4b8)"
-                        />
-                      </svg>
-                    <% end %>
-                    <span class="pa-site-arrow">›</span>
+                  <div class="pa-site-col">
+                    <span class="pa-site-col-value">{format_number(site.pageviews)}</span>
+                    <span class="pa-site-col-label">VIEWS</span>
                   </div>
+                  <div class="pa-site-col">
+                    <span class="pa-site-col-value">
+                      {format_number(site.visitors)}
+                      <%= if site.trend != 0 do %>
+                        <span
+                          class={trend_class(site.trend)}
+                          style="font-size:0.75rem; margin-left:0.25rem;"
+                        >
+                          {if site.trend > 0, do: "+#{site.trend}%", else: "#{site.trend}%"}
+                        </span>
+                      <% end %>
+                    </span>
+                    <span class="pa-site-col-label">BEZOEKERS</span>
+                  </div>
+                  <%= if sparkline_points(site.sparkline) do %>
+                    <svg
+                      width="80"
+                      height="24"
+                      viewBox="0 0 80 24"
+                      class="pa-sparkline"
+                      aria-hidden="true"
+                    >
+                      <polyline
+                        points={sparkline_points(site.sparkline)}
+                        class="pa-sparkline-line"
+                        style="filter: drop-shadow(0 0 3px #00d4b8)"
+                      />
+                    </svg>
+                  <% end %>
+                  <span class="pa-site-arrow">›</span>
                 </.link>
               </li>
             <% end %>
