@@ -37,6 +37,8 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OverviewLive do
     sites = load_sites(org_ids)
     counts = Stats.sites_pageview_counts(org_ids, period)
     timeline = Stats.combined_timeline(org_ids, period)
+    yesterday_counts = Stats.yesterday_pageview_counts(org_ids)
+    sparklines = Stats.sites_sparklines(org_ids)
 
     total_pageviews = Enum.reduce(counts, 0, fn {_, v}, acc -> acc + v.pageviews end)
     total_visitors = Enum.reduce(counts, 0, fn {_, v}, acc -> acc + v.visitors end)
@@ -44,16 +46,36 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OverviewLive do
     sites_with_counts =
       Enum.map(sites, fn site ->
         stats = Map.get(counts, site.id, %{pageviews: 0, visitors: 0})
-        Map.merge(site, stats)
+        yesterday_pv = Map.get(yesterday_counts, site.id, 0)
+        sparkline = Map.get(sparklines, site.id, [])
+        trend = calc_trend(stats.pageviews, yesterday_pv)
+
+        site
+        |> Map.merge(stats)
+        |> Map.put(:trend, trend)
+        |> Map.put(:sparkline, sparkline)
       end)
       |> Enum.sort_by(& &1.pageviews, :desc)
+
+    # Trend vs gisteren voor totalen
+    total_yesterday = Enum.reduce(yesterday_counts, 0, fn {_, v}, acc -> acc + v end)
+    total_trend = calc_trend(total_pageviews, total_yesterday)
 
     assign(socket,
       sites: sites_with_counts,
       timeline: timeline,
       total_pageviews: total_pageviews,
-      total_visitors: total_visitors
+      total_visitors: total_visitors,
+      total_trend: total_trend
     )
+  end
+
+  defp calc_trend(current, yesterday) do
+    cond do
+      yesterday == 0 and current == 0 -> 0
+      yesterday == 0 -> 100
+      true -> round((current - yesterday) / yesterday * 100)
+    end
   end
 
   defp load_sites([]), do: []
@@ -83,6 +105,60 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OverviewLive do
   defp format_number(n) when n >= 1_000_000, do: "#{Float.round(n / 1_000_000, 1)}M"
   defp format_number(n) when n >= 1_000, do: "#{Float.round(n / 1_000, 1)}k"
   defp format_number(n), do: to_string(n)
+
+  # Genereer een avatar kleur op basis van een hash van de sitenaam
+  defp avatar_color(name) do
+    colors = [
+      "#0ea5e9",
+      "#8b5cf6",
+      "#f59e0b",
+      "#10b981",
+      "#ef4444",
+      "#ec4899",
+      "#14b8a6",
+      "#f97316"
+    ]
+
+    idx = :erlang.phash2(name, length(colors))
+    Enum.at(colors, idx)
+  end
+
+  defp avatar_initials(name) do
+    name
+    |> String.split(~r/[\s\-_\.]+/)
+    |> Enum.take(2)
+    |> Enum.map(&String.first/1)
+    |> Enum.join()
+    |> String.upcase()
+  end
+
+  defp trend_class(t) when t > 0, do: "pa-stat-trend pa-stat-trend--up"
+  defp trend_class(t) when t < 0, do: "pa-stat-trend pa-stat-trend--down"
+  defp trend_class(_), do: "pa-stat-trend pa-stat-trend--neutral"
+
+  defp trend_label(t) when t > 0, do: "+#{t}% vs. gisteren"
+  defp trend_label(t) when t < 0, do: "#{t}% vs. gisteren"
+  defp trend_label(_), do: "0% vs. gisteren"
+
+  # Bouw een inline SVG sparkline polyline van ~80x24px op basis van dagelijkse counts
+  defp sparkline_points(data) when data == [], do: nil
+
+  defp sparkline_points(data) do
+    w = 80
+    h = 24
+    pad = 2
+    n = length(data)
+    max_v = data |> Enum.max_by(& &1.count) |> Map.get(:count) |> max(1)
+
+    data
+    |> Enum.with_index()
+    |> Enum.map(fn {pt, i} ->
+      x = if n == 1, do: w / 2, else: pad + i / (n - 1) * (w - 2 * pad)
+      y = pad + (1 - pt.count / max_v) * (h - 2 * pad)
+      "#{Float.round(x, 1)},#{Float.round(y, 1)}"
+    end)
+    |> Enum.join(" ")
+  end
 
   @impl true
   def render(assigns) do
@@ -119,15 +195,19 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OverviewLive do
 
       <%!-- Totaal statistieken --%>
       <div class="pa-stats-grid" style="margin-bottom:1.5rem;">
-        <div class="pa-stat-card">
+        <div class="pa-stat-card pa-stat-card--icon">
+          <span class="pa-stat-icon">👁️</span>
           <span class="pa-stat-label">Totaal paginaweergaven</span>
           <span class="pa-stat-value">{format_number(@total_pageviews)}</span>
+          <span class={trend_class(@total_trend)}>{trend_label(@total_trend)}</span>
         </div>
-        <div class="pa-stat-card">
+        <div class="pa-stat-card pa-stat-card--icon">
+          <span class="pa-stat-icon">👤</span>
           <span class="pa-stat-label">Totaal unieke bezoekers</span>
           <span class="pa-stat-value">{format_number(@total_visitors)}</span>
         </div>
-        <div class="pa-stat-card">
+        <div class="pa-stat-card pa-stat-card--icon">
+          <span class="pa-stat-icon">🌐</span>
           <span class="pa-stat-label">Websites</span>
           <span class="pa-stat-value">{length(@sites)}</span>
         </div>
@@ -164,6 +244,14 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OverviewLive do
             <%= for site <- @sites do %>
               <li>
                 <.link navigate={~p"/dashboard/sites/#{site.id}"}>
+                  <%!-- Avatar --%>
+                  <div
+                    class="pa-site-avatar"
+                    style={"background: #{avatar_color(site.name)}"}
+                    aria-hidden="true"
+                  >
+                    {avatar_initials(site.name)}
+                  </div>
                   <div class="pa-site-info">
                     <strong>{site.name}</strong>
                     <span class="pa-site-domain">{site.domain}</span>
@@ -184,6 +272,28 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OverviewLive do
                       <span class="pa-site-stat-value">{format_number(site.visitors)}</span>
                       <span class="pa-site-stat-label">bezoekers</span>
                     </span>
+                    <%!-- Trend badge --%>
+                    <%= if site.trend != 0 do %>
+                      <span class={trend_class(site.trend)} style="font-size:0.7rem;">
+                        {trend_label(site.trend)}
+                      </span>
+                    <% end %>
+                    <%!-- Sparkline --%>
+                    <%= if sparkline_points(site.sparkline) do %>
+                      <svg
+                        width="80"
+                        height="24"
+                        viewBox="0 0 80 24"
+                        class="pa-sparkline"
+                        aria-hidden="true"
+                      >
+                        <polyline
+                          points={sparkline_points(site.sparkline)}
+                          class="pa-sparkline-line"
+                          style="filter: drop-shadow(0 0 3px #00d4b8)"
+                        />
+                      </svg>
+                    <% end %>
                     <span class="pa-site-arrow">›</span>
                   </div>
                 </.link>

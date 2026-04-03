@@ -114,6 +114,7 @@ defmodule PhoenixAnalyticsWeb.ChartComponents do
             stroke-width="2"
             stroke-linejoin="round"
             stroke-linecap="round"
+            style="filter: drop-shadow(0 0 6px #00d4b8)"
           />
           <%= for pt <- @dot_points do %>
             <circle cx={pt.x} cy={pt.y} r="3" fill={@color}>

@@ -374,7 +374,7 @@ h3 { font-size: 1rem;    line-height: 1.4; }
 
 .pa-stat-card {
   background: var(--pa-surface);
-  border: 1px solid var(--pa-border);
+  border: 1px solid var(--pa-teal-dim, var(--pa-border));
   border-radius: var(--pa-radius);
   padding: 1.25rem 1.5rem;
   display: flex;
@@ -478,17 +478,20 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  padding: 0.85rem 1rem;
+  gap: 0.875rem;
+  padding: 0.875rem 1rem;
   border-radius: var(--pa-radius);
-  border: 1px solid var(--pa-border);
+  border: 1px solid var(--pa-teal-dim, var(--pa-border));
   text-decoration: none;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
   background: var(--pa-surface);
   margin-bottom: 0.5rem;
 }
 
-.pa-site-list--stats li a:hover { border-color: var(--pa-teal); }
+.pa-site-list--stats li a:hover {
+  border-color: var(--pa-teal);
+  box-shadow: 0 0 0 1px var(--pa-teal-dim);
+}
 
 .pa-site-info { flex: 1; min-width: 0; }
 .pa-site-domain { display: block; font-size: 0.8rem; color: var(--pa-text-muted); }
@@ -1338,6 +1341,88 @@ h3 { font-size: 1rem;    line-height: 1.4; }
 
 .pa-tag-btn:hover { border-color: var(--pa-teal); color: var(--pa-teal); }
 .pa-tag-btn.active { border-color: var(--pa-teal); background: var(--pa-teal-dim); color: var(--pa-teal); }
+
+/* ============================================================
+   STAT CARD — ICON VARIANT
+   ============================================================ */
+.pa-stat-card--icon {
+  position: relative;
+  overflow: hidden;
+}
+
+.pa-stat-card--icon .pa-stat-icon {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 2.25rem;
+  line-height: 1;
+  opacity: 0.35;
+  pointer-events: none;
+  user-select: none;
+}
+
+.pa-stat-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  margin-top: 0.25rem;
+}
+
+.pa-stat-trend--up {
+  color: var(--pa-green);
+}
+
+.pa-stat-trend--down {
+  color: var(--pa-red);
+}
+
+.pa-stat-trend--neutral {
+  color: var(--pa-text-faint);
+}
+
+/* ============================================================
+   SITE AVATAR
+   ============================================================ */
+.pa-site-avatar {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  color: white;
+}
+
+/* ============================================================
+   SPARKLINE
+   ============================================================ */
+.pa-sparkline {
+  display: block;
+  flex-shrink: 0;
+}
+
+.pa-sparkline-line {
+  fill: none;
+  stroke: var(--pa-teal);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+/* ============================================================
+   CHART — GLOW EFFECTEN
+   ============================================================ */
+.pa-chart-glow polyline,
+.pa-chart-glow .pa-chart-line {
+  filter: drop-shadow(0 0 6px var(--pa-teal));
+}
 
 /* ============================================================
    FLASH SUCCESS

@@ -329,4 +329,61 @@ defmodule PhoenixAnalytics.Analytics.Stats do
         }
     )
   end
+
+  @doc """
+  Pageviews van gisteren per site, gegroepeerd op site_id.
+  Geeft een map terug: %{site_id => pageview_count}.
+  """
+  def yesterday_pageview_counts(org_ids) do
+    yesterday_start =
+      Date.utc_today()
+      |> Date.add(-1)
+      |> DateTime.new!(~T[00:00:00])
+
+    yesterday_end =
+      Date.utc_today()
+      |> DateTime.new!(~T[00:00:00])
+
+    binary_ids = Enum.map(org_ids, &Ecto.UUID.dump!/1)
+    site_ids_q = from s in "sites", where: s.org_id in ^binary_ids, select: s.id
+
+    Repo.all(
+      from p in "pageviews",
+        where:
+          p.site_id in subquery(site_ids_q) and
+            p.inserted_at >= ^yesterday_start and
+            p.inserted_at < ^yesterday_end,
+        group_by: p.site_id,
+        select: %{
+          site_id: type(p.site_id, Ecto.UUID),
+          pageviews: count(p.id)
+        }
+    )
+    |> Map.new(&{&1.site_id, &1.pageviews})
+  end
+
+  @doc """
+  Laatste 7 dagen pageviews per dag per site.
+  Geeft een map terug: %{site_id => [%{date, count}]}.
+  """
+  def sites_sparklines(org_ids) do
+    since = DateTime.add(DateTime.utc_now(), -7 * 86_400, :second)
+    binary_ids = Enum.map(org_ids, &Ecto.UUID.dump!/1)
+    site_ids_q = from s in "sites", where: s.org_id in ^binary_ids, select: s.id
+
+    rows =
+      Repo.all(
+        from p in "pageviews",
+          where: p.site_id in subquery(site_ids_q) and p.inserted_at >= ^since,
+          group_by: [p.site_id, fragment("DATE(inserted_at)")],
+          order_by: [asc: p.site_id, asc: fragment("DATE(inserted_at)")],
+          select: %{
+            site_id: type(p.site_id, Ecto.UUID),
+            date: fragment("DATE(inserted_at)"),
+            count: count(p.id)
+          }
+      )
+
+    Enum.group_by(rows, & &1.site_id, &%{date: &1.date, count: &1.count})
+  end
 end
