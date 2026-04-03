@@ -14,7 +14,7 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.PasskeyLive do
      assign(socket,
        user_id: user_id,
        passkeys: passkeys,
-       page_title: "Passkeys",
+       page_title: "Mijn account",
        error: nil,
        status: nil
      )}
@@ -121,11 +121,11 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.PasskeyLive do
     ~H"""
     <div class="pa-container" id="passkey-manager" phx-hook="PasskeyRegister">
       <nav class="pa-breadcrumb">
-        <.link navigate={~p"/dashboard"}>Dashboard</.link> / <strong>Passkeys</strong>
+        <.link navigate={~p"/dashboard"}>Dashboard</.link> / <strong>Mijn account</strong>
       </nav>
 
       <div class="pa-page-header">
-        <h2>Passkeys beheren</h2>
+        <h2>Mijn account</h2>
         <button phx-click="start_register" class="pa-btn pa-btn--primary">
           + Passkey toevoegen
         </button>

@@ -169,6 +169,9 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OverviewLive do
               {m.org.name}
             </.link>
           <% end %>
+          <.link navigate={~p"/dashboard/account"} class="pa-btn pa-btn--ghost">
+            Mijn account
+          </.link>
           <.link href={~p"/auth/logout"} method="delete" class="pa-btn pa-btn--ghost">
             Uitloggen
           </.link>
