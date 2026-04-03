@@ -220,6 +220,9 @@ function initMatrix(opts) {
   let logicalW = window.innerWidth
   let logicalH = window.innerHeight
 
+  // Sla karakters op per kolom zodat ze stabiel zijn tussen frames
+  let charGrid = []
+
   function setupCols(introMode) {
     const dpr = window.devicePixelRatio || 1
     logicalW = window.innerWidth
@@ -229,11 +232,16 @@ function initMatrix(opts) {
     canvas.style.width = logicalW + 'px'
     canvas.style.height = logicalH + 'px'
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+    const numCols = Math.floor(logicalW / COL_WIDTH)
     cols = Array.from(
-      { length: Math.floor(logicalW / COL_WIDTH) },
+      { length: numCols },
       () => introMode
         ? Math.floor(Math.random() * -8)
         : Math.floor(Math.random() * -(logicalH / FONT_SIZE))
+    )
+    // Initialiseer karakter-grid: 21 tekens per kolom (kop + 20 trail)
+    charGrid = Array.from({ length: numCols }, () =>
+      Array.from({ length: 21 }, () => MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)])
     )
   }
 
@@ -258,15 +266,23 @@ function initMatrix(opts) {
       const headRow = cols[i]
       const y = headRow * FONT_SIZE
 
-      // Teken kop + trail elke frame zodat zwarte bg geen gaten laat
+      // Vernieuw karakters alleen op step-frames zodat ze niet flikkeren
+      if (step) {
+        charGrid[i][0] = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)]
+        for (let t = 1; t <= 20; t++) {
+          charGrid[i][t] = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)]
+        }
+      }
+
+      // Teken kop + trail elke frame met stabiele karakters
       if (headRow >= 0) {
         ctx.fillStyle = 'rgba(220, 255, 250, 0.95)'
-        ctx.fillText(MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)], x, y)
+        ctx.fillText(charGrid[i][0], x, y)
         for (let t = 1; t <= 20; t++) {
           if (headRow > t) {
             const opacity = Math.max(0.03, 0.65 - (t - 1) * 0.032)
             ctx.fillStyle = `rgba(0, 212, 184, ${opacity})`
-            ctx.fillText(MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)], x, y - FONT_SIZE * t)
+            ctx.fillText(charGrid[i][t], x, y - FONT_SIZE * t)
           }
         }
       }
