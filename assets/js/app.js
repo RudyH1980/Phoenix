@@ -188,7 +188,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  applyState()
+  // Intro-animatie: één keer per sessie tonen
+  const introSeen = sessionStorage.getItem('pa-intro-seen')
+  if (!introSeen) {
+    sessionStorage.setItem('pa-intro-seen', '1')
+    runMatrixIntro(matrix, canvas, () => applyState())
+  } else {
+    applyState()
+  }
 
   btn && btn.addEventListener('click', () => {
     active = !active
@@ -196,6 +203,37 @@ document.addEventListener('DOMContentLoaded', () => {
     applyState()
   })
 })
+
+function runMatrixIntro(matrix, canvas, onDone) {
+  // Overlay bouwen
+  const overlay = document.createElement('div')
+  overlay.id = 'pa-intro-overlay'
+  document.body.appendChild(overlay)
+
+  const title = document.createElement('div')
+  title.id = 'pa-intro-title'
+  title.innerHTML = '<span>Phoenix</span> Analytics'
+  overlay.appendChild(title)
+
+  // Matrix starten op de intro-overlay canvas
+  canvas.style.display = ''
+  canvas.style.opacity = '0.7'
+  matrix.start()
+
+  // Tekst infaden na 0.6s
+  setTimeout(() => { title.classList.add('visible') }, 600)
+
+  // Na 3.2s: alles outfaden
+  setTimeout(() => {
+    overlay.classList.add('fade-out')
+    // Na de fade: overlay verwijderen, matrix-state herstellen
+    setTimeout(() => {
+      overlay.remove()
+      canvas.style.opacity = ''
+      onDone()
+    }, 1000)
+  }, 3200)
+}
 
 // The lines below enable quality of life phoenix_live_reload
 // development features:

@@ -1631,6 +1631,50 @@ h3 { font-size: 1rem;    line-height: 1.4; }
 
 } /* end @layer components */
 
+/* ============================================================
+   MATRIX INTRO OVERLAY
+   ============================================================ */
+#pa-intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: oklch(8% 0.014 250);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 1s ease;
+}
+
+#pa-intro-overlay.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#pa-intro-title {
+  font-size: clamp(2rem, 6vw, 4rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: transparent;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+  text-shadow: 0 0 40px oklch(72% 0.15 194 / 0.6);
+  background: linear-gradient(135deg, oklch(72% 0.15 194), oklch(85% 0.12 160));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 20px oklch(72% 0.15 194 / 0.4));
+}
+
+#pa-intro-title.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#pa-intro-title span {
+  -webkit-text-fill-color: transparent;
+}
+
 /* Icon-swap buiten layer — anders wint daisyUI unlayered output */
 [data-theme="dark"] #pa-icon-sun { display: none; }
 [data-theme="light"] #pa-icon-moon { display: none; }
