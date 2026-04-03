@@ -708,6 +708,47 @@ h3 { font-size: 1rem;    line-height: 1.4; }
 
 .pa-btn--full { width: 100%; }
 
+/* Danger zone sectie op edit-pagina */
+.pa-danger-zone {
+  border: 1px solid oklch(55% 0.22 20 / 0.25);
+  border-radius: var(--pa-radius);
+  padding: 1.25rem 1.5rem;
+  background: oklch(14% 0.025 20 / 0.15);
+}
+
+.pa-danger-zone-title {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--pa-red);
+  margin: 0 0 0.75rem;
+}
+
+.pa-danger-zone-desc {
+  font-size: 0.875rem;
+  color: oklch(65% 0.01 250);
+  margin: 0 0 1rem;
+}
+
+.pa-danger-input {
+  flex: 1;
+  min-width: 200px;
+  max-width: 320px;
+  border-color: oklch(55% 0.22 20 / 0.35);
+}
+
+.pa-danger-input:focus {
+  border-color: oklch(60% 0.22 20 / 0.7);
+  outline: none;
+  box-shadow: 0 0 0 2px oklch(55% 0.22 20 / 0.15);
+}
+
+.pa-btn--danger:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 /* Loading spinner op phx-submit */
 .phx-submit-loading .pa-btn--primary::after {
   content: "";
@@ -1744,10 +1785,16 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   color: oklch(55% 0.01 250);
   font-size: 0.9rem;
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  transition: color 0.15s, border-color 0.15s, background 0.15s, opacity 0.15s;
   display: flex;
   align-items: center;
   justify-content: center;
+  opacity: 0;
+}
+
+.pa-site-list-item:hover .pa-site-delete-btn,
+.pa-site-list-item:focus-within .pa-site-delete-btn {
+  opacity: 1;
 }
 
 .pa-site-delete-btn:hover {

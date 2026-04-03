@@ -18,6 +18,8 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.EditSiteLive do
              preset_tags: ~w(Prod Test Staging),
              custom_tag: "",
              saved: false,
+             show_delete_confirm: false,
+             delete_confirm_input: "",
              page_title: "Bewerk #{site.name}"
            )}
         else
@@ -70,6 +72,38 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.EditSiteLive do
 
   def handle_event("save", %{"name" => name, "domain" => domain}, socket) do
     do_save(socket, name, domain, false)
+  end
+
+  def handle_event("show_delete_confirm", _params, socket) do
+    {:noreply, assign(socket, show_delete_confirm: true, delete_confirm_input: "")}
+  end
+
+  def handle_event("hide_delete_confirm", _params, socket) do
+    {:noreply, assign(socket, show_delete_confirm: false, delete_confirm_input: "")}
+  end
+
+  def handle_event("update_delete_input", %{"value" => value}, socket) do
+    {:noreply, assign(socket, delete_confirm_input: value)}
+  end
+
+  def handle_event("delete_site", _params, socket) do
+    if socket.assigns[:is_demo] do
+      {:noreply, socket}
+    else
+      site = socket.assigns.site
+      confirmed = String.trim(socket.assigns.delete_confirm_input) == site.name
+
+      if confirmed do
+        site |> Ash.Changeset.for_update(:soft_delete) |> Ash.update()
+
+        {:noreply,
+         socket
+         |> put_flash(:info, "#{site.name} verwijderd. Data bewaard 6 maanden.")
+         |> push_navigate(to: ~p"/dashboard")}
+      else
+        {:noreply, put_flash(socket, :error, "Naam komt niet overeen.")}
+      end
+    end
   end
 
   defp do_save(socket, name, domain, active) do
@@ -203,6 +237,47 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.EditSiteLive do
         <pre class="pa-code"><code>{@site.token}</code></pre>
         <span class="pa-hint">Gebruik dit token in je data-site attribuut.</span>
       </div>
+
+      <%= unless @is_demo do %>
+        <div class="pa-danger-zone" style="margin-top:2.5rem;">
+          <h3 class="pa-danger-zone-title">Gevarenzone</h3>
+          <%= if not @show_delete_confirm do %>
+            <p class="pa-danger-zone-desc">
+              Verwijder deze website. Analytics data blijft 6 maanden bewaard.
+            </p>
+            <button type="button" class="pa-btn pa-btn--danger" phx-click="show_delete_confirm">
+              Website verwijderen
+            </button>
+          <% else %>
+            <p class="pa-danger-zone-desc">
+              Typ <strong>{@site.name}</strong> om te bevestigen:
+            </p>
+            <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+              <input
+                type="text"
+                value={@delete_confirm_input}
+                phx-keyup="update_delete_input"
+                phx-blur="update_delete_input"
+                placeholder={@site.name}
+                class="pa-danger-input"
+                autocomplete="off"
+                id="delete-confirm-input"
+              />
+              <button
+                type="button"
+                class="pa-btn pa-btn--danger"
+                phx-click="delete_site"
+                disabled={String.trim(@delete_confirm_input) != @site.name}
+              >
+                Definitief verwijderen
+              </button>
+              <button type="button" class="pa-btn pa-btn--ghost" phx-click="hide_delete_confirm">
+                Annuleren
+              </button>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
     </div>
     """
   end
