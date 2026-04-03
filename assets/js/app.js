@@ -214,18 +214,26 @@ function initMatrix(opts) {
   let cols = []
   let midpointFired = false
   let frameCount = 0
-  const FONT_SIZE = 16
+  const FONT_SIZE = 18
   const COL_WIDTH = 18
   const SPEED = opts.speed || 2
+  let logicalW = window.innerWidth
+  let logicalH = window.innerHeight
 
   function setupCols(introMode) {
-    canvas.width = window.innerWidth
-    canvas.height = window.innerHeight
+    const dpr = window.devicePixelRatio || 1
+    logicalW = window.innerWidth
+    logicalH = window.innerHeight
+    canvas.width = Math.floor(logicalW * dpr)
+    canvas.height = Math.floor(logicalH * dpr)
+    canvas.style.width = logicalW + 'px'
+    canvas.style.height = logicalH + 'px'
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     cols = Array.from(
-      { length: Math.floor(canvas.width / COL_WIDTH) },
+      { length: Math.floor(logicalW / COL_WIDTH) },
       () => introMode
         ? Math.floor(Math.random() * -8)
-        : Math.floor(Math.random() * -(canvas.height / FONT_SIZE))
+        : Math.floor(Math.random() * -(logicalH / FONT_SIZE))
     )
   }
 
@@ -237,10 +245,11 @@ function initMatrix(opts) {
     const step = frameCount % SPEED === 0
 
     ctx.fillStyle = 'rgba(13, 17, 23, 0.12)'
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
-    ctx.font = `${FONT_SIZE}px monospace`
+    ctx.fillRect(0, 0, logicalW, logicalH)
+    ctx.font = `${FONT_SIZE}px 'Courier New', monospace`
+    ctx.textBaseline = 'top'
 
-    const midRow = Math.floor(canvas.height / 2 / FONT_SIZE)
+    const midRow = Math.floor(logicalH / 2 / FONT_SIZE)
     let atMid = 0
 
     for (let i = 0; i < cols.length; i++) {
@@ -248,20 +257,25 @@ function initMatrix(opts) {
       const y = cols[i] * FONT_SIZE
 
       if (step) {
+        // Kop: fel wit
         const char = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)]
         ctx.fillStyle = 'rgba(220, 255, 250, 0.95)'
         ctx.fillText(char, x, y)
-        if (cols[i] > 1) {
-          const trail = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)]
-          ctx.fillStyle = 'rgba(0, 212, 184, 0.7)'
-          ctx.fillText(trail, x, y - FONT_SIZE)
+        // Trail: 4 tekens aflopend in helderheid
+        for (let t = 1; t <= 4; t++) {
+          if (cols[i] > t) {
+            const trail = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)]
+            const opacity = Math.max(0.05, 0.7 - (t - 1) * 0.18)
+            ctx.fillStyle = `rgba(0, 212, 184, ${opacity})`
+            ctx.fillText(trail, x, y - FONT_SIZE * t)
+          }
         }
       }
 
       if (cols[i] >= midRow) atMid++
 
       if (step) {
-        if (y > canvas.height && Math.random() > 0.975) cols[i] = 0
+        if (y > logicalH && Math.random() > 0.975) cols[i] = 0
         cols[i]++
       }
     }
@@ -365,8 +379,8 @@ function initLoginPage(canvas) {
               powered.remove()
               overlay.remove()
               // Matrix blijft actief als achtergrond op loginpagina
-            }, 3500)
-          }, 2800)
+            }, 2300)
+          }, 1800)
         }, 700)
       }, 3800)
     }
