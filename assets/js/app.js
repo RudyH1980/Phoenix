@@ -244,7 +244,7 @@ function initMatrix(opts) {
     frameCount++
     const step = frameCount % SPEED === 0
 
-    ctx.fillStyle = 'rgba(13, 17, 23, 0.12)'
+    ctx.fillStyle = 'rgba(13, 17, 23, 0.05)'
     ctx.fillRect(0, 0, logicalW, logicalH)
     ctx.font = `${FONT_SIZE}px 'Courier New', monospace`
     ctx.textBaseline = 'top'
@@ -261,11 +261,11 @@ function initMatrix(opts) {
         const char = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)]
         ctx.fillStyle = 'rgba(220, 255, 250, 0.95)'
         ctx.fillText(char, x, y)
-        // Trail: 4 tekens aflopend in helderheid
-        for (let t = 1; t <= 4; t++) {
+        // Trail: 20 tekens aflopend in helderheid — lange streep, geen druppel
+        for (let t = 1; t <= 20; t++) {
           if (cols[i] > t) {
             const trail = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)]
-            const opacity = Math.max(0.05, 0.7 - (t - 1) * 0.18)
+            const opacity = Math.max(0.03, 0.65 - (t - 1) * 0.032)
             ctx.fillStyle = `rgba(0, 212, 184, ${opacity})`
             ctx.fillText(trail, x, y - FONT_SIZE * t)
           }
