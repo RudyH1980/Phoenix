@@ -2073,13 +2073,20 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center right;
+  object-position: 40% center;
   display: block;
   opacity: 0;
   transition: opacity 2.5s ease;
 }
 
-.pa-neo-morpheus-img.visible { opacity: 0.45; }
+.pa-neo-morpheus-img.visible { opacity: 0.55; }
+
+@media (max-width: 600px) {
+  .pa-neo-morpheus-img {
+    object-position: 30% center;
+  }
+  .pa-neo-morpheus-img.visible { opacity: 0.6; }
+}
 
 /* Tekst container — gecentreerd midden van scherm */
 .pa-neo-text-wrap {
