@@ -160,7 +160,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OverviewLive do
     <div class="pa-container">
       <header class="pa-header">
         <div class="pa-header-brand">
-          <h1>Phoenix Analytics</h1>
+          <h1>Neo Analytics</h1>
           <p>Cookieloze analytics en A/B testing</p>
         </div>
         <nav class="pa-header-nav">

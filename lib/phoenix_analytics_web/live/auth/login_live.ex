@@ -137,7 +137,7 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
     ~H"""
     <div class="pa-auth-container" id="login-container" phx-hook="PasskeyLogin">
       <div class="pa-auth-card">
-        <h1>Phoenix Analytics</h1>
+        <h1>Neo Analytics</h1>
 
         <%= if @error do %>
           <div class="pa-alert pa-alert--error" style="margin-bottom:1rem;">

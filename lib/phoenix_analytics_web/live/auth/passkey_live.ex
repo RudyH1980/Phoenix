@@ -46,7 +46,7 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.PasskeyLive do
 
     options = %{
       challenge: Base.url_encode64(challenge.bytes, padding: false),
-      rp: %{name: "Phoenix Analytics", id: rp_id},
+      rp: %{name: "Neo Analytics", id: rp_id},
       user: %{
         id: Base.url_encode64(user_id, padding: false),
         name: user.email,

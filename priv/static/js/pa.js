@@ -1,4 +1,4 @@
-/* Phoenix Analytics tracker -- cookieloos, ~1KB */
+/* Neo Analytics tracker -- cookieloos, ~1KB */
 (function () {
   var d = document, w = window;
   var scriptSrc = d.currentScript.src;

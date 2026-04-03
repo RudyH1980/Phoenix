@@ -7,12 +7,12 @@ defmodule PhoenixAnalytics.Emails.InviteEmail do
 
     new()
     |> to(to_email)
-    |> from({"Phoenix Analytics", System.get_env("MAIL_FROM") || "onboarding@resend.dev"})
-    |> subject("Uitnodiging: #{org.name} op Phoenix Analytics")
+    |> from({"Neo Analytics", System.get_env("MAIL_FROM") || "onboarding@resend.dev"})
+    |> subject("Uitnodiging: #{org.name} op Neo Analytics")
     |> text_body("""
     Hallo,
 
-    Je bent uitgenodigd om lid te worden van #{org.name} op Phoenix Analytics.
+    Je bent uitgenodigd om lid te worden van #{org.name} op Neo Analytics.
 
     Klik op onderstaande link om je account aan te maken en de uitnodiging te accepteren.
     Deze link is 15 minuten geldig.
@@ -21,7 +21,7 @@ defmodule PhoenixAnalytics.Emails.InviteEmail do
 
     Als je dit niet verwacht had, kun je dit bericht negeren.
 
-    Phoenix Analytics
+    Neo Analytics
     """)
   end
 end
