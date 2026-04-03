@@ -82,7 +82,8 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.EditSiteLive do
          })
          |> Ash.update() do
       {:ok, site} ->
-        {:noreply, assign(socket, site: site, name: name, domain: domain, active: active, saved: true)}
+        {:noreply,
+         assign(socket, site: site, name: name, domain: domain, active: active, saved: true)}
 
       {:error, _} ->
         {:noreply, put_flash(socket, :error, "Opslaan mislukt.")}
@@ -95,8 +96,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.EditSiteLive do
     <div class="pa-container">
       <nav class="pa-breadcrumb">
         <.link navigate={~p"/dashboard"}>Dashboard</.link>
-        /
-        <.link navigate={~p"/dashboard/sites/#{@site.id}"}>{@site.name}</.link>
+        / <.link navigate={~p"/dashboard/sites/#{@site.id}"}>{@site.name}</.link>
         / <strong>Bewerken</strong>
       </nav>
 
@@ -186,8 +186,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.EditSiteLive do
               value="true"
               checked={@active}
               style="width:1rem;height:1rem;"
-            />
-            Site actief (tracker accepteert pageviews)
+            /> Site actief (tracker accepteert pageviews)
           </label>
         </div>
 

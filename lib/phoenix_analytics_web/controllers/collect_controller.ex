@@ -209,7 +209,12 @@ defmodule PhoenixAnalyticsWeb.CollectController do
       {:ok, %{status: 200, body: body}} ->
         country = if is_binary(body["countryCode"]), do: body["countryCode"], else: nil
         city = if is_binary(body["city"]) and body["city"] != "", do: body["city"], else: nil
-        region = if is_binary(body["regionName"]) and body["regionName"] != "", do: body["regionName"], else: nil
+
+        region =
+          if is_binary(body["regionName"]) and body["regionName"] != "",
+            do: body["regionName"],
+            else: nil
+
         {country, city, region}
 
       _ ->

@@ -107,7 +107,14 @@ defmodule PhoenixAnalyticsWeb.ChartComponents do
             </linearGradient>
           </defs>
           <polygon points={@fill_points} fill="url(#line-fill)" />
-          <polyline points={@line_points} fill="none" stroke={@color} stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+          <polyline
+            points={@line_points}
+            fill="none"
+            stroke={@color}
+            stroke-width="2"
+            stroke-linejoin="round"
+            stroke-linecap="round"
+          />
           <%= for pt <- @dot_points do %>
             <circle cx={pt.x} cy={pt.y} r="3" fill={@color}>
               <title>{pt.label}: {pt.count}</title>

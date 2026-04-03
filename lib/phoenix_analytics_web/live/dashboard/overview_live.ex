@@ -89,7 +89,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OverviewLive do
     ~H"""
     <div class="pa-container">
       <header class="pa-header">
-        <div>
+        <div class="pa-header-brand">
           <h1>Phoenix Analytics</h1>
           <p>Cookieloze analytics en A/B testing</p>
         </div>

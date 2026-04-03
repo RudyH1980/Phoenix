@@ -220,9 +220,21 @@ h3 { font-size: 1rem;    line-height: 1.4; }
    HEADER & NAV
    ============================================================ */
 .pa-header {
-  padding: 2rem 0 1.5rem;
+  padding: 1.25rem 0 1.25rem;
   border-bottom: 1px solid var(--pa-border-subtle);
   margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.pa-header-brand h1 {
+  background: linear-gradient(135deg, var(--pa-teal), oklch(72% 0.15 194 / 0.6));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .pa-header h1 {
@@ -235,7 +247,21 @@ h3 { font-size: 1rem;    line-height: 1.4; }
 .pa-header p {
   color: var(--pa-text-muted);
   margin: 0.25rem 0 0;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
+}
+
+.pa-header-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+/* Thema toggle ingebouwd in de header nav */
+.pa-header-nav #pa-theme-toggle {
+  position: static;
+  flex-shrink: 0;
 }
 
 .pa-breadcrumb {
@@ -324,7 +350,7 @@ h3 { font-size: 1rem;    line-height: 1.4; }
 
 .pa-tab.active {
   background: var(--pa-teal);
-  color: oklch(15% 0.03 194);
+  color: var(--color-primary-content, oklch(15% 0.03 194));
   font-weight: 600;
 }
 
@@ -561,12 +587,12 @@ h3 { font-size: 1rem;    line-height: 1.4; }
 
 .pa-btn--primary {
   background: var(--pa-teal);
-  color: oklch(15% 0.03 194);
+  color: var(--color-primary-content, oklch(15% 0.03 194));
   border-color: var(--pa-teal);
 }
 
 .pa-btn--primary:hover {
-  background: oklch(76% 0.15 194);
+  filter: brightness(1.1);
   box-shadow: 0 0 0 3px var(--pa-teal-glow);
 }
 
@@ -579,7 +605,7 @@ h3 { font-size: 1rem;    line-height: 1.4; }
 .pa-btn--ghost:hover {
   background: var(--pa-surface-raised);
   color: var(--pa-text);
-  border-color: oklch(35% 0.025 250);
+  border-color: var(--pa-border);
 }
 
 .pa-btn--danger {
@@ -626,7 +652,7 @@ h3 { font-size: 1rem;    line-height: 1.4; }
 }
 
 .pa-badge--draft {
-  background: oklch(28% 0.02 250);
+  background: var(--pa-surface-raised);
   color: var(--pa-text-muted);
   border: 1px solid var(--pa-border);
 }
@@ -644,7 +670,7 @@ h3 { font-size: 1rem;    line-height: 1.4; }
 }
 
 .pa-badge--archived {
-  background: oklch(22% 0.015 250);
+  background: var(--pa-surface);
   color: var(--pa-text-faint);
   border: 1px solid var(--pa-border-subtle);
 }
@@ -666,25 +692,25 @@ h3 { font-size: 1rem;    line-height: 1.4; }
 .pa-alert--success {
   background: var(--pa-green-dim);
   border: 1px solid oklch(67% 0.16 150 / 0.25);
-  color: oklch(78% 0.12 150);
+  color: var(--pa-green);
 }
 
 .pa-alert--warning {
   background: var(--pa-amber-dim);
   border: 1px solid oklch(75% 0.17 65 / 0.25);
-  color: oklch(80% 0.13 65);
+  color: var(--pa-amber);
 }
 
 .pa-alert--info {
   background: var(--pa-blue-dim);
   border: 1px solid oklch(62% 0.17 240 / 0.25);
-  color: oklch(75% 0.12 240);
+  color: var(--pa-blue);
 }
 
 .pa-alert--error {
   background: var(--pa-red-dim);
   border: 1px solid oklch(60% 0.22 20 / 0.25);
-  color: oklch(72% 0.16 20);
+  color: var(--pa-red);
 }
 
 /* ============================================================
@@ -774,6 +800,10 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   border: 1px solid var(--pa-border);
   border-radius: var(--pa-radius-lg);
   padding: 2.25rem 2rem;
+  box-shadow: 0 8px 32px oklch(0% 0 0 / 0.12), 0 2px 8px oklch(0% 0 0 / 0.08);
+}
+
+[data-theme="dark"] .pa-auth-card {
   box-shadow: 0 20px 60px oklch(0% 0 0 / 0.4);
 }
 
@@ -962,7 +992,7 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   transition: border-color var(--pa-transition);
 }
 
-.pa-variant-card:hover { border-color: oklch(35% 0.025 250); }
+.pa-variant-card:hover { border-color: var(--pa-border); filter: brightness(1.1); }
 
 .pa-variant-card h3 {
   font-size: 0.9rem;
@@ -1071,7 +1101,8 @@ h3 { font-size: 1rem;    line-height: 1.4; }
 }
 
 .pa-success-card p {
-  color: oklch(78% 0.1 150);
+  color: var(--pa-green);
+  opacity: 0.85;
   margin: 0 0 1.25rem;
 }
 
@@ -1102,12 +1133,13 @@ h3 { font-size: 1rem;    line-height: 1.4; }
 }
 
 .pa-snippet-hint code {
-  background: oklch(20% 0.02 250);
+  background: var(--pa-surface-raised);
   padding: 0.1rem 0.3rem;
   border-radius: 0.25rem;
   font-family: ui-monospace, monospace;
   font-size: 0.8em;
   color: var(--pa-teal);
+  border: 1px solid var(--pa-border-subtle);
 }
 
 .pa-code {
@@ -1120,7 +1152,7 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   font-family: ui-monospace, "Cascadia Code", "Fira Code", monospace;
   font-size: 0.825rem;
   line-height: 1.6;
-  color: oklch(80% 0.05 180);
+  color: var(--pa-text);
 }
 
 /* ============================================================
@@ -1210,11 +1242,11 @@ h3 { font-size: 1rem;    line-height: 1.4; }
    ============================================================ */
 #pa-theme-toggle {
   position: fixed;
-  top: 1rem;
-  right: 1rem;
+  bottom: 1.25rem;
+  right: 1.25rem;
   z-index: 1000;
-  width: 2.25rem;
-  height: 2.25rem;
+  width: 2.5rem;
+  height: 2.5rem;
   border-radius: 50%;
   border: 1px solid var(--pa-border);
   background: var(--pa-surface);
@@ -1224,24 +1256,40 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   align-items: center;
   justify-content: center;
   padding: 0;
-  transition: background var(--pa-transition), color var(--pa-transition), border-color var(--pa-transition);
+  transition: background var(--pa-transition), color var(--pa-transition), border-color var(--pa-transition), box-shadow var(--pa-transition);
+  box-shadow: 0 2px 8px oklch(0% 0 0 / 0.15);
 }
 
 #pa-theme-toggle:hover {
   background: var(--pa-surface-raised);
   color: var(--pa-teal);
   border-color: var(--pa-teal);
+  box-shadow: 0 4px 16px var(--pa-teal-glow);
 }
 
 #pa-theme-toggle svg {
-  width: 1rem;
-  height: 1rem;
+  width: 1.125rem;
+  height: 1.125rem;
   flex-shrink: 0;
 }
 
 /* Moon icon zichtbaar in dark mode, zon in light mode */
 [data-theme="dark"] #pa-icon-sun { display: none; }
 [data-theme="light"] #pa-icon-moon { display: none; }
+
+/* Op mobiel: wat kleiner zodat het geen content bedekt */
+@media (max-width: 480px) {
+  #pa-theme-toggle {
+    bottom: 0.875rem;
+    right: 0.875rem;
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+  #pa-theme-toggle svg {
+    width: 1rem;
+    height: 1rem;
+  }
+}
 
 /* ============================================================
    UTILITY
@@ -1272,10 +1320,10 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   font-size: 0.65rem;
 }
 
-.pa-tag--green  { background: rgba(34,197,94,0.15);  color: #4ade80; }
-.pa-tag--yellow { background: rgba(234,179,8,0.15);  color: #facc15; }
-.pa-tag--blue   { background: rgba(59,130,246,0.15); color: #60a5fa; }
-.pa-tag--default{ background: var(--pa-surface-raised); color: var(--pa-text-muted); }
+.pa-tag--green  { background: var(--pa-green-dim);  color: var(--pa-green); border: 1px solid oklch(67% 0.16 150 / 0.2); }
+.pa-tag--yellow { background: var(--pa-amber-dim);  color: var(--pa-amber); border: 1px solid oklch(75% 0.17 65 / 0.2); }
+.pa-tag--blue   { background: var(--pa-blue-dim);   color: var(--pa-blue);  border: 1px solid oklch(62% 0.17 240 / 0.2); }
+.pa-tag--default{ background: var(--pa-surface-raised); color: var(--pa-text-muted); border: 1px solid var(--pa-border-subtle); }
 
 .pa-tag-btn {
   padding: 0.35rem 0.75rem;
@@ -1289,15 +1337,15 @@ h3 { font-size: 1rem;    line-height: 1.4; }
 }
 
 .pa-tag-btn:hover { border-color: var(--pa-teal); color: var(--pa-teal); }
-.pa-tag-btn.active { border-color: var(--pa-teal); background: rgba(var(--pa-teal-rgb),0.12); color: var(--pa-teal); }
+.pa-tag-btn.active { border-color: var(--pa-teal); background: var(--pa-teal-dim); color: var(--pa-teal); }
 
 /* ============================================================
    FLASH SUCCESS
    ============================================================ */
 .pa-flash--success {
-  background: rgba(34,197,94,0.12);
-  border: 1px solid rgba(34,197,94,0.3);
-  color: #4ade80;
+  background: var(--pa-green-dim);
+  border: 1px solid oklch(67% 0.16 150 / 0.3);
+  color: var(--pa-green);
   padding: 0.6rem 1rem;
   border-radius: var(--pa-radius);
   font-size: 0.875rem;
