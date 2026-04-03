@@ -1977,14 +1977,14 @@ h3 { font-size: 1rem;    line-height: 1.4; }
 }
 
 .pa-pill-toggler {
-  width: 46px;
-  height: 20px;
-  border-radius: 10px;
+  width: 34px;
+  height: 14px;
+  border-radius: 7px;
   border: none;
   cursor: pointer;
   position: relative;
   overflow: hidden;
-  opacity: 0.5;
+  opacity: 0.28;
   transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
 }
 
@@ -1993,35 +1993,35 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: linear-gradient(to bottom, oklch(100% 0 0 / 0.32) 0%, transparent 60%);
+  background: linear-gradient(to bottom, oklch(100% 0 0 / 0.28) 0%, transparent 60%);
   pointer-events: none;
 }
 
-.pa-pill-toggler:hover  { opacity: 1; transform: scale(1.1); }
-.pa-pill-toggler.active { opacity: 1; }
+.pa-pill-toggler:hover  { opacity: 0.8; transform: scale(1.08); }
+.pa-pill-toggler.active { opacity: 0.65; }
 
 .pa-pill-toggler--blue {
   background: linear-gradient(135deg, oklch(72% 0.24 250), oklch(50% 0.26 250));
-  box-shadow: 0 0 10px oklch(65% 0.24 250 / 0.55), 0 2px 6px oklch(0% 0 0 / 0.4);
+  box-shadow: 0 0 6px oklch(65% 0.24 250 / 0.35), 0 1px 4px oklch(0% 0 0 / 0.3);
 }
 
 .pa-pill-toggler--blue.active {
   box-shadow:
-    0 0 18px oklch(68% 0.24 250 / 0.95),
-    0 0 36px oklch(65% 0.24 250 / 0.45),
-    0 2px 8px oklch(0% 0 0 / 0.5);
+    0 0 10px oklch(68% 0.24 250 / 0.7),
+    0 0 22px oklch(65% 0.24 250 / 0.3),
+    0 1px 5px oklch(0% 0 0 / 0.4);
 }
 
 .pa-pill-toggler--red {
   background: linear-gradient(135deg, oklch(65% 0.30 22), oklch(44% 0.28 20));
-  box-shadow: 0 0 10px oklch(58% 0.28 22 / 0.55), 0 2px 6px oklch(0% 0 0 / 0.4);
+  box-shadow: 0 0 6px oklch(58% 0.28 22 / 0.35), 0 1px 4px oklch(0% 0 0 / 0.3);
 }
 
 .pa-pill-toggler--red.active {
   box-shadow:
-    0 0 18px oklch(62% 0.28 22 / 0.95),
-    0 0 36px oklch(58% 0.28 22 / 0.45),
-    0 2px 8px oklch(0% 0 0 / 0.5);
+    0 0 10px oklch(62% 0.28 22 / 0.7),
+    0 0 22px oklch(58% 0.28 22 / 0.3),
+    0 1px 5px oklch(0% 0 0 / 0.4);
 }
 
 /* ============================================================
