@@ -270,11 +270,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!matrix) return
     matrix.start()
-
-    btn && btn.addEventListener('click', () => {
-      active = !active
-      localStorage.setItem('pa-matrix', active ? 'on' : 'off')
-    })
   } else {
     const matrix = initMatrix({ speed: 2 })
     if (!matrix) return
