@@ -225,12 +225,10 @@ document.addEventListener('DOMContentLoaded', () => {
     })
   }
 
-  // Versie-sleutel: wijzigen forceert nieuwe intro bij iedereen
-  const INTRO_KEY = 'pa-intro-v4'
-  const introSeen = sessionStorage.getItem(INTRO_KEY)
-
-  if (!introSeen) {
-    sessionStorage.setItem(INTRO_KEY, '1')
+  // Intro bij elke volledige paginalading (refresh/eerste bezoek).
+  // LiveView-navigatie herlaadt de JS niet, dus de intro verschijnt niet
+  // bij interne navigatie -- alleen bij echte browser refreshes.
+  if (true) {
 
     // Achtergrond-overlay (verbergt pagina-inhoud)
     const overlay = document.createElement('div')
