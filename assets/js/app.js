@@ -62,6 +62,27 @@ Hooks.LineChart = {
   }
 }
 
+Hooks.NeoSettings = {
+  mounted() {
+    this.update()
+    this.el.querySelector('[data-neo-reset]')?.addEventListener('click', () => {
+      localStorage.removeItem('pa-neo-skip')
+      this.update()
+    })
+  },
+  update() {
+    const skipped = localStorage.getItem('pa-neo-skip') === 'true'
+    const status = this.el.querySelector('[data-neo-status]')
+    const btn = this.el.querySelector('[data-neo-reset]')
+    if (status) status.textContent = skipped ? 'uitgeschakeld' : 'ingeschakeld'
+    if (btn) {
+      btn.textContent = skipped ? 'Zet NEO intro terug aan' : 'NEO intro is aan ✓'
+      btn.disabled = !skipped
+      btn.style.opacity = skipped ? '' : '0.45'
+    }
+  }
+}
+
 Hooks.PasskeyRegister = {
   mounted() {
     this.handleEvent('passkey_register_challenge', async (options) => {
@@ -101,18 +122,28 @@ Hooks.PasskeyRegister = {
 
 Hooks.PasskeyLogin = {
   mounted() {
-    this.handleEvent('passkey_auth_challenge', async (options) => {
+    const btn = document.getElementById('passkey-btn')
+    if (!btn) return
+
+    btn.addEventListener('click', async () => {
+      const challenge = this.el.dataset.challenge
+      const rpId = this.el.dataset.rpId
+      const sessionKey = this.el.dataset.sessionKey
+      if (!challenge || !rpId || !sessionKey) return
+
+      btn.disabled = true
       try {
         const cred = await navigator.credentials.get({
           publicKey: {
-            challenge: base64urlDecode(options.challenge),
-            rpId: options.rpId,
-            userVerification: options.userVerification,
-            timeout: options.timeout
+            challenge: base64urlDecode(challenge),
+            rpId,
+            userVerification: 'preferred',
+            timeout: 60_000
           }
         })
 
         this.pushEvent('passkey_login_response', {
+          session_key: sessionKey,
           response: {
             id: base64urlEncode(cred.rawId),
             authenticatorData: base64urlEncode(cred.response.authenticatorData),
@@ -122,6 +153,7 @@ Hooks.PasskeyLogin = {
         })
       } catch (e) {
         console.error('Passkey login failed:', e)
+        btn.disabled = false
       }
     })
   }
@@ -150,18 +182,23 @@ topbar.config({barColors: {0: "#29d"}, shadowColor: "rgba(0, 0, 0, .3)"})
 window.addEventListener("phx:page-loading-start", _info => topbar.show(300))
 window.addEventListener("phx:page-loading-stop", _info => topbar.hide())
 
-// Verbind LiveSocket pas na eerste gebruikersinteractie.
+// Login pagina: direct verbinden zodat passkey op eerste klik werkt.
+// Overige pagina's (dashboard etc.): pas na eerste interactie verbinden —
 // PSI/Lighthouse interageert nooit → geen WebSocket-poging → Best Practices 100.
 if (document.querySelector('[data-phx-main]')) {
-  let connected = false
-  const connectNow = () => {
-    if (connected) return
-    connected = true
+  if (document.getElementById('login-container')) {
     liveSocket.connect()
+  } else {
+    let connected = false
+    const connectNow = () => {
+      if (connected) return
+      connected = true
+      liveSocket.connect()
+    }
+    ;['pointerdown', 'keydown', 'touchstart'].forEach(evt =>
+      document.addEventListener(evt, connectNow, { once: true, passive: true })
+    )
   }
-  ;['pointerdown', 'keydown', 'touchstart'].forEach(evt =>
-    document.addEventListener(evt, connectNow, { once: true, passive: true })
-  )
 }
 
 window.liveSocket = liveSocket
@@ -341,14 +378,19 @@ function initLoginPage(canvas) {
 function initAppPage(canvas) {
   const pillChosen = localStorage.getItem('pa-pill')
   const isNeoLogin = new URLSearchParams(window.location.search).has('neo')
+  const skipSequence = localStorage.getItem('pa-neo-skip') === 'true'
 
-  if (isNeoLogin && !pillChosen) {
+  // Verse login (?neo=1) toont ALTIJD de sequence — pa-neo-skip geldt niet voor logins.
+  // Zonder ?neo=1: toon alleen als pa-pill nog nooit gekozen is én skip niet aan staat.
+  if (isNeoLogin || (!pillChosen && !skipSequence)) {
     runPillSequence(canvas)
   } else {
     const pill = pillChosen || 'red'
     applyPillTheme(pill)
-    const matrix = startMatrixForPill(pill, canvas)
+    const matrixOn = localStorage.getItem('pa-matrix') !== 'off'
+    const matrix = startMatrixForPill(pill, canvas, matrixOn)
     injectPillTogglers(canvas, pill, matrix)
+    if (pill === 'red') injectMatrixToggle(canvas, matrixOn, matrix)
   }
 }
 
@@ -361,8 +403,8 @@ function applyPillTheme(pill) {
 }
 
 // Start (of stop) matrix op basis van pilkeuze; geeft matrix-instantie terug
-function startMatrixForPill(pill, canvas) {
-  if (pill === 'blue') {
+function startMatrixForPill(pill, canvas, matrixOn = true) {
+  if (pill === 'blue' || !matrixOn) {
     canvas.style.display = 'none'
     return null
   }
@@ -370,6 +412,39 @@ function startMatrixForPill(pill, canvas) {
   const m = initMatrix({ speed: 2 })
   m && m.start()
   return m
+}
+
+// Injecteer losse matrix aan/uit knop (alleen in dark/red mode)
+function injectMatrixToggle(canvas, matrixOn, matrixRef) {
+  document.getElementById('pa-matrix-toggle')?.remove()
+
+  let matrix = matrixRef
+  let on = matrixOn
+
+  const btn = document.createElement('button')
+  btn.id = 'pa-matrix-toggle'
+  btn.title = 'Matrix aan/uit'
+  btn.setAttribute('aria-label', 'Matrix animatie aan of uit zetten')
+  btn.textContent = '░▒▓'
+  btn.classList.toggle('active', on)
+  btn.classList.toggle('off', !on)
+  document.body.appendChild(btn)
+
+  btn.addEventListener('click', () => {
+    on = !on
+    localStorage.setItem('pa-matrix', on ? 'on' : 'off')
+    btn.classList.toggle('active', on)
+    btn.classList.toggle('off', !on)
+
+    if (on) {
+      canvas.style.display = ''
+      if (!matrix) matrix = initMatrix({ speed: 2 })
+      matrix && matrix.start()
+    } else {
+      matrix && matrix.stop()
+      canvas.style.display = 'none'
+    }
+  })
 }
 
 // Injecteer permanente pilknopjes rechtsonder
@@ -407,12 +482,17 @@ function injectPillTogglers(canvas, activePill, existingMatrix) {
     red.classList.toggle('active', pill === 'red')
 
     if (pill === 'red') {
-      canvas.style.display = ''
-      if (!matrix) matrix = initMatrix({ speed: 2 })
-      matrix && matrix.start()
+      const matrixOn = localStorage.getItem('pa-matrix') !== 'off'
+      if (matrixOn) {
+        canvas.style.display = ''
+        if (!matrix) matrix = initMatrix({ speed: 2 })
+        matrix && matrix.start()
+      }
+      injectMatrixToggle(canvas, matrixOn, matrix)
     } else {
       matrix && matrix.stop()
       canvas.style.display = 'none'
+      document.getElementById('pa-matrix-toggle')?.remove()
     }
   }
 
@@ -471,7 +551,37 @@ function typeParagraphs(container, paragraphs, idx, speed, onAllDone) {
   })
 }
 
-// ── Matrix pill keuze sequence (na eerste login) ──────────────────────────
+// ── Skip helper: meteen naar dashboard zonder pill sequence ───────────────
+function skipPillSequence(canvas, overlay, seq, skipBar, matrix) {
+  const doSkip = skipBar.querySelector('input')?.checked
+  if (doSkip) localStorage.setItem('pa-neo-skip', 'true')
+
+  const pill = localStorage.getItem('pa-pill') || 'red'
+  localStorage.setItem('pa-pill', pill)
+  applyPillTheme(pill)
+
+  overlay.classList.add('fade-out')
+  seq && seq.remove()
+  skipBar && skipBar.remove()
+
+  setTimeout(() => {
+    overlay.remove()
+    history.replaceState(null, '', window.location.pathname)
+    const matrixOn = pill === 'red' && localStorage.getItem('pa-matrix') !== 'off'
+    if (matrixOn) {
+      canvas.style.display = ''
+      if (!matrix) { const m = initMatrix({ speed: 2 }); m && m.start(); injectPillTogglers(canvas, pill, m); injectMatrixToggle(canvas, true, m); return }
+      matrix && matrix.start()
+    } else {
+      canvas.style.display = 'none'
+      matrix && matrix.stop()
+    }
+    injectPillTogglers(canvas, pill, matrixOn ? matrix : null)
+    if (pill === 'red') injectMatrixToggle(canvas, matrixOn, matrixOn ? matrix : null)
+  }, 700)
+}
+
+// ── Matrix pill keuze sequence (na elke login) ────────────────────────────
 function runPillSequence(canvas) {
   canvas.style.display = ''
   canvas.style.zIndex = '0'
@@ -485,6 +595,22 @@ function runPillSequence(canvas) {
   const seq = document.createElement('div')
   seq.id = 'pa-neo-sequence'
   document.body.appendChild(seq)
+
+  // Skip-balk onderaan — altijd zichtbaar tijdens de sequence
+  const skipBar = document.createElement('div')
+  skipBar.id = 'pa-neo-skip-bar'
+  skipBar.innerHTML = `
+    <label class="pa-neo-skip-label">
+      <input type="checkbox" class="pa-neo-skip-check" />
+      Niet meer tonen
+    </label>
+    <button class="pa-neo-skip-btn">Overslaan →</button>
+  `
+  document.body.appendChild(skipBar)
+
+  skipBar.querySelector('.pa-neo-skip-btn').addEventListener('click', () => {
+    skipPillSequence(canvas, overlay, seq, skipBar, matrix)
+  })
 
   // ── Fase 1: "Welcome at NEO" getypt in groot ──────────────────────────
   const welcomeEl = document.createElement('div')
@@ -602,9 +728,11 @@ function handlePillChoice(pill, overlay, seq, pillsWrap, matrix, canvas) {
         setTimeout(() => {
           seq.remove()
           overlay.remove()
+          document.getElementById('pa-neo-skip-bar')?.remove()
           history.replaceState(null, '', window.location.pathname)
           const activeMatrix = pill === 'red' ? matrix : null
           injectPillTogglers(canvas, pill, activeMatrix)
+          if (pill === 'red') injectMatrixToggle(canvas, true, activeMatrix)
         }, 1200)
       }, 1600)
     })

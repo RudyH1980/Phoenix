@@ -179,6 +179,16 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.PasskeyLive do
           Je hoeft geen wachtwoord te onthouden. Klik op "+ Passkey toevoegen" en volg de instructies van je browser.
         </p>
       </section>
+
+      <section class="pa-card" style="margin-top:1rem;" id="neo-settings-card" phx-hook="NeoSettings">
+        <h3>NEO intro</h3>
+        <p style="color:var(--pa-text-muted); font-size:0.875rem; line-height:1.6;">
+          De Matrix-keuze intro wordt na elk inloggen getoond. Status: <span data-neo-status></span>.
+        </p>
+        <button data-neo-reset class="pa-btn pa-btn--ghost pa-btn--sm" style="margin-top:0.6rem;">
+          Zet NEO intro terug aan
+        </button>
+      </section>
     </div>
     """
   end

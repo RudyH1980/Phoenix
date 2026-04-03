@@ -12,6 +12,18 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
     peer_data = get_connect_info(socket, :peer_data)
     ip = if peer_data, do: peer_data.address |> Tuple.to_list() |> Enum.join("."), else: "unknown"
 
+    rp_id = PhoenixAnalyticsWeb.Endpoint.host()
+
+    challenge =
+      Wax.new_authentication_challenge(
+        origin: PhoenixAnalyticsWeb.Endpoint.url(),
+        rp_id: rp_id,
+        user_verification: "preferred"
+      )
+
+    session_key = Base.url_encode64(:crypto.strong_rand_bytes(16), padding: false)
+    PasskeyChallengeStore.put("auth:#{session_key}", challenge)
+
     {:ok,
      assign(socket,
        magic_form: to_form(%{"email" => ""}),
@@ -19,7 +31,9 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
        error: nil,
        page_title: "Inloggen",
        remote_ip: ip,
-       passkey_session_key: nil
+       passkey_challenge: Base.url_encode64(challenge.bytes, padding: false),
+       passkey_session_key: session_key,
+       passkey_rp_id: rp_id
      )}
   end
 
@@ -40,34 +54,11 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
     end
   end
 
-  def handle_event("start_passkey_login", _params, socket) do
-    origin = PhoenixAnalyticsWeb.Endpoint.url()
-    rp_id = PhoenixAnalyticsWeb.Endpoint.host()
-
-    challenge =
-      Wax.new_authentication_challenge(
-        origin: origin,
-        rp_id: rp_id,
-        user_verification: "preferred"
-      )
-
-    session_key = Base.url_encode64(:crypto.strong_rand_bytes(16), padding: false)
-    PasskeyChallengeStore.put("auth:#{session_key}", challenge)
-
-    {:noreply,
-     socket
-     |> assign(passkey_session_key: session_key)
-     |> push_event("passkey_auth_challenge", %{
-       challenge: Base.url_encode64(challenge.bytes, padding: false),
-       rpId: rp_id,
-       userVerification: "preferred",
-       timeout: 60_000
-     })}
-  end
-
-  def handle_event("passkey_login_response", %{"response" => resp}, socket) do
-    session_key = socket.assigns[:passkey_session_key]
-
+  def handle_event(
+        "passkey_login_response",
+        %{"response" => resp, "session_key" => session_key},
+        socket
+      ) do
     with {:ok, challenge} <- PasskeyChallengeStore.get("auth:#{session_key}"),
          credential_id = Base.url_decode64!(resp["id"], padding: false),
          {:ok, passkey} <- Accounts.get_passkey_by_credential_id(credential_id),
@@ -113,7 +104,14 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="pa-auth-container" id="login-container" phx-hook="PasskeyLogin">
+    <div
+      class="pa-auth-container"
+      id="login-container"
+      phx-hook="PasskeyLogin"
+      data-challenge={@passkey_challenge}
+      data-session-key={@passkey_session_key}
+      data-rp-id={@passkey_rp_id}
+    >
       <div class="pa-auth-card">
         <h1>Neo Analytics</h1>
 
@@ -124,7 +122,7 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
         <% end %>
 
         <button
-          phx-click="start_passkey_login"
+          id="passkey-btn"
           class="pa-btn pa-btn--primary pa-btn--full"
           style="margin-bottom:1rem;"
         >
@@ -139,7 +137,7 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
             <p>Controleer je inbox. De link is 15 minuten geldig.</p>
           </div>
         <% else %>
-          <p style="font-size:0.8rem;color:var(--pa-text-muted);margin-bottom:0.75rem;">
+          <p style="font-size:0.9rem;color:var(--pa-text-muted);margin-bottom:0.75rem;">
             Of log in via e-mail link
           </p>
           <.form for={@magic_form} phx-submit="magic_link" class="pa-form">
