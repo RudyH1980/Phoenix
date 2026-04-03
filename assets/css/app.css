@@ -2244,7 +2244,7 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   display: flex;
   gap: 3rem;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   opacity: 0;
   transform: translateY(14px);
   transition: opacity 1s ease 0.25s, transform 1s ease 0.25s;
