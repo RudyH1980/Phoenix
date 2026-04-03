@@ -1634,45 +1634,46 @@ h3 { font-size: 1rem;    line-height: 1.4; }
 /* ============================================================
    MATRIX INTRO OVERLAY
    ============================================================ */
+/* Donkere achtergrond die pagina-inhoud verbergt (z-index 9999) */
 #pa-intro-overlay {
   position: fixed;
   inset: 0;
   z-index: 9999;
   background: oklch(8% 0.014 250);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  pointer-events: none;
   transition: opacity 1s ease;
 }
 
-#pa-intro-overlay.fade-out {
-  opacity: 0;
-  pointer-events: none;
-}
+#pa-intro-overlay.fade-out { opacity: 0; }
 
+/* Titel staat BOVEN canvas (z-index 10000) en boven overlay (9999) */
 #pa-intro-title {
+  position: fixed;
+  z-index: 10001;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, calc(-50% + 12px));
   font-size: clamp(2rem, 6vw, 4rem);
   font-weight: 800;
   letter-spacing: -0.02em;
-  color: transparent;
   opacity: 0;
-  transform: translateY(12px);
   transition: opacity 0.8s ease, transform 0.8s ease;
-  text-shadow: 0 0 40px oklch(72% 0.15 194 / 0.6);
   background: linear-gradient(135deg, oklch(72% 0.15 194), oklch(85% 0.12 160));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 20px oklch(72% 0.15 194 / 0.4));
+  filter: drop-shadow(0 0 24px oklch(72% 0.15 194 / 0.5));
+  white-space: nowrap;
 }
 
 #pa-intro-title.visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: translate(-50%, -50%);
 }
 
-#pa-intro-title span {
-  -webkit-text-fill-color: transparent;
+#pa-intro-title.fade-out {
+  opacity: 0;
+  transition: opacity 1s ease;
 }
 
 /* ============================================================

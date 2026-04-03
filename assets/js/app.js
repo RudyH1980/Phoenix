@@ -209,32 +209,42 @@ document.addEventListener('DOMContentLoaded', () => {
     })
   }
 
-  const introSeen = sessionStorage.getItem('pa-intro-seen')
-  if (!introSeen) {
-    sessionStorage.setItem('pa-intro-seen', '1')
+  // Versie-sleutel: wijzigen forceert nieuwe intro bij iedereen
+  const INTRO_KEY = 'pa-intro-v3'
+  const introSeen = sessionStorage.getItem(INTRO_KEY)
 
-    // Overlay aanmaken
+  if (!introSeen) {
+    sessionStorage.setItem(INTRO_KEY, '1')
+
+    // Donkere achtergrond-overlay die pagina-inhoud verbergt (z-index 9999)
     const overlay = document.createElement('div')
     overlay.id = 'pa-intro-overlay'
     document.body.appendChild(overlay)
 
+    // Titel als ZELFSTANDIG element buiten overlay (z-index 10001)
     const title = document.createElement('div')
     title.id = 'pa-intro-title'
     title.innerHTML = 'Phoenix&nbsp;Analytics'
-    overlay.appendChild(title)
+    document.body.appendChild(title)
 
-    // Matrix starten vanuit de top; titel verschijnt op midpoint
+    // Canvas tijdelijk boven overlay tillen (z-index 10000)
+    canvas.style.display = ''
+    canvas.style.zIndex = '10000'
+
     const matrix = initMatrix({
       introMode: true,
       onMidpoint() {
+        // Kolommen halverwege → titel tonen
         title.classList.add('visible')
 
-        // 2.5s zichtbaar, dan outfaden
+        // 2.5s staan → alles outfaden
         setTimeout(() => {
           overlay.classList.add('fade-out')
+          title.classList.add('fade-out')
           setTimeout(() => {
             overlay.remove()
-            canvas.style.opacity = ''
+            title.remove()
+            canvas.style.zIndex = ''  // terug naar CSS standaard (0)
             attachToggle(matrix)
           }, 1000)
         }, 2500)
@@ -242,11 +252,8 @@ document.addEventListener('DOMContentLoaded', () => {
     })
 
     if (!matrix) return
-    canvas.style.display = ''
-    canvas.style.opacity = '0.8'
     matrix.start()
 
-    // Knop alvast koppelen zodat de user de matrix kan uitzetten na de intro
     btn && btn.addEventListener('click', () => {
       active = !active
       localStorage.setItem('pa-matrix', active ? 'on' : 'off')
