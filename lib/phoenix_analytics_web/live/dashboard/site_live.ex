@@ -49,8 +49,21 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
     end
 
     socket
-    |> assign(site: site, period: "7d", page_title: site.name, realtime_count: 0)
+    |> assign(
+      site: site,
+      period: "7d",
+      page_title: site.name,
+      realtime_count: 0,
+      table_limits: %{}
+    )
     |> load_stats("7d")
+  end
+
+  @impl true
+  def handle_event("set_limit", %{"table" => table, "limit" => limit}, socket) do
+    parsed = if limit == "all", do: :all, else: String.to_integer(limit)
+    limits = Map.put(socket.assigns.table_limits, table, parsed)
+    {:noreply, assign(socket, table_limits: limits)}
   end
 
   defp load_stats(socket, period) do
@@ -72,6 +85,33 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
       city_breakdown: Stats.city_breakdown(site_id, period),
       timeline: Stats.pageviews_timeline(site_id, period)
     )
+  end
+
+  attr :table, :string, required: true
+  attr :limits, :map, required: true
+  attr :total, :integer, required: true
+
+  defp limit_bar(assigns) do
+    current = Map.get(assigns.limits, assigns.table, 10)
+    assigns = assign(assigns, current: current)
+
+    ~H"""
+    <%= if @total > 10 do %>
+      <div class="pa-limit-bar">
+        <span class="pa-limit-label">{@total} rijen</span>
+        <%= for opt <- [10, 25, 50, :all] do %>
+          <button
+            phx-click="set_limit"
+            phx-value-table={@table}
+            phx-value-limit={if opt == :all, do: "all", else: to_string(opt)}
+            class={"pa-limit-btn#{if @current == opt, do: " active"}"}
+          >
+            {if opt == :all, do: "Alle", else: opt}
+          </button>
+        <% end %>
+      </div>
+    <% end %>
+    """
   end
 
   @impl true
@@ -160,13 +200,14 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
             <p class="pa-empty">Nog geen data voor deze periode.</p>
           <% else %>
             <ul class="pa-data-list">
-              <%= for page <- @top_pages do %>
+              <%= for page <- table_rows(@top_pages, @table_limits, "pages") do %>
                 <li>
                   <span class="pa-url" title={page.url}>{truncate_url(page.url)}</span>
                   <span class="pa-count">{format_number(page.count)}</span>
                 </li>
               <% end %>
             </ul>
+            <.limit_bar table="pages" limits={@table_limits} total={length(@top_pages)} />
           <% end %>
         </section>
 
@@ -176,13 +217,14 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
             <p class="pa-empty">Nog geen verwijzers voor deze periode.</p>
           <% else %>
             <ul class="pa-data-list">
-              <%= for ref <- @top_referrers do %>
+              <%= for ref <- table_rows(@top_referrers, @table_limits, "referrers") do %>
                 <li>
                   <span class="pa-url">{truncate_url(ref.referrer)}</span>
                   <span class="pa-count">{format_number(ref.count)}</span>
                 </li>
               <% end %>
             </ul>
+            <.limit_bar table="referrers" limits={@table_limits} total={length(@top_referrers)} />
           <% end %>
         </section>
       </div>
@@ -208,13 +250,14 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
             <p class="pa-empty">Nog geen data.</p>
           <% else %>
             <ul class="pa-data-list">
-              <%= for d <- @device_breakdown do %>
+              <%= for d <- table_rows(@device_breakdown, @table_limits, "devices") do %>
                 <li>
                   <span>{d.device || "onbekend"}</span>
                   <span class="pa-count">{format_number(d.count)}</span>
                 </li>
               <% end %>
             </ul>
+            <.limit_bar table="devices" limits={@table_limits} total={length(@device_breakdown)} />
           <% end %>
         </section>
 
@@ -224,13 +267,14 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
             <p class="pa-empty">Nog geen data.</p>
           <% else %>
             <ul class="pa-data-list">
-              <%= for o <- @os_breakdown do %>
+              <%= for o <- table_rows(@os_breakdown, @table_limits, "os") do %>
                 <li>
                   <span>{os_icon(o.os)} {o.os || "Onbekend"}</span>
                   <span class="pa-count">{format_number(o.count)}</span>
                 </li>
               <% end %>
             </ul>
+            <.limit_bar table="os" limits={@table_limits} total={length(@os_breakdown)} />
           <% end %>
         </section>
 
@@ -240,13 +284,14 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
             <p class="pa-empty">Nog geen data.</p>
           <% else %>
             <ul class="pa-data-list">
-              <%= for c <- @country_breakdown do %>
+              <%= for c <- table_rows(@country_breakdown, @table_limits, "countries") do %>
                 <li>
                   <span>{flag(c.country)} {c.country || "Onbekend"}</span>
                   <span class="pa-count">{format_number(c.count)}</span>
                 </li>
               <% end %>
             </ul>
+            <.limit_bar table="countries" limits={@table_limits} total={length(@country_breakdown)} />
           <% end %>
         </section>
 
@@ -256,13 +301,14 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
             <p class="pa-empty">Nog geen data.</p>
           <% else %>
             <ul class="pa-data-list">
-              <%= for c <- @city_breakdown do %>
+              <%= for c <- table_rows(@city_breakdown, @table_limits, "cities") do %>
                 <li>
                   <span>{flag(c.country)} {c.city}</span>
                   <span class="pa-count">{format_number(c.count)}</span>
                 </li>
               <% end %>
             </ul>
+            <.limit_bar table="cities" limits={@table_limits} total={length(@city_breakdown)} />
           <% end %>
         </section>
       </div>
@@ -271,13 +317,14 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
         <section class="pa-card">
           <h3>Secties bereikt</h3>
           <ul class="pa-data-list">
-            <%= for s <- @section_views do %>
+            <%= for s <- table_rows(@section_views, @table_limits, "sections") do %>
               <li>
                 <span>{s.section}</span>
                 <span class="pa-count">{format_number(s.count)}</span>
               </li>
             <% end %>
           </ul>
+          <.limit_bar table="sections" limits={@table_limits} total={length(@section_views)} />
         </section>
       <% end %>
 
@@ -289,13 +336,14 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
           </p>
         <% else %>
           <ul class="pa-data-list">
-            <%= for ev <- @top_events do %>
+            <%= for ev <- table_rows(@top_events, @table_limits, "events") do %>
               <li>
                 <span class="pa-url" title={ev.event_name}>{truncate_url(ev.event_name)}</span>
                 <span class="pa-count">{format_number(ev.count)}</span>
               </li>
             <% end %>
           </ul>
+          <.limit_bar table="events" limits={@table_limits} total={length(@top_events)} />
         <% end %>
       </section>
 
@@ -305,6 +353,11 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
       </div>
     </div>
     """
+  end
+
+  defp table_rows(data, limits, key, default \\ 10) do
+    limit = Map.get(limits, key, default)
+    if limit == :all, do: data, else: Enum.take(data, limit)
   end
 
   defp format_number(n) when n >= 1_000_000, do: "#{Float.round(n / 1_000_000, 1)}M"

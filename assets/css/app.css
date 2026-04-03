@@ -1586,6 +1586,49 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   margin-bottom: 1rem;
 }
 
+/* ============================================================
+   TABEL PAGINERING
+   ============================================================ */
+.pa-limit-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.75rem;
+  padding-top: 0.625rem;
+  border-top: 1px solid var(--pa-border-subtle);
+}
+
+.pa-limit-label {
+  font-size: 0.7rem;
+  color: var(--pa-text-faint);
+  margin-right: auto;
+}
+
+.pa-limit-btn {
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--pa-radius-sm);
+  border: 1px solid var(--pa-border);
+  background: transparent;
+  color: var(--pa-text-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--pa-transition);
+  line-height: 1.4;
+}
+
+.pa-limit-btn:hover {
+  border-color: var(--pa-teal);
+  color: var(--pa-teal);
+}
+
+.pa-limit-btn.active {
+  background: var(--pa-teal-dim);
+  border-color: var(--pa-teal);
+  color: var(--pa-teal);
+  font-weight: 600;
+}
+
 } /* end @layer components */
 
 /* Icon-swap buiten layer — anders wint daisyUI unlayered output */
