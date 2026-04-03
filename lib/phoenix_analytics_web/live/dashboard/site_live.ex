@@ -10,22 +10,13 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
   def mount(%{"site_id" => site_id}, _session, socket) do
     case Ash.get(Analytics.Site, site_id) do
       {:ok, site} when not is_nil(site) ->
-        if site.org_id not in socket.assigns.current_org_ids do
+        if site.org_id in socket.assigns.current_org_ids do
+          {:ok, mount_authorized(socket, site, site_id)}
+        else
           {:ok,
            socket
            |> put_flash(:error, "Geen toegang tot deze website.")
            |> push_navigate(to: ~p"/dashboard")}
-        else
-          if connected?(socket) do
-            Phoenix.PubSub.subscribe(PhoenixAnalytics.PubSub, "site:#{site_id}")
-          end
-
-          socket =
-            socket
-            |> assign(site: site, period: "7d", page_title: site.name, realtime_count: 0)
-            |> load_stats("7d")
-
-          {:ok, socket}
         end
 
       _ ->
@@ -50,6 +41,16 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
   @impl true
   def handle_info({:pageview, _payload}, socket) do
     {:noreply, update(socket, :realtime_count, &(&1 + 1))}
+  end
+
+  defp mount_authorized(socket, site, site_id) do
+    if connected?(socket) do
+      Phoenix.PubSub.subscribe(PhoenixAnalytics.PubSub, "site:#{site_id}")
+    end
+
+    socket
+    |> assign(site: site, period: "7d", page_title: site.name, realtime_count: 0)
+    |> load_stats("7d")
   end
 
   defp load_stats(socket, period) do

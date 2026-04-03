@@ -7,13 +7,13 @@ defmodule PhoenixAnalyticsWeb.ExportController do
   def csv(conn, %{"site_id" => site_id} = params) do
     case Ash.get(Analytics.Site, site_id) do
       {:ok, site} when not is_nil(site) ->
-        if site.org_id not in conn.assigns.current_org_ids do
+        if site.org_id in conn.assigns.current_org_ids do
+          do_csv(conn, site, params)
+        else
           conn
           |> put_flash(:error, "Geen toegang tot deze website.")
           |> redirect(to: ~p"/dashboard")
           |> halt()
-        else
-          do_csv(conn, site, params)
         end
 
       _ ->

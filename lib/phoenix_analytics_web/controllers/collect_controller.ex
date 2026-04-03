@@ -158,18 +158,25 @@ defmodule PhoenixAnalyticsWeb.CollectController do
 
   defp extract_browser(_), do: "Other"
 
-  defp extract_os(ua) when is_binary(ua) and ua != "" do
+  defp extract_os(ua) when is_binary(ua) and ua != "", do: detect_os(ua)
+  defp extract_os(_), do: "Other"
+
+  defp detect_os(ua) when is_binary(ua) do
     cond do
-      String.contains?(ua, "iPhone") or String.contains?(ua, "iPad") -> "iOS"
-      String.contains?(ua, "Android") -> "Android"
-      String.contains?(ua, "Windows") -> "Windows"
-      String.contains?(ua, "Macintosh") or String.contains?(ua, "Mac OS X") -> "macOS"
-      String.contains?(ua, "Linux") -> "Linux"
+      ios?(ua) -> "iOS"
+      android?(ua) -> "Android"
+      windows?(ua) -> "Windows"
+      macos?(ua) -> "macOS"
+      linux?(ua) -> "Linux"
       true -> "Other"
     end
   end
 
-  defp extract_os(_), do: "Other"
+  defp ios?(ua), do: String.contains?(ua, "iPhone") or String.contains?(ua, "iPad")
+  defp android?(ua), do: String.contains?(ua, "Android")
+  defp windows?(ua), do: String.contains?(ua, "Windows")
+  defp macos?(ua), do: String.contains?(ua, "Macintosh") or String.contains?(ua, "Mac OS X")
+  defp linux?(ua), do: String.contains?(ua, "Linux")
 
   # Geo lookup via ip-api.com (gratis, 45 req/min, geen auth)
   # Lokale/private IPs worden overgeslagen — geeft {country, city, region}

@@ -8,12 +8,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.ExperimentDetailLive do
   def mount(%{"site_id" => site_id, "id" => experiment_id}, _session, socket) do
     case Ash.get(Analytics.Site, site_id) do
       {:ok, site} when not is_nil(site) ->
-        if site.org_id not in socket.assigns.current_org_ids do
-          {:ok,
-           socket
-           |> put_flash(:error, "Geen toegang tot deze website.")
-           |> push_navigate(to: ~p"/dashboard")}
-        else
+        if site.org_id in socket.assigns.current_org_ids do
           experiment =
             Ash.get!(Experiments.Experiment, experiment_id, load: [:variants, :assignments])
 
@@ -30,6 +25,11 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.ExperimentDetailLive do
              winner: winner,
              page_title: experiment.name
            )}
+        else
+          {:ok,
+           socket
+           |> put_flash(:error, "Geen toegang tot deze website.")
+           |> push_navigate(to: ~p"/dashboard")}
         end
 
       _ ->
