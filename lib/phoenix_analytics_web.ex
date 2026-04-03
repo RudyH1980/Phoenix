@@ -17,7 +17,9 @@ defmodule PhoenixAnalyticsWeb do
   those modules here.
   """
 
-  def static_paths, do: ~w(assets fonts images js favicon.ico robots.txt pa.js)
+  def static_paths,
+    do:
+      ~w(assets fonts images js favicon.ico favicon.svg favicon-16x16.png favicon-32x32.png apple-touch-icon.png site.webmanifest robots.txt pa.js)
 
   def router do
     quote do
