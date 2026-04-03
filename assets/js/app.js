@@ -409,7 +409,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 active = true
                 localStorage.setItem('pa-matrix', 'on')
                 attachToggle(matrix)
-              }, 1500)
+              }, 2300)
             }, 1800)
           }, 700)
         }, 3800)

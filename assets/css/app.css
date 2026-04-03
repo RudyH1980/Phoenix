@@ -1646,7 +1646,7 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   z-index: 9999;
   background: oklch(8% 0.014 250);
   pointer-events: none;
-  transition: opacity 1.4s ease;
+  transition: opacity 2.2s ease;
 }
 
 #pa-intro-overlay.fade-out { opacity: 0; }
