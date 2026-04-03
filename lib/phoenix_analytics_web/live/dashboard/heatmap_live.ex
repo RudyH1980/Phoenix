@@ -113,14 +113,12 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.HeatmapLive do
     ratio = density / max
 
     {r, g, b} =
-      cond do
-        ratio < 0.5 ->
-          t = ratio * 2
-          {trunc(37 + t * (255 - 37)), trunc(99 + t * (165 - 99)), trunc(235 + t * (0 - 235))}
-
-        true ->
-          t = (ratio - 0.5) * 2
-          {trunc(255), trunc(165 - t * 165), 0}
+      if ratio < 0.5 do
+        t = ratio * 2
+        {trunc(37 + t * (255 - 37)), trunc(99 + t * (165 - 99)), trunc(235 + t * (0 - 235))}
+      else
+        t = (ratio - 0.5) * 2
+        {trunc(255), trunc(165 - t * 165), 0}
       end
 
     "rgb(#{r},#{g},#{b})"
