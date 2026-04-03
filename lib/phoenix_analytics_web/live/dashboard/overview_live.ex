@@ -98,11 +98,6 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OverviewLive do
     )
   end
 
-  defp tag_color("Prod"), do: "green"
-  defp tag_color("Test"), do: "yellow"
-  defp tag_color("Staging"), do: "blue"
-  defp tag_color(_), do: "default"
-
   defp format_number(n) when n >= 1_000_000, do: "#{Float.round(n / 1_000_000, 1)}M"
   defp format_number(n) when n >= 1_000, do: "#{Float.round(n / 1_000, 1)}k"
   defp format_number(n), do: to_string(n)

@@ -93,13 +93,10 @@
 /* Make LiveView wrapper divs transparent for layout */
 [data-phx-session] { display: contents }
 
-@layer components {
-
 /* ============================================================
-   DESIGN TOKENS — thema-aware via data-theme attribuut
+   DESIGN TOKENS — buiten @layer voor maximale prioriteit
    ============================================================ */
 
-/* Gedeelde tokens (niet thema-afhankelijk) */
 :root {
   --pa-teal:      oklch(62% 0.17 194);
   --pa-green:     oklch(60% 0.16 150);
@@ -113,7 +110,6 @@
   --pa-transition: 150ms ease;
 }
 
-/* Dark thema */
 [data-theme="dark"] {
   --pa-surface:        oklch(17% 0.02 250);
   --pa-surface-raised: oklch(20% 0.022 250);
@@ -138,7 +134,6 @@
   --pa-code-bg:        oklch(10% 0.012 250);
 }
 
-/* Light thema */
 [data-theme="light"] {
   --pa-surface:        oklch(99% 0.003 240);
   --pa-surface-raised: oklch(96% 0.006 240);
@@ -162,6 +157,8 @@
   --pa-blue-dim:       oklch(50% 0.17 240 / 0.1);
   --pa-code-bg:        oklch(93% 0.009 240);
 }
+
+@layer components {
 
 /* ============================================================
    MATRIX ACHTERGROND
@@ -1364,10 +1361,6 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   flex-shrink: 0;
 }
 
-/* Moon icon zichtbaar in dark mode, zon in light mode */
-[data-theme="dark"] #pa-icon-sun { display: none; }
-[data-theme="light"] #pa-icon-moon { display: none; }
-
 /* Op mobiel: wat kleiner zodat het geen content bedekt */
 @media (max-width: 480px) {
   #pa-theme-toggle {
@@ -1594,3 +1587,7 @@ h3 { font-size: 1rem;    line-height: 1.4; }
 }
 
 } /* end @layer components */
+
+/* Icon-swap buiten layer — anders wint daisyUI unlayered output */
+[data-theme="dark"] #pa-icon-sun { display: none; }
+[data-theme="light"] #pa-icon-moon { display: none; }
