@@ -420,119 +420,194 @@ function injectPillTogglers(canvas, activePill, existingMatrix) {
   red.addEventListener('click', () => switchTo('red'))
 }
 
+// ── Typewriter engine ─────────────────────────────────────────────────────
+// segments: [{text, cls?}] — cls geeft een <span class="cls"> om dat woord
+function typeSegments(container, segments, speed, onDone) {
+  const cursor = document.createElement('span')
+  cursor.className = 'pa-neo-cursor'
+  container.appendChild(cursor)
+
+  let si = 0, ci = 0, currentSpan = null
+
+  function tick() {
+    if (si >= segments.length) {
+      setTimeout(() => { cursor.remove(); onDone && onDone() }, 350)
+      return
+    }
+    const seg = segments[si]
+    if (ci === 0 && seg.cls) {
+      currentSpan = document.createElement('span')
+      currentSpan.className = seg.cls
+      container.insertBefore(currentSpan, cursor)
+    }
+    const ch = seg.text[ci]
+    if (seg.cls && currentSpan) {
+      currentSpan.textContent += ch
+    } else {
+      const prev = cursor.previousSibling
+      if (prev && prev.nodeType === Node.TEXT_NODE) {
+        prev.textContent += ch
+      } else {
+        container.insertBefore(document.createTextNode(ch), cursor)
+      }
+    }
+    ci++
+    if (ci >= seg.text.length) { si++; ci = 0; currentSpan = null }
+    const delay = '.!?'.includes(ch) ? speed * 8 : ch === ',' ? speed * 4 : ch === '-' ? speed * 3 : speed
+    setTimeout(tick, delay)
+  }
+  tick()
+}
+
+function typeParagraphs(container, paragraphs, idx, speed, onAllDone) {
+  if (idx >= paragraphs.length) { onAllDone(); return }
+  const p = document.createElement('p')
+  p.className = 'pa-neo-para'
+  container.appendChild(p)
+  // Scroll naar zichtbaar houden op kleine schermen
+  p.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  typeSegments(p, paragraphs[idx], speed, () => {
+    setTimeout(() => typeParagraphs(container, paragraphs, idx + 1, speed, onAllDone), 950)
+  })
+}
+
 // ── Matrix pill keuze sequence (na eerste login) ──────────────────────────
 function runPillSequence(canvas) {
-  // Matrix draait als achtergrond tijdens de sequence
   canvas.style.display = ''
   canvas.style.zIndex = '0'
   const matrix = initMatrix({ speed: 2 })
   matrix && matrix.start()
 
-  // Semi-transparante overlay zodat matrix zichtbaar blijft
   const overlay = document.createElement('div')
   overlay.id = 'pa-neo-overlay'
   document.body.appendChild(overlay)
 
-  // Sequence container (centered)
   const seq = document.createElement('div')
   seq.id = 'pa-neo-sequence'
   document.body.appendChild(seq)
 
-  // ── Fase 1: "Welcome at NEO" ─────────────────────────────────────────
-  const welcomeText = document.createElement('div')
-  welcomeText.className = 'pa-neo-text pa-neo-text--large'
-  welcomeText.textContent = 'Welcome at NEO'
-  seq.appendChild(welcomeText)
+  // ── Fase 1: "Welcome at NEO" getypt in groot ──────────────────────────
+  const welcomeEl = document.createElement('div')
+  welcomeEl.className = 'pa-neo-text pa-neo-text--large pa-neo-typed'
+  seq.appendChild(welcomeEl)
 
-  // Fade in na één frame
   requestAnimationFrame(() => requestAnimationFrame(() => {
-    welcomeText.classList.add('visible')
+    welcomeEl.classList.add('visible')
   }))
 
-  // ── Fase 2: na 2s, wissel naar keuzetekst + pillen ───────────────────
-  setTimeout(() => {
-    welcomeText.classList.remove('visible')
-
+  typeSegments(welcomeEl, [{text: 'Welcome at NEO'}], 90, () => {
+    // Na 2s: fade uit + Morpheus speech
     setTimeout(() => {
-      welcomeText.textContent = 'Choose between the red and the blue pill.'
-      welcomeText.className = 'pa-neo-text pa-neo-text--medium'
+      welcomeEl.style.transition = 'opacity 0.9s ease'
+      welcomeEl.style.opacity = '0'
 
-      const pillsWrap = document.createElement('div')
-      pillsWrap.className = 'pa-neo-pills'
+      setTimeout(() => {
+        welcomeEl.remove()
 
-      const bluePill = document.createElement('button')
-      bluePill.className = 'pa-pill pa-pill--blue'
-      bluePill.setAttribute('aria-label', 'Blauwe pil — dark mode')
+        // ── Fase 2: Morpheus speech ────────────────────────────────────
+        const speechEl = document.createElement('div')
+        speechEl.className = 'pa-neo-speech'
+        seq.appendChild(speechEl)
 
-      const redPill = document.createElement('button')
-      redPill.className = 'pa-pill pa-pill--red'
-      redPill.setAttribute('aria-label', 'Rode pil — light mode')
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          speechEl.classList.add('visible')
+        }))
 
-      pillsWrap.appendChild(bluePill)
-      pillsWrap.appendChild(redPill)
-      seq.appendChild(pillsWrap)
+        // Originele Matrix tekst, gesplitst in segmenten voor kleur
+        const paragraphs = [
+          [
+            {text: '\u201cThis is your last chance. After this, there is no turning back.\u201d'}
+          ],
+          [
+            {text: '\u201cYou take the '},
+            {text: 'blue pill',  cls: 'pa-neo-blue'},
+            {text: ' \u2014 the story ends, you wake up in your bed and believe whatever you want to believe.\u201d'}
+          ],
+          [
+            {text: '\u201cYou take the '},
+            {text: 'red pill',   cls: 'pa-neo-red'},
+            {text: ' \u2014 you stay in Wonderland, and I show you how deep the rabbit hole goes.\u201d'}
+          ]
+        ]
 
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        welcomeText.classList.add('visible')
-        pillsWrap.classList.add('visible')
-      }))
-
-      // ── Fase 3: klik op pil ────────────────────────────────────────
-      bluePill.addEventListener('click', () =>
-        handlePillChoice('blue', overlay, seq, matrix, canvas))
-      redPill.addEventListener('click', () =>
-        handlePillChoice('red', overlay, seq, matrix, canvas))
-
-    }, 600) // wacht op fade-out welkomstekst
-  }, 2800)  // welkomstekst zichtbaar gedurende ~2.8s (fade kost 1s)
+        typeParagraphs(speechEl, paragraphs, 0, 32, () => {
+          // ── Fase 3: pillen verschijnen na korte pauze ────────────────
+          setTimeout(() => showPills(seq, speechEl, matrix, canvas, overlay), 1400)
+        })
+      }, 900)
+    }, 2000)
+  })
 }
 
-function handlePillChoice(pill, overlay, seq, matrix, canvas) {
+function showPills(seq, speechEl, matrix, canvas, overlay) {
+  const pillsWrap = document.createElement('div')
+  pillsWrap.className = 'pa-neo-pills'
+
+  const bluePill = document.createElement('button')
+  bluePill.className = 'pa-pill pa-pill--blue'
+  bluePill.setAttribute('aria-label', 'Blauwe pil — in de simulatie blijven')
+
+  const redPill = document.createElement('button')
+  redPill.className = 'pa-pill pa-pill--red'
+  redPill.setAttribute('aria-label', 'Rode pil — de realiteit in')
+
+  pillsWrap.appendChild(bluePill)
+  pillsWrap.appendChild(redPill)
+  seq.appendChild(pillsWrap)
+
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    pillsWrap.classList.add('visible')
+  }))
+
+  bluePill.addEventListener('click', () =>
+    handlePillChoice('blue', overlay, seq, pillsWrap, matrix, canvas))
+  redPill.addEventListener('click', () =>
+    handlePillChoice('red', overlay, seq, pillsWrap, matrix, canvas))
+}
+
+function handlePillChoice(pill, overlay, seq, pillsWrap, matrix, canvas) {
   localStorage.setItem('pa-pill', pill)
 
-  // Verberg pillen + keuzetekst
-  const pillsWrap = seq.querySelector('.pa-neo-pills')
-  const chooseText = seq.querySelector('.pa-neo-text')
-  if (pillsWrap) pillsWrap.classList.remove('visible')
-  if (chooseText) chooseText.classList.remove('visible')
+  // Verberg pillen
+  pillsWrap.classList.remove('visible')
 
-  // ── Fase 4: consequentie-tekst + thema toepassen ──────────────────
+  // ── Fase 4: thema toepassen + consequentietekst ───────────────────────
   setTimeout(() => {
-    // Pas thema toe vóór tekst verschijnt (matrix/light wisselt al)
     applyPillTheme(pill)
-
     if (pill === 'red') {
       matrix && matrix.stop()
       canvas.style.display = 'none'
     }
 
-    if (chooseText) {
-      chooseText.textContent = pill === 'blue'
-        ? 'Staying in the simulation.'
-        : 'Welcome to the real world.'
-      chooseText.className = 'pa-neo-text pa-neo-text--consequence'
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        chooseText.classList.add('visible')
-      }))
-    }
+    // Korte consequentietekst verschijnt getypt
+    const resultEl = document.createElement('div')
+    resultEl.className = 'pa-neo-text pa-neo-text--consequence pa-neo-typed'
+    seq.appendChild(resultEl)
 
-    // ── Fase 5: fade-out → dashboard ───────────────────────────────
-    setTimeout(() => {
-      if (chooseText) chooseText.classList.remove('visible')
-      overlay.classList.add('fade-out')
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      resultEl.classList.add('visible')
+    }))
 
+    const resultText = pill === 'blue'
+      ? 'The story ends. Sweet dreams.'
+      : 'Down the rabbit hole you go.'
+
+    typeSegments(resultEl, [{text: resultText}], 55, () => {
+      // ── Fase 5: fade-out → dashboard ──────────────────────────────────
       setTimeout(() => {
-        seq.remove()
-        overlay.remove()
+        resultEl.style.transition = 'opacity 0.8s ease'
+        resultEl.style.opacity = '0'
+        overlay.classList.add('fade-out')
 
-        // Verwijder ?neo param uit URL
-        history.replaceState(null, '', window.location.pathname)
-
-        // Matrix loopt al voor blauwe keuze; voor rood is hij gestopt
-        const activeMatrix = pill === 'blue' ? matrix : null
-        injectPillTogglers(canvas, pill, activeMatrix)
-      }, 1200)
-    }, 1800)
+        setTimeout(() => {
+          seq.remove()
+          overlay.remove()
+          history.replaceState(null, '', window.location.pathname)
+          const activeMatrix = pill === 'blue' ? matrix : null
+          injectPillTogglers(canvas, pill, activeMatrix)
+        }, 1200)
+      }, 1600)
+    })
   }, 500)
 }
 

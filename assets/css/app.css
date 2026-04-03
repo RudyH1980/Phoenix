@@ -1772,10 +1772,11 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2.5rem;
-  padding: 2rem;
+  gap: 2rem;
+  padding: clamp(1.5rem, 5vw, 4rem) clamp(1.5rem, 8vw, 6rem);
   text-align: center;
   pointer-events: none;
+  overflow-y: auto;
 }
 
 .pa-neo-text {
@@ -1802,9 +1803,73 @@ h3 { font-size: 1rem;    line-height: 1.4; }
 .pa-neo-text--medium { font-size: clamp(1.2rem, 3.2vw, 2rem); font-weight: 400; }
 
 .pa-neo-text--consequence {
-  font-size: clamp(1.4rem, 4vw, 2.4rem);
+  font-size: clamp(1.2rem, 3.5vw, 2rem);
   font-style: italic;
   font-weight: 300;
+}
+
+/* Typewriter variant: geen transform, directe opacity */
+.pa-neo-typed {
+  transform: none !important;
+}
+
+/* Knipperende cursor */
+.pa-neo-cursor {
+  display: inline-block;
+  width: 0.55em;
+  height: 1em;
+  background: oklch(88% 0.16 194);
+  vertical-align: text-bottom;
+  margin-left: 2px;
+  box-shadow: 0 0 10px oklch(72% 0.18 194 / 0.9);
+  animation: pa-cursor-blink 0.75s step-end infinite;
+}
+
+@keyframes pa-cursor-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* Morpheus speech container */
+.pa-neo-speech {
+  max-width: 680px;
+  width: 100%;
+  text-align: left;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.pa-neo-speech.visible { opacity: 1; }
+
+/* Elke alinea in de speech */
+.pa-neo-para {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: clamp(0.95rem, 2.2vw, 1.3rem);
+  font-weight: 400;
+  color: oklch(82% 0.14 194);
+  text-shadow:
+    0 0 12px oklch(72% 0.18 194 / 0.7),
+    0 0 28px oklch(72% 0.18 194 / 0.35);
+  line-height: 1.7;
+  margin: 0 0 1.4rem;
+  min-height: 1.7em;
+}
+
+/* Gekleurde pill-woorden in de speech */
+.pa-neo-blue {
+  color: oklch(75% 0.25 250);
+  font-weight: 700;
+  text-shadow:
+    0 0 14px oklch(68% 0.26 250 / 0.95),
+    0 0 30px oklch(65% 0.26 250 / 0.55);
+}
+
+.pa-neo-red {
+  color: oklch(72% 0.28 25);
+  font-weight: 700;
+  text-shadow:
+    0 0 14px oklch(62% 0.28 22 / 0.95),
+    0 0 30px oklch(60% 0.28 22 / 0.55);
 }
 
 /* Pillen in de keuze-sequence */
