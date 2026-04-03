@@ -364,6 +364,7 @@ function initLoginPage(canvas) {
   document.body.appendChild(powered)
 
   // Canvas volledig zichtbaar tijdens intro — overlay zit erachter
+  canvas.style.display = ''
   canvas.style.zIndex = '10000'
   canvas.style.opacity = '1'
 
