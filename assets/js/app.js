@@ -658,9 +658,9 @@ function runPillSequence(canvas) {
       typeParagraphs(subtitleEl, subtitleParagraphs, 0, 40, () => {
         // ── Fase 0c: fade-out intro tekst ────────────────────────────
         setTimeout(() => {
-          welcomeEl.style.transition = 'opacity 0.8s ease'
+          welcomeEl.style.transition = 'opacity 0.55s ease'
           welcomeEl.style.opacity = '0'
-          subtitleEl.style.transition = 'opacity 0.8s ease'
+          subtitleEl.style.transition = 'opacity 0.55s ease'
           subtitleEl.style.opacity = '0'
 
           setTimeout(() => {
@@ -706,8 +706,8 @@ function runPillSequence(canvas) {
                 setTimeout(() => showPills(seq, textWrap, speechEl, matrix, canvas, overlay), 1400)
               })
             }, 1200)
-          }, 900)
-        }, 2000)
+          }, 600)
+        }, 700)
       })
     }, 400)
   })
