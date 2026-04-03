@@ -156,7 +156,6 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
               value={@form[:email].value}
               placeholder="jij@voorbeeld.nl"
               required
-              autofocus
             />
           </div>
           <div class="pa-field">

@@ -173,9 +173,8 @@
   opacity: 0.45;
 }
 
-/* Matrix canvas verbergen op mobiel — bespaart GPU op trage apparaten */
+/* Matrix toggle verbergen op mobiel — te klein om nuttig te zijn */
 @media (max-width: 767px) {
-  #pa-matrix-canvas { display: none !important; }
   #pa-matrix-toggle { display: none !important; }
 }
 
