@@ -37,6 +37,7 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
      )}
   end
 
+  @impl true
   def handle_event("magic_link", %{"email" => email}, socket) do
     case RateLimiter.hit("login:#{socket.assigns.remote_ip}", 10 * 60_000, 5) do
       {:deny, _} ->
