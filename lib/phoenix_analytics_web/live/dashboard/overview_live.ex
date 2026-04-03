@@ -127,8 +127,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OverviewLive do
     name
     |> String.split(~r/[\s\-_\.]+/)
     |> Enum.take(2)
-    |> Enum.map(&String.first/1)
-    |> Enum.join()
+    |> Enum.map_join(&String.first/1)
     |> String.upcase()
   end
 
@@ -152,12 +151,11 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OverviewLive do
 
     data
     |> Enum.with_index()
-    |> Enum.map(fn {pt, i} ->
+    |> Enum.map_join(" ", fn {pt, i} ->
       x = if n == 1, do: w / 2, else: pad + i / (n - 1) * (w - 2 * pad)
       y = pad + (1 - pt.count / max_v) * (h - 2 * pad)
       "#{Float.round(x, 1)},#{Float.round(y, 1)}"
     end)
-    |> Enum.join(" ")
   end
 
   @impl true
