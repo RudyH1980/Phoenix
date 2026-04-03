@@ -600,7 +600,7 @@ function runPillSequence(canvas) {
   const morpheusWrap = document.createElement('div')
   morpheusWrap.className = 'pa-neo-morpheus-wrap'
   const morpheusImg = document.createElement('img')
-  morpheusImg.src = '/images/morpheus.png'
+  morpheusImg.src = '/images/morpheus.webp'
   morpheusImg.className = 'pa-neo-morpheus-img'
   morpheusImg.alt = ''
   morpheusImg.setAttribute('aria-hidden', 'true')
