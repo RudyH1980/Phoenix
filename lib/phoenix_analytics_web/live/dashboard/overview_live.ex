@@ -428,17 +428,6 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OverviewLive do
                   <% end %>
                   <span class="pa-site-arrow">›</span>
                 </.link>
-                <%= unless @is_demo do %>
-                  <button
-                    class="pa-site-delete-btn"
-                    phx-click="delete_site"
-                    phx-value-id={site.id}
-                    phx-confirm={"Verwijder #{site.name}? De data blijft 6 maanden bewaard."}
-                    aria-label={"Verwijder #{site.name}"}
-                  >
-                    ✕
-                  </button>
-                <% end %>
               </li>
             <% end %>
           </ul>
