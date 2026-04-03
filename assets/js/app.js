@@ -244,7 +244,8 @@ function initMatrix(opts) {
     frameCount++
     const step = frameCount % SPEED === 0
 
-    ctx.fillStyle = 'rgba(13, 17, 23, 0.15)'
+    // Volledig zwart — geen grijze residuen
+    ctx.fillStyle = '#0d1117'
     ctx.fillRect(0, 0, logicalW, logicalH)
     ctx.font = `${FONT_SIZE}px 'Courier New', monospace`
     ctx.textBaseline = 'top'
@@ -254,25 +255,23 @@ function initMatrix(opts) {
 
     for (let i = 0; i < cols.length; i++) {
       const x = i * COL_WIDTH
-      const y = cols[i] * FONT_SIZE
+      const headRow = cols[i]
+      const y = headRow * FONT_SIZE
 
-      if (step) {
-        // Kop: fel wit
-        const char = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)]
+      // Teken kop + trail elke frame zodat zwarte bg geen gaten laat
+      if (headRow >= 0) {
         ctx.fillStyle = 'rgba(220, 255, 250, 0.95)'
-        ctx.fillText(char, x, y)
-        // Trail: 20 tekens aflopend in helderheid — lange streep, geen druppel
+        ctx.fillText(MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)], x, y)
         for (let t = 1; t <= 20; t++) {
-          if (cols[i] > t) {
-            const trail = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)]
+          if (headRow > t) {
             const opacity = Math.max(0.03, 0.65 - (t - 1) * 0.032)
             ctx.fillStyle = `rgba(0, 212, 184, ${opacity})`
-            ctx.fillText(trail, x, y - FONT_SIZE * t)
+            ctx.fillText(MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)], x, y - FONT_SIZE * t)
           }
         }
       }
 
-      if (cols[i] >= midRow) atMid++
+      if (headRow >= midRow) atMid++
 
       if (step) {
         if (y > logicalH && Math.random() > 0.975) cols[i] = 0
