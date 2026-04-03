@@ -2,6 +2,9 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
   use PhoenixAnalyticsWeb, :live_view
 
   alias PhoenixAnalytics.Accounts
+  alias PhoenixAnalytics.Emails.MagicLinkEmail
+  alias PhoenixAnalytics.Mailer
+  alias PhoenixAnalytics.RateLimiter
 
   @impl true
   def mount(_params, _session, socket) do
@@ -21,7 +24,7 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
 
   @impl true
   def handle_event("password_login", %{"email" => email, "password" => password}, socket) do
-    case PhoenixAnalytics.RateLimiter.hit("login:#{socket.assigns.remote_ip}", 10 * 60_000, 5) do
+    case RateLimiter.hit("login:#{socket.assigns.remote_ip}", 10 * 60_000, 5) do
       {:deny, _} ->
         {:noreply,
          assign(socket, error: "Te veel pogingen. Probeer het over 10 minuten opnieuw.")}
@@ -41,7 +44,7 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
   end
 
   def handle_event("magic_link", %{"email" => email}, socket) do
-    case PhoenixAnalytics.RateLimiter.hit("login:#{socket.assigns.remote_ip}", 10 * 60_000, 5) do
+    case RateLimiter.hit("login:#{socket.assigns.remote_ip}", 10 * 60_000, 5) do
       {:deny, _} ->
         {:noreply, assign(socket, sent: true)}
 
@@ -58,7 +61,7 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
   end
 
   defp send_magic_link_email(email, token) do
-    PhoenixAnalytics.Mailer.deliver(PhoenixAnalytics.Emails.MagicLinkEmail.build(email, token))
+    Mailer.deliver(MagicLinkEmail.build(email, token))
   end
 
   @impl true
