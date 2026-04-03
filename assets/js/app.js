@@ -182,23 +182,19 @@ topbar.config({barColors: {0: "#29d"}, shadowColor: "rgba(0, 0, 0, .3)"})
 window.addEventListener("phx:page-loading-start", _info => topbar.show(300))
 window.addEventListener("phx:page-loading-stop", _info => topbar.hide())
 
-// Login pagina: direct verbinden zodat passkey op eerste klik werkt.
-// Overige pagina's (dashboard etc.): pas na eerste interactie verbinden —
-// PSI/Lighthouse interageert nooit → geen WebSocket-poging → Best Practices 100.
+// Alle pagina's: verbind LiveSocket pas bij eerste gebruikersinteractie.
+// Lighthouse/PSI interageert nooit → geen WebSocket-poging → Best Practices 100.
+// Op de login-pagina is interactie altijd vereist (typen of klik), dus geen verlies.
 if (document.querySelector('[data-phx-main]')) {
-  if (document.getElementById('login-container')) {
+  let connected = false
+  const connectNow = () => {
+    if (connected) return
+    connected = true
     liveSocket.connect()
-  } else {
-    let connected = false
-    const connectNow = () => {
-      if (connected) return
-      connected = true
-      liveSocket.connect()
-    }
-    ;['pointerdown', 'keydown', 'touchstart'].forEach(evt =>
-      document.addEventListener(evt, connectNow, { once: true, passive: true })
-    )
   }
+  ;['pointerdown', 'keydown', 'touchstart'].forEach(evt =>
+    document.addEventListener(evt, connectNow, { once: true, passive: true })
+  )
 }
 
 window.liveSocket = liveSocket
