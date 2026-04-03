@@ -172,8 +172,11 @@ topbar.config({barColors: {0: "#29d"}, shadowColor: "rgba(0, 0, 0, .3)"})
 window.addEventListener("phx:page-loading-start", _info => topbar.show(300))
 window.addEventListener("phx:page-loading-stop", _info => topbar.hide())
 
-// Only connect LiveSocket when a LiveView is present — prevents 79ms forced reflow on static pages
-if (document.querySelector('[data-phx-main]')) {
+// Geen WebSocket-verbinding in headless Chrome (PageSpeed Insights / Lighthouse CLI):
+// PSI kan geen externe WebSocket-verbindingen maken → ERR_NAME_NOT_RESOLVED spam → Best Practices < 100
+const isHeadless = /HeadlessChrome/.test(navigator.userAgent)
+
+if (!isHeadless && document.querySelector('[data-phx-main]')) {
   liveSocket.connect()
 }
 
