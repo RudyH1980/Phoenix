@@ -463,12 +463,12 @@ function injectPillTogglers(canvas, activePill, existingMatrix) {
   container.setAttribute('aria-label', 'Thema wisselen')
 
   const blue = document.createElement('button')
-  blue.className = 'pa-pill-toggler pa-pill-toggler--blue'
+  blue.className = 'pa-pill-toggler pa-pill-toggler--white'
   blue.title = 'Light mode + Matrix uit'
   blue.setAttribute('aria-label', 'Schakel naar light mode zonder Matrix')
 
   const red = document.createElement('button')
-  red.className = 'pa-pill-toggler pa-pill-toggler--red'
+  red.className = 'pa-pill-toggler pa-pill-toggler--dark'
   red.title = 'Dark mode + Matrix aan'
   red.setAttribute('aria-label', 'Schakel naar dark mode met Matrix')
 
@@ -606,7 +606,7 @@ function runPillSequence(canvas) {
   const morpheusWrap = document.createElement('div')
   morpheusWrap.className = 'pa-neo-morpheus-wrap'
   const morpheusImg = document.createElement('img')
-  morpheusImg.src = '/images/morpheus.webp'
+  morpheusImg.src = '/images/neo_figure.webp'
   morpheusImg.className = 'pa-neo-morpheus-img'
   morpheusImg.alt = ''
   morpheusImg.setAttribute('aria-hidden', 'true')
@@ -696,12 +696,12 @@ function runPillSequence(canvas) {
                 ],
                 [
                   {text: '\u201cYou take the '},
-                  {text: 'blue pill', cls: 'pa-neo-blue'},
+                  {text: 'white pill', cls: 'pa-neo-white'},
                   {text: ' \u2014 the story ends, you wake up in your bed and believe whatever you want to believe.\u201d'}
                 ],
                 [
                   {text: '\u201cYou take the '},
-                  {text: 'red pill', cls: 'pa-neo-red'},
+                  {text: 'dark pill', cls: 'pa-neo-dark'},
                   {text: ' \u2014 you stay in Wonderland, and I show you how deep the rabbit hole goes.\u201d'}
                 ]
               ]
@@ -722,12 +722,12 @@ function showPills(seq, textWrap, speechEl, matrix, canvas, overlay) {
   pillsWrap.className = 'pa-neo-pills'
 
   const bluePill = document.createElement('button')
-  bluePill.className = 'pa-pill pa-pill--blue'
-  bluePill.setAttribute('aria-label', 'Blauwe pil — light mode, geen matrix')
+  bluePill.className = 'pa-pill pa-pill--white'
+  bluePill.setAttribute('aria-label', 'Witte pil — light mode, geen matrix')
 
   const redPill = document.createElement('button')
-  redPill.className = 'pa-pill pa-pill--red'
-  redPill.setAttribute('aria-label', 'Rode pil — dark mode met matrix')
+  redPill.className = 'pa-pill pa-pill--dark'
+  redPill.setAttribute('aria-label', 'Donkere pil — dark mode met matrix')
 
   pillsWrap.appendChild(bluePill)
   pillsWrap.appendChild(redPill)
