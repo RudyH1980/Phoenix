@@ -4,7 +4,10 @@ defmodule PhoenixAnalytics.Accounts do
 
   require Ash.Query
 
-  alias PhoenixAnalytics.Accounts.{User, MagicToken, Organization, Membership}
+  alias PhoenixAnalytics.Accounts.MagicToken
+  alias PhoenixAnalytics.Accounts.Membership
+  alias PhoenixAnalytics.Accounts.Organization
+  alias PhoenixAnalytics.Accounts.User
 
   resources do
     resource(User)

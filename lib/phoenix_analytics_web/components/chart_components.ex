@@ -1,4 +1,5 @@
 defmodule PhoenixAnalyticsWeb.ChartComponents do
+  @moduledoc false
   use Phoenix.Component
 
   @doc """

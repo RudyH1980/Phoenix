@@ -1,4 +1,5 @@
 defmodule PhoenixAnalytics.Experiments do
+  @moduledoc false
   use Ash.Domain
 
   resources do

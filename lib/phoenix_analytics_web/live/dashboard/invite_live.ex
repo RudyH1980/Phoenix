@@ -1,7 +1,7 @@
 defmodule PhoenixAnalyticsWeb.Live.Dashboard.InviteLive do
   use PhoenixAnalyticsWeb, :live_view
 
-  alias PhoenixAnalytics.{Accounts}
+  alias PhoenixAnalytics.Accounts
   alias PhoenixAnalytics.Accounts.Organization
   alias PhoenixAnalytics.Emails.InviteEmail
   alias PhoenixAnalytics.Mailer

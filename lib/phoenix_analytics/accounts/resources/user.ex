@@ -1,4 +1,5 @@
 defmodule PhoenixAnalytics.Accounts.User do
+  @moduledoc false
   use Ash.Resource,
     domain: PhoenixAnalytics.Accounts,
     data_layer: AshPostgres.DataLayer

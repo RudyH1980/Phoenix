@@ -1,7 +1,8 @@
 defmodule PhoenixAnalyticsWeb.Live.Dashboard.NewSiteLive do
   use PhoenixAnalyticsWeb, :live_view
 
-  alias PhoenixAnalytics.{Analytics, Accounts}
+  alias PhoenixAnalytics.Accounts
+  alias PhoenixAnalytics.Analytics
 
   @impl true
   def mount(_params, session, socket) do

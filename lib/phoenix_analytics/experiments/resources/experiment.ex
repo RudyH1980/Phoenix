@@ -1,4 +1,5 @@
 defmodule PhoenixAnalytics.Experiments.Experiment do
+  @moduledoc false
   use Ash.Resource,
     domain: PhoenixAnalytics.Experiments,
     data_layer: AshPostgres.DataLayer

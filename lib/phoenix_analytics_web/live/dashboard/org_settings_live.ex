@@ -1,7 +1,7 @@
 defmodule PhoenixAnalyticsWeb.Live.Dashboard.OrgSettingsLive do
   use PhoenixAnalyticsWeb, :live_view
 
-  alias PhoenixAnalytics.{Accounts}
+  alias PhoenixAnalytics.Accounts
   alias PhoenixAnalytics.Accounts.Organization
 
   @impl true

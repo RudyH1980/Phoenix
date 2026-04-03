@@ -1,4 +1,5 @@
 defmodule PhoenixAnalytics.Analytics.Site do
+  @moduledoc false
   use Ash.Resource,
     domain: PhoenixAnalytics.Analytics,
     data_layer: AshPostgres.DataLayer
