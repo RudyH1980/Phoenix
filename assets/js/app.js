@@ -294,11 +294,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('pa-matrix-canvas')
   if (!canvas) return
 
-  if (document.getElementById('login-container')) {
-    initLoginPage(canvas)
-  } else {
-    initAppPage(canvas)
-  }
+  // rAF: laat browser één frame renderen vóór overlays verschijnen
+  // zodat de pagina-inhoud (h1, cards) als LCP-element gemeten wordt.
+  requestAnimationFrame(() => {
+    if (document.getElementById('login-container')) {
+      initLoginPage(canvas)
+    } else {
+      initAppPage(canvas)
+    }
+  })
 })
 
 // ── Login pagina: matrix intro ────────────────────────────────────────────
