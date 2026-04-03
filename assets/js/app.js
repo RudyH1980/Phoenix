@@ -213,10 +213,8 @@ function initMatrix(opts) {
   let animId = null
   let cols = []
   let midpointFired = false
-  let frameCount = 0
-  const FONT_SIZE = 16
-  const COL_WIDTH = 18
-  const SPEED = opts.speed || 2
+  const FONT_SIZE = 14
+  const COL_WIDTH = 16
   let logicalW = window.innerWidth
   let logicalH = window.innerHeight
 
@@ -241,17 +239,9 @@ function initMatrix(opts) {
   window.addEventListener('resize', () => setupCols(false))
 
   function draw() {
-    frameCount++
-    const step = frameCount % SPEED === 0
-
-    // Semi-transparante fade — oude tekens verdwijnen vanzelf (lange trail, geen ruis)
-    ctx.fillStyle = 'rgba(13, 17, 23, 0.08)'
+    ctx.fillStyle = 'rgba(13, 17, 23, 0.06)'
     ctx.fillRect(0, 0, logicalW, logicalH)
-
-    if (step) {
-      ctx.font = `${FONT_SIZE}px monospace`
-      ctx.textBaseline = 'top'
-    }
+    ctx.font = `${FONT_SIZE}px monospace`
 
     const midRow = Math.floor(logicalH / 2 / FONT_SIZE)
     let atMid = 0
@@ -260,25 +250,17 @@ function initMatrix(opts) {
       const x = i * COL_WIDTH
       const y = cols[i] * FONT_SIZE
 
-      if (step) {
-        // Kop: fel wit
-        ctx.fillStyle = 'rgba(220, 255, 250, 0.95)'
-        ctx.fillText(MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)], x, y)
-        // Direct trail: 3 tekens voor duidelijke streep
-        for (let t = 1; t <= 3; t++) {
-          if (cols[i] > t) {
-            ctx.fillStyle = `rgba(0, 212, 184, ${0.7 - t * 0.15})`
-            ctx.fillText(MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)], x, y - FONT_SIZE * t)
-          }
-        }
+      ctx.fillStyle = '#cffff9'
+      ctx.fillText(MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)], x, y)
+      if (cols[i] > 1) {
+        ctx.fillStyle = '#00d4b8'
+        ctx.fillText(MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)], x, y - FONT_SIZE)
       }
 
       if (cols[i] >= midRow) atMid++
 
-      if (step) {
-        if (y > logicalH && Math.random() > 0.975) cols[i] = 0
-        cols[i]++
-      }
+      if (y > logicalH && Math.random() > 0.975) cols[i] = 0
+      cols[i]++
     }
 
     if (!midpointFired && opts.onMidpoint && atMid >= Math.floor(cols.length * 0.6)) {
