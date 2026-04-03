@@ -8,20 +8,27 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.InviteLive do
 
   @impl true
   def mount(%{"org_id" => org_id}, session, socket) do
-    user_id = session["user_id"]
-    org = Ash.get!(Organization, org_id)
+    if socket.assigns[:is_demo] do
+      {:ok,
+       socket
+       |> put_flash(:error, "Niet beschikbaar in de demo.")
+       |> push_navigate(to: ~p"/dashboard")}
+    else
+      user_id = session["user_id"]
+      org = Ash.get!(Organization, org_id)
 
-    unless Accounts.org_owner?(user_id, org_id) do
-      raise PhoenixAnalyticsWeb.ForbiddenError
+      unless Accounts.org_owner?(user_id, org_id) do
+        raise PhoenixAnalyticsWeb.ForbiddenError
+      end
+
+      {:ok,
+       assign(socket,
+         org: org,
+         form: to_form(%{"email" => ""}),
+         sent: false,
+         page_title: "Uitnodiging versturen"
+       )}
     end
-
-    {:ok,
-     assign(socket,
-       org: org,
-       form: to_form(%{"email" => ""}),
-       sent: false,
-       page_title: "Uitnodiging versturen"
-     )}
   end
 
   @impl true

@@ -9,6 +9,8 @@ defmodule PhoenixAnalyticsWeb.Endpoint do
     key: "_phoenix_analytics_key",
     signing_salt: "bH5+xj7Q",
     same_site: "Lax",
+    http_only: true,
+    secure: Application.compile_env(:phoenix_analytics, :secure_cookies, false),
     max_age: 30 * 24 * 60 * 60
   ]
 

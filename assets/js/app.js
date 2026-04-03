@@ -567,6 +567,8 @@ function skipPillSequence(canvas, overlay, seq, skipBar, matrix) {
   setTimeout(() => {
     overlay.remove()
     history.replaceState(null, '', window.location.pathname)
+    canvas.style.transition = ''
+    canvas.style.opacity = '1'
     const matrixOn = pill === 'red' && localStorage.getItem('pa-matrix') !== 'off'
     if (matrixOn) {
       canvas.style.display = ''
@@ -596,7 +598,7 @@ function runPillSequence(canvas) {
   seq.id = 'pa-neo-sequence'
   document.body.appendChild(seq)
 
-  // Morpheus afbeelding — rechts, fade-in na korte vertraging
+  // Morpheus afbeelding — fade-in gestart NA intro tekst
   const morpheusWrap = document.createElement('div')
   morpheusWrap.className = 'pa-neo-morpheus-wrap'
   const morpheusImg = document.createElement('img')
@@ -606,9 +608,8 @@ function runPillSequence(canvas) {
   morpheusImg.setAttribute('aria-hidden', 'true')
   morpheusWrap.appendChild(morpheusImg)
   seq.appendChild(morpheusWrap)
-  setTimeout(() => morpheusImg.classList.add('visible'), 600)
 
-  // Tekst container — links
+  // Tekst container — gecentreerd
   const textWrap = document.createElement('div')
   textWrap.className = 'pa-neo-text-wrap'
   seq.appendChild(textWrap)
@@ -629,7 +630,7 @@ function runPillSequence(canvas) {
     skipPillSequence(canvas, overlay, seq, skipBar, matrix)
   })
 
-  // ── Fase 1: "Welcome at NEO" getypt in groot ──────────────────────────
+  // ── Fase 0a: "Welcome to NEO." getypt groot ──────────────────────────
   const welcomeEl = document.createElement('div')
   welcomeEl.className = 'pa-neo-text pa-neo-text--large pa-neo-typed'
   textWrap.appendChild(welcomeEl)
@@ -638,47 +639,77 @@ function runPillSequence(canvas) {
     welcomeEl.classList.add('visible')
   }))
 
-  typeSegments(welcomeEl, [{text: 'Welcome at NEO'}], 90, () => {
-    // Na 2s: fade uit + Morpheus speech
+  typeSegments(welcomeEl, [{text: 'Welcome to NEO.'}], 90, () => {
+    // ── Fase 0b: subtitel verschijnt getypt ──────────────────────────
     setTimeout(() => {
-      welcomeEl.style.transition = 'opacity 0.9s ease'
-      welcomeEl.style.opacity = '0'
+      const subtitleEl = document.createElement('div')
+      subtitleEl.className = 'pa-neo-subtitle pa-neo-typed'
+      textWrap.appendChild(subtitleEl)
 
-      setTimeout(() => {
-        welcomeEl.remove()
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        subtitleEl.classList.add('visible')
+      }))
 
-        // ── Fase 2: Morpheus speech ────────────────────────────────────
-        const speechEl = document.createElement('div')
-        speechEl.className = 'pa-neo-speech'
-        textWrap.appendChild(speechEl)
+      const subtitleParagraphs = [
+        [{text: 'Website Insight & Analytics Dashboard'}],
+        [{text: 'Before you enter, I have one question for you...'}]
+      ]
 
-        requestAnimationFrame(() => requestAnimationFrame(() => {
-          speechEl.classList.add('visible')
-        }))
+      typeParagraphs(subtitleEl, subtitleParagraphs, 0, 40, () => {
+        // ── Fase 0c: fade-out intro tekst ────────────────────────────
+        setTimeout(() => {
+          welcomeEl.style.transition = 'opacity 0.8s ease'
+          welcomeEl.style.opacity = '0'
+          subtitleEl.style.transition = 'opacity 0.8s ease'
+          subtitleEl.style.opacity = '0'
 
-        // Originele Matrix tekst, gesplitst in segmenten voor kleur
-        const paragraphs = [
-          [
-            {text: '\u201cThis is your last chance. After this, there is no turning back.\u201d'}
-          ],
-          [
-            {text: '\u201cYou take the '},
-            {text: 'blue pill',  cls: 'pa-neo-blue'},
-            {text: ' \u2014 the story ends, you wake up in your bed and believe whatever you want to believe.\u201d'}
-          ],
-          [
-            {text: '\u201cYou take the '},
-            {text: 'red pill',   cls: 'pa-neo-red'},
-            {text: ' \u2014 you stay in Wonderland, and I show you how deep the rabbit hole goes.\u201d'}
-          ]
-        ]
+          setTimeout(() => {
+            welcomeEl.remove()
+            subtitleEl.remove()
 
-        typeParagraphs(speechEl, paragraphs, 0, 32, () => {
-          // ── Fase 3: pillen verschijnen na korte pauze ────────────────
-          setTimeout(() => showPills(seq, textWrap, speechEl, matrix, canvas, overlay), 1400)
-        })
-      }, 900)
-    }, 2000)
+            // ── Fase 0d: Morpheus verschijnt, matrix stopt ───────────
+            morpheusImg.classList.add('visible')
+            canvas.style.transition = 'opacity 1s ease'
+            canvas.style.opacity = '0'
+            setTimeout(() => {
+              matrix && matrix.stop()
+              canvas.style.transition = ''
+            }, 1000)
+
+            // ── Fase 1: Morpheus speech na fade-in ───────────────────
+            setTimeout(() => {
+              const speechEl = document.createElement('div')
+              speechEl.className = 'pa-neo-speech'
+              textWrap.appendChild(speechEl)
+
+              requestAnimationFrame(() => requestAnimationFrame(() => {
+                speechEl.classList.add('visible')
+              }))
+
+              const paragraphs = [
+                [
+                  {text: '\u201cThis is your last chance. After this, there is no turning back.\u201d'}
+                ],
+                [
+                  {text: '\u201cYou take the '},
+                  {text: 'blue pill', cls: 'pa-neo-blue'},
+                  {text: ' \u2014 the story ends, you wake up in your bed and believe whatever you want to believe.\u201d'}
+                ],
+                [
+                  {text: '\u201cYou take the '},
+                  {text: 'red pill', cls: 'pa-neo-red'},
+                  {text: ' \u2014 you stay in Wonderland, and I show you how deep the rabbit hole goes.\u201d'}
+                ]
+              ]
+
+              typeParagraphs(speechEl, paragraphs, 0, 32, () => {
+                setTimeout(() => showPills(seq, textWrap, speechEl, matrix, canvas, overlay), 1400)
+              })
+            }, 1200)
+          }, 900)
+        }, 2000)
+      })
+    }, 400)
   })
 }
 
@@ -720,6 +751,10 @@ function handlePillChoice(pill, overlay, seq, textWrap, pillsWrap, matrix, canva
     if (pill === 'blue') {
       matrix && matrix.stop()
       canvas.style.display = 'none'
+    } else {
+      canvas.style.transition = ''
+      canvas.style.opacity = '1'
+      matrix && matrix.start()
     }
 
     // Korte consequentietekst verschijnt getypt

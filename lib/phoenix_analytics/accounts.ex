@@ -34,10 +34,14 @@ defmodule PhoenixAnalytics.Accounts do
   end
 
   def request_invite_link(email, org_id) do
-    with {:ok, user} <- find_or_create_user(email) do
-      MagicToken
-      |> Ash.Changeset.for_create(:create, %{user_id: user.id, invite_org_id: org_id})
-      |> Ash.create()
+    if email_allowed?(email) do
+      with {:ok, user} <- find_or_create_user(email) do
+        MagicToken
+        |> Ash.Changeset.for_create(:create, %{user_id: user.id, invite_org_id: org_id})
+        |> Ash.create()
+      end
+    else
+      {:ok, :not_allowed}
     end
   end
 
@@ -94,10 +98,14 @@ defmodule PhoenixAnalytics.Accounts do
   end
 
   def set_password(email, password) do
-    with {:ok, user} <- find_or_create_user(email) do
-      user
-      |> Ash.Changeset.for_update(:set_password, %{password: password})
-      |> Ash.update()
+    if email_allowed?(email) do
+      with {:ok, user} <- find_or_create_user(email) do
+        user
+        |> Ash.Changeset.for_update(:set_password, %{password: password})
+        |> Ash.update()
+      end
+    else
+      {:error, :not_allowed}
     end
   end
 

@@ -1403,6 +1403,30 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   font-size: 0.78rem;
 }
 
+.pa-btn--link {
+  background: none;
+  border: none;
+  padding: 0.25rem 0;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.pa-btn--link:hover {
+  opacity: 0.75;
+}
+
+.pa-magic-form-wrap {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--pa-border-subtle);
+  animation: pa-slide-down 0.2s ease;
+}
+
+@keyframes pa-slide-down {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 /* ============================================================
    HEATMAP
    ============================================================ */
@@ -1949,7 +1973,7 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   transition: opacity 2.5s ease;
 }
 
-.pa-neo-morpheus-img.visible { opacity: 0.6; }
+.pa-neo-morpheus-img.visible { opacity: 0.45; }
 
 /* Tekst container — gecentreerd midden van scherm */
 .pa-neo-text-wrap {
@@ -1991,6 +2015,30 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   font-size: clamp(1rem, 3.5vw, 2rem);
   font-style: italic;
   font-weight: 300;
+}
+
+/* Subtitel onder Welcome to NEO */
+.pa-neo-subtitle {
+  font-family: 'Courier New', Courier, monospace;
+  color: oklch(75% 0.12 194 / 0.85);
+  font-size: clamp(0.85rem, 2vw, 1.15rem);
+  font-weight: 400;
+  max-width: 580px;
+  width: 100%;
+  text-align: center;
+  line-height: 1.7;
+  margin-top: 1.25rem;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+.pa-neo-subtitle.visible { opacity: 1; }
+
+.pa-neo-subtitle .pa-neo-para {
+  margin: 0.3rem 0;
+  font-size: inherit;
+  color: inherit;
+  font-family: inherit;
 }
 
 /* Typewriter variant: geen transform, directe opacity */

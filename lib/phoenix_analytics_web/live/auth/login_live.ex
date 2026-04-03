@@ -29,12 +29,18 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
        magic_form: to_form(%{"email" => ""}),
        sent: false,
        error: nil,
+       show_magic_form: false,
        page_title: "Inloggen",
        remote_ip: ip,
        passkey_challenge: Base.url_encode64(challenge.bytes, padding: false),
        passkey_session_key: session_key,
        passkey_rp_id: rp_id
      )}
+  end
+
+  @impl true
+  def handle_event("toggle_magic_form", _params, socket) do
+    {:noreply, assign(socket, show_magic_form: !socket.assigns.show_magic_form)}
   end
 
   @impl true
@@ -60,6 +66,16 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
         %{"response" => resp, "session_key" => session_key},
         socket
       ) do
+    case RateLimiter.hit("passkey:#{socket.assigns.remote_ip}", 15 * 60_000, 10) do
+      {:deny, _} ->
+        {:noreply, assign(socket, error: "Te veel pogingen. Probeer het later opnieuw.")}
+
+      {:allow, _} ->
+        passkey_login(resp, session_key, socket)
+    end
+  end
+
+  defp passkey_login(resp, session_key, socket) do
     with {:ok, challenge} <- PasskeyChallengeStore.get("auth:#{session_key}"),
          credential_id = Base.url_decode64!(resp["id"], padding: false),
          {:ok, passkey} <- Accounts.get_passkey_by_credential_id(credential_id),
@@ -142,32 +158,40 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
           Inloggen met passkey
         </button>
 
-        <hr style="border-color:var(--pa-border-subtle);margin:1.5rem 0;" />
-
         <%= if @sent do %>
-          <div class="pa-alert pa-alert--success">
+          <div class="pa-alert pa-alert--success" style="margin-top:1rem;">
             <p><strong>Magic link verstuurd!</strong></p>
             <p>Controleer je inbox. De link is 15 minuten geldig.</p>
           </div>
         <% else %>
-          <p style="font-size:0.9rem;color:var(--pa-text-muted);margin-bottom:0.75rem;">
-            Of log in via e-mail link
-          </p>
-          <.form for={@magic_form} phx-submit="magic_link" class="pa-form">
-            <div class="pa-field">
-              <label for="magic_email" class="sr-only">E-mailadres voor magic link</label>
-              <input
-                type="email"
-                id="magic_email"
-                name="email"
-                placeholder="jij@voorbeeld.nl"
-                required
-              />
+          <button
+            phx-click="toggle_magic_form"
+            class="pa-btn pa-btn--link pa-btn--full"
+            style="margin-top:0.5rem; font-size:0.8rem; color:var(--pa-text-muted);"
+          >
+            {if @show_magic_form, do: "▲ Verberg e-mail login", else: "▾ Inloggen via e-mail link"}
+          </button>
+
+          <%= if @show_magic_form do %>
+            <div class="pa-magic-form-wrap">
+              <.form for={@magic_form} phx-submit="magic_link" class="pa-form">
+                <div class="pa-field">
+                  <label for="magic_email" class="sr-only">E-mailadres voor magic link</label>
+                  <input
+                    type="email"
+                    id="magic_email"
+                    name="email"
+                    placeholder="jij@voorbeeld.nl"
+                    required
+                    autofocus
+                  />
+                </div>
+                <button type="submit" class="pa-btn pa-btn--ghost pa-btn--full pa-btn--sm">
+                  Stuur magic link
+                </button>
+              </.form>
             </div>
-            <button type="submit" class="pa-btn pa-btn--ghost pa-btn--full">
-              Stuur magic link
-            </button>
-          </.form>
+          <% end %>
         <% end %>
       </div>
     </div>

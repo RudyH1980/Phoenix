@@ -5,34 +5,41 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.NewExperimentLive do
 
   @impl true
   def mount(%{"site_id" => site_id}, _session, socket) do
-    case Ash.get(Analytics.Site, site_id) do
-      {:ok, site} when not is_nil(site) ->
-        if site.org_id in socket.assigns.current_org_ids do
-          {:ok,
-           assign(socket,
-             site: site,
-             form:
-               to_form(%{
-                 "name" => "",
-                 "description" => "",
-                 "goal_event" => "",
-                 "webhook_url" => ""
-               }),
-             variants: [%{name: "Controle", weight: 50}, %{name: "Variant B", weight: 50}],
-             page_title: "Nieuw experiment"
-           )}
-        else
+    if socket.assigns[:is_demo] do
+      {:ok,
+       socket
+       |> put_flash(:error, "Niet beschikbaar in de demo.")
+       |> push_navigate(to: ~p"/dashboard")}
+    else
+      case Ash.get(Analytics.Site, site_id) do
+        {:ok, site} when not is_nil(site) ->
+          if site.org_id in socket.assigns.current_org_ids do
+            {:ok,
+             assign(socket,
+               site: site,
+               form:
+                 to_form(%{
+                   "name" => "",
+                   "description" => "",
+                   "goal_event" => "",
+                   "webhook_url" => ""
+                 }),
+               variants: [%{name: "Controle", weight: 50}, %{name: "Variant B", weight: 50}],
+               page_title: "Nieuw experiment"
+             )}
+          else
+            {:ok,
+             socket
+             |> put_flash(:error, "Geen toegang tot deze website.")
+             |> push_navigate(to: ~p"/dashboard")}
+          end
+
+        _ ->
           {:ok,
            socket
-           |> put_flash(:error, "Geen toegang tot deze website.")
+           |> put_flash(:error, "Website niet gevonden.")
            |> push_navigate(to: ~p"/dashboard")}
-        end
-
-      _ ->
-        {:ok,
-         socket
-         |> put_flash(:error, "Website niet gevonden.")
-         |> push_navigate(to: ~p"/dashboard")}
+      end
     end
   end
 

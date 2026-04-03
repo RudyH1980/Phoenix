@@ -6,21 +6,28 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.NewSiteLive do
 
   @impl true
   def mount(_params, session, socket) do
-    user_id = session["user_id"]
-    # Gebruik eerste org van de gebruiker (bij nieuwe site)
-    org_id =
-      case Accounts.user_orgs(user_id) do
-        [m | _] -> m.org_id
-        [] -> nil
-      end
+    if socket.assigns[:is_demo] do
+      {:ok,
+       socket
+       |> put_flash(:error, "Niet beschikbaar in de demo.")
+       |> push_navigate(to: ~p"/dashboard")}
+    else
+      user_id = session["user_id"]
 
-    {:ok,
-     assign(socket,
-       form: to_form(%{"name" => "", "domain" => ""}),
-       created_site: nil,
-       org_id: org_id,
-       page_title: "Nieuwe website"
-     )}
+      org_id =
+        case Accounts.user_orgs(user_id) do
+          [m | _] -> m.org_id
+          [] -> nil
+        end
+
+      {:ok,
+       assign(socket,
+         form: to_form(%{"name" => "", "domain" => ""}),
+         created_site: nil,
+         org_id: org_id,
+         page_title: "Nieuwe website"
+       )}
+    end
   end
 
   @impl true

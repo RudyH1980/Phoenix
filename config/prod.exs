@@ -6,6 +6,7 @@ import Config
 # which you should run after static files are built and
 # before starting your production server.
 config :phoenix_analytics, :env, :prod
+config :phoenix_analytics, :secure_cookies, true
 
 config :phoenix_analytics, PhoenixAnalyticsWeb.Endpoint,
   cache_static_manifest: "priv/static/cache_manifest.json"

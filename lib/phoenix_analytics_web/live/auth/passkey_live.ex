@@ -7,17 +7,24 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.PasskeyLive do
 
   @impl true
   def mount(_params, session, socket) do
-    user_id = session["user_id"]
-    passkeys = Accounts.list_passkeys(user_id)
+    if socket.assigns[:is_demo] do
+      {:ok,
+       socket
+       |> put_flash(:error, "Niet beschikbaar in de demo.")
+       |> push_navigate(to: ~p"/dashboard")}
+    else
+      user_id = session["user_id"]
+      passkeys = Accounts.list_passkeys(user_id)
 
-    {:ok,
-     assign(socket,
-       user_id: user_id,
-       passkeys: passkeys,
-       page_title: "Mijn account",
-       error: nil,
-       status: nil
-     )}
+      {:ok,
+       assign(socket,
+         user_id: user_id,
+         passkeys: passkeys,
+         page_title: "Mijn account",
+         error: nil,
+         status: nil
+       )}
+    end
   end
 
   @impl true
