@@ -27,7 +27,7 @@ defmodule PhoenixAnalyticsWeb.AuthController do
           :info,
           "Welkom#{if invite_org_id, do: " — uitnodiging geaccepteerd!", else: " terug!"}"
         )
-        |> redirect(to: ~p"/dashboard")
+        |> redirect(to: ~p"/dashboard?neo=1")
 
       {:error, :invalid_or_expired} ->
         conn
@@ -50,7 +50,7 @@ defmodule PhoenixAnalyticsWeb.AuthController do
 
         conn
         |> put_session(:user_id, user.id)
-        |> redirect(to: ~p"/dashboard")
+        |> redirect(to: ~p"/dashboard?neo=1")
 
       _ ->
         conn
@@ -73,7 +73,7 @@ defmodule PhoenixAnalyticsWeb.AuthController do
 
         conn
         |> put_session(:user_id, user.id)
-        |> redirect(to: ~p"/dashboard")
+        |> redirect(to: ~p"/dashboard?neo=1")
 
       _ ->
         conn
