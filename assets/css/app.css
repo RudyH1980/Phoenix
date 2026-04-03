@@ -2045,13 +2045,15 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
+  transform: translateY(16px);
 }
 
 .pa-auth-container.pa-intro-reveal {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
-  transition: opacity 3s ease 0.5s, visibility 0s linear 0s;
+  transform: translateY(0);
+  transition: opacity 2.5s ease-in 1.8s, transform 2.5s ease-out 1.8s, visibility 0s linear 0s;
 }
 
 /* ============================================================
