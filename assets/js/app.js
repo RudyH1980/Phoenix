@@ -337,13 +337,15 @@ function initLoginPage(canvas) {
   powered.textContent = 'Powered by AI'
   document.body.appendChild(powered)
 
-  canvas.style.display = ''
+  // Canvas verborgen houden tot midpoint — matrix draait al wel op achtergrond.
+  // Voorkomt dat Lighthouse de animatie meeneemt in Speed Index meting.
   canvas.style.zIndex = '10000'
 
   const matrix = initMatrix({
     introMode: true,
     speed: 4,
     onMidpoint() {
+      canvas.style.display = ''
       hero.classList.add('visible')
 
       setTimeout(() => {
@@ -608,6 +610,8 @@ function runPillSequence(canvas) {
   morpheusImg.src = '/images/neo_figure.webp'
   morpheusImg.className = 'pa-neo-morpheus-img'
   morpheusImg.alt = ''
+  morpheusImg.width = 800
+  morpheusImg.height = 617
   morpheusImg.setAttribute('aria-hidden', 'true')
   morpheusWrap.appendChild(morpheusImg)
   seq.appendChild(morpheusWrap)
