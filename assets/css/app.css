@@ -164,6 +164,60 @@
 }
 
 /* ============================================================
+   MATRIX ACHTERGROND
+   ============================================================ */
+#pa-matrix-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.45;
+}
+
+/* Zorg dat pagina-inhoud boven canvas ligt */
+body > *:not(#pa-matrix-canvas):not(#pa-theme-toggle):not(#pa-matrix-toggle) {
+  position: relative;
+  z-index: 1;
+}
+
+#pa-matrix-toggle {
+  position: fixed;
+  bottom: 4.5rem;
+  right: 1.25rem;
+  z-index: 100;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 1px solid var(--pa-border);
+  background: var(--pa-surface);
+  color: var(--pa-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  transition: all 150ms ease;
+  box-shadow: 0 2px 8px oklch(0% 0 0 / 0.3);
+}
+
+#pa-matrix-toggle:hover {
+  border-color: var(--pa-teal);
+  color: var(--pa-teal);
+  background: var(--pa-surface-raised);
+}
+
+#pa-matrix-toggle.active {
+  border-color: var(--pa-teal);
+  color: var(--pa-teal);
+  background: var(--pa-teal-dim);
+  box-shadow: 0 0 12px var(--pa-teal-glow);
+}
+
+/* ============================================================
    BASE
    ============================================================ */
 body {

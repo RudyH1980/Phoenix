@@ -104,6 +104,99 @@ liveSocket.connect()
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
 
+// ============================================================
+// Matrix regen animatie
+// ============================================================
+const MATRIX_CHARS = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEF'
+
+function initMatrix() {
+  const canvas = document.getElementById('pa-matrix-canvas')
+  if (!canvas) return null
+
+  const ctx = canvas.getContext('2d')
+  let animId = null
+  let cols = []
+  const FONT_SIZE = 14
+  const COL_WIDTH = 16
+
+  function resize() {
+    canvas.width = window.innerWidth
+    canvas.height = window.innerHeight
+    cols = Array.from(
+      { length: Math.floor(canvas.width / COL_WIDTH) },
+      () => Math.floor(Math.random() * -(canvas.height / FONT_SIZE))
+    )
+  }
+
+  resize()
+  window.addEventListener('resize', resize)
+
+  function draw() {
+    ctx.fillStyle = 'rgba(13, 17, 23, 0.06)'
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+    ctx.font = `${FONT_SIZE}px monospace`
+
+    for (let i = 0; i < cols.length; i++) {
+      const char = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)]
+      const x = i * COL_WIDTH
+      const y = cols[i] * FONT_SIZE
+
+      // Leading char: wit
+      ctx.fillStyle = '#cffff9'
+      ctx.fillText(char, x, y)
+
+      // Trails: teal
+      ctx.fillStyle = '#00d4b8'
+      const trailChar = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)]
+      if (cols[i] > 1) ctx.fillText(trailChar, x, y - FONT_SIZE)
+
+      if (y > canvas.height && Math.random() > 0.975) cols[i] = 0
+      cols[i]++
+    }
+
+    animId = requestAnimationFrame(draw)
+  }
+
+  return {
+    start() { if (!animId) animId = requestAnimationFrame(draw) },
+    stop() {
+      if (animId) { cancelAnimationFrame(animId); animId = null }
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+    }
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const matrix = initMatrix()
+  if (!matrix) return
+
+  const btn = document.getElementById('pa-matrix-toggle')
+  const canvas = document.getElementById('pa-matrix-canvas')
+  let active = localStorage.getItem('pa-matrix') === 'on'
+
+  function applyState() {
+    if (active) {
+      canvas.style.display = ''
+      matrix.start()
+      btn && btn.classList.add('active')
+      btn && btn.setAttribute('title', 'Matrix uitzetten')
+    } else {
+      matrix.stop()
+      canvas.style.display = 'none'
+      btn && btn.classList.remove('active')
+      btn && btn.setAttribute('title', 'Matrix aanzetten')
+    }
+  }
+
+  applyState()
+
+  btn && btn.addEventListener('click', () => {
+    active = !active
+    localStorage.setItem('pa-matrix', active ? 'on' : 'off')
+    applyState()
+  })
+})
+
 // The lines below enable quality of life phoenix_live_reload
 // development features:
 //

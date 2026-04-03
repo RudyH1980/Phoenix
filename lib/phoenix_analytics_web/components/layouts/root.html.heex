@@ -34,7 +34,11 @@
     </script>
   </head>
   <body>
+    <canvas id="pa-matrix-canvas" aria-hidden="true" style="display:none;"></canvas>
     {@inner_content}
+    <button id="pa-matrix-toggle" title="Matrix aanzetten" aria-label="Matrix achtergrond aan/uit">
+      ﾊ
+    </button>
     <button
       id="pa-theme-toggle"
       onclick="(function(){var h=document.documentElement;var t=h.getAttribute('data-theme')==='dark'?'light':'dark';h.setAttribute('data-theme',t);localStorage.setItem('pa-theme',t);var btn=document.getElementById('pa-theme-toggle');btn.setAttribute('aria-label',t==='dark'?'Schakel naar licht thema':'Schakel naar donker thema');btn.setAttribute('title',t==='dark'?'Schakel naar licht thema':'Schakel naar donker thema');})()"
