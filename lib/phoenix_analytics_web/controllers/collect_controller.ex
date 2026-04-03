@@ -48,7 +48,7 @@ defmodule PhoenixAnalyticsWeb.CollectController do
   end
 
   defp build_session_hash(conn, _) do
-    ip = conn.remote_ip |> Tuple.to_list() |> Enum.join(".")
+    ip = real_ip_string(conn)
     ua = get_req_header(conn, "user-agent") |> List.first("") |> String.slice(0, 100)
     date = Date.utc_today() |> Date.to_string()
 
@@ -56,8 +56,45 @@ defmodule PhoenixAnalyticsWeb.CollectController do
     |> Base.encode16(case: :lower)
   end
 
+  # Op Fly.io zit de echte client-IP in de fly-client-ip header.
+  # Fallback naar x-forwarded-for, dan conn.remote_ip.
+  defp real_ip(conn) do
+    case real_ip_string(conn) do
+      ip when is_binary(ip) ->
+        case :inet.parse_address(String.to_charlist(ip)) do
+          {:ok, tuple} -> tuple
+          _ -> conn.remote_ip
+        end
+
+      _ ->
+        conn.remote_ip
+    end
+  end
+
+  defp real_ip_string(conn) do
+    get_req_header(conn, "fly-client-ip")
+    |> List.first(nil)
+    |> case do
+      nil ->
+        get_req_header(conn, "x-forwarded-for")
+        |> List.first("")
+        |> String.split(",")
+        |> List.first("")
+        |> String.trim()
+        |> case do
+          "" -> conn.remote_ip |> Tuple.to_list() |> Enum.join(".")
+          ip -> ip
+        end
+
+      ip ->
+        ip
+    end
+  end
+
   defp process_event(conn, site, session_hash, %{"t" => "pv"} = params) do
     ua = get_req_header(conn, "user-agent") |> List.first("")
+    ip = real_ip(conn)
+    {country, city, region} = lookup_geo(ip)
 
     Analytics.Pageview
     |> Ash.Changeset.for_create(:record, %{
@@ -68,7 +105,6 @@ defmodule PhoenixAnalyticsWeb.CollectController do
       device_type: classify_device(params["w"]),
       browser: extract_browser(ua),
       os: extract_os(ua),
-      {country, city, region} = lookup_geo(conn.remote_ip),
       country: country,
       city: city,
       region: region

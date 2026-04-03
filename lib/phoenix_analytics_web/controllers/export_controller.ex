@@ -31,7 +31,7 @@ defmodule PhoenixAnalyticsWeb.ExportController do
     filename = "#{site.domain}_pageviews_#{period}_#{Date.utc_today()}.csv"
 
     header =
-      "date,url,referrer,device_type,browser,os,country,utm_source,utm_medium,utm_campaign\n"
+      "date,url,referrer,device_type,browser,os,country,city,region,utm_source,utm_medium,utm_campaign\n"
 
     body =
       Enum.map_join(rows, "", fn row ->
@@ -43,6 +43,8 @@ defmodule PhoenixAnalyticsWeb.ExportController do
           escape_csv(row.browser),
           escape_csv(row.os),
           escape_csv(row.country),
+          escape_csv(Map.get(row, :city)),
+          escape_csv(Map.get(row, :region)),
           escape_csv(row.utm_source),
           escape_csv(row.utm_medium),
           escape_csv(row.utm_campaign)

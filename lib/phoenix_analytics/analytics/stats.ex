@@ -273,6 +273,8 @@ defmodule PhoenixAnalytics.Analytics.Stats do
           browser: p.browser,
           os: p.os,
           country: p.country,
+          city: p.city,
+          region: p.region,
           utm_source: p.utm_source,
           utm_medium: p.utm_medium,
           utm_campaign: p.utm_campaign
