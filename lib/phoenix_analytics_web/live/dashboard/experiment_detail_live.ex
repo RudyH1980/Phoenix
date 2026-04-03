@@ -51,7 +51,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.ExperimentDetailLive do
     {:noreply, assign(socket, experiment: exp)}
   end
 
-  defp find_winner(variant_stats, :significant) when length(variant_stats) > 0 do
+  defp find_winner(variant_stats, :significant) when variant_stats != [] do
     variant_stats
     |> Enum.max_by(& &1.rate)
     |> Map.get(:variant)
