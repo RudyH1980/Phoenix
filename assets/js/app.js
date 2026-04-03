@@ -173,14 +173,41 @@ topbar.config({barColors: {0: "#29d"}, shadowColor: "rgba(0, 0, 0, .3)"})
 window.addEventListener("phx:page-loading-start", _info => topbar.show(300))
 window.addEventListener("phx:page-loading-stop", _info => topbar.hide())
 
-// connect if there are any LiveViews on the page
-liveSocket.connect()
+// Only connect LiveSocket when a LiveView is present — prevents 79ms forced reflow on static pages
+if (document.querySelector('[data-phx-main]')) {
+  liveSocket.connect()
+}
 
 // expose liveSocket on window for web console debug logs and latency simulation:
 // >> liveSocket.enableDebug()
 // >> liveSocket.enableLatencySim(1000)  // enabled for duration of browser session
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
+
+// ============================================================
+// Thema toggle — los van inline onclick om CSP nonce-safe te blijven
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  const themeBtn = document.getElementById('pa-theme-toggle')
+  if (!themeBtn) return
+
+  function applyThemeBtn(theme) {
+    const isDark = theme === 'dark'
+    themeBtn.setAttribute('aria-label', isDark ? 'Schakel naar licht thema' : 'Schakel naar donker thema')
+    themeBtn.setAttribute('title', isDark ? 'Schakel naar licht thema' : 'Schakel naar donker thema')
+  }
+
+  // Sync button state with current theme
+  applyThemeBtn(document.documentElement.getAttribute('data-theme') || 'dark')
+
+  themeBtn.addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme')
+    const next = current === 'dark' ? 'light' : 'dark'
+    document.documentElement.setAttribute('data-theme', next)
+    localStorage.setItem('pa-theme', next)
+    applyThemeBtn(next)
+  })
+})
 
 // ============================================================
 // Matrix regen animatie

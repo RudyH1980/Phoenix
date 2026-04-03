@@ -190,7 +190,14 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
           </p>
           <.form for={@magic_form} phx-submit="magic_link" class="pa-form">
             <div class="pa-field">
-              <input type="email" name="email" placeholder="jij@voorbeeld.nl" required />
+              <label for="magic_email" class="sr-only">E-mailadres voor magic link</label>
+              <input
+                type="email"
+                id="magic_email"
+                name="email"
+                placeholder="jij@voorbeeld.nl"
+                required
+              />
             </div>
             <button type="submit" class="pa-btn pa-btn--ghost pa-btn--full">
               Stuur magic link

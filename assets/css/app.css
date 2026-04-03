@@ -117,7 +117,7 @@
   --pa-border-subtle:  oklch(22% 0.02 250);
   --pa-text:           oklch(90% 0.01 250);
   --pa-text-muted:     oklch(60% 0.012 250);
-  --pa-text-faint:     oklch(42% 0.01 250);
+  --pa-text-faint:     oklch(62% 0.01 250);
   --pa-bg:             oklch(12% 0.016 250);
 
   --pa-teal:           oklch(72% 0.15 194);
@@ -141,7 +141,7 @@
   --pa-border-subtle:  oklch(91% 0.007 240);
   --pa-text:           oklch(16% 0.015 250);
   --pa-text-muted:     oklch(45% 0.012 250);
-  --pa-text-faint:     oklch(62% 0.008 250);
+  --pa-text-faint:     oklch(40% 0.008 250);
   --pa-bg:             oklch(97% 0.005 240);
 
   --pa-teal:           oklch(52% 0.17 194);
@@ -171,6 +171,12 @@
   z-index: 0;
   pointer-events: none;
   opacity: 0.45;
+}
+
+/* Matrix canvas verbergen op mobiel — bespaart GPU op trage apparaten */
+@media (max-width: 767px) {
+  #pa-matrix-canvas { display: none !important; }
+  #pa-matrix-toggle { display: none !important; }
 }
 
 /* Pagina-inhoud boven canvas — [data-phx-session] heeft display:contents dus direct targeten */
