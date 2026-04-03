@@ -150,7 +150,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
 
       <div class="pa-card">
         <h3>Pageviews over tijd</h3>
-        <.bar_chart data={@timeline} height={120} />
+        <.line_chart data={@timeline} height={120} />
       </div>
 
       <div class="pa-two-col">
