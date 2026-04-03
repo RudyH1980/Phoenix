@@ -68,7 +68,10 @@ defmodule PhoenixAnalyticsWeb.CollectController do
       device_type: classify_device(params["w"]),
       browser: extract_browser(ua),
       os: extract_os(ua),
-      country: lookup_country(conn.remote_ip)
+      {country, city, region} = lookup_geo(conn.remote_ip),
+      country: country,
+      city: city,
+      region: region
     })
     |> Ash.create()
     |> case do
@@ -132,29 +135,25 @@ defmodule PhoenixAnalyticsWeb.CollectController do
 
   defp extract_os(_), do: "Other"
 
-  # Landen lookup via ip-api.com (gratis, 45 req/min, geen auth)
-  # Lokale/private IPs worden overgeslagen
-  defp lookup_country({127, _, _, _}), do: nil
-  defp lookup_country({10, _, _, _}), do: nil
-  defp lookup_country({192, 168, _, _}), do: nil
-  defp lookup_country({172, b, _, _}) when b in 16..31, do: nil
-  # IPv4-mapped IPv6 loopback en private ranges
-  defp lookup_country({0, 0, 0, 0, 0, 65535, a, b}) do
-    lookup_country({div(a, 256), rem(a, 256), div(b, 256), rem(b, 256)})
+  # Geo lookup via ip-api.com (gratis, 45 req/min, geen auth)
+  # Lokale/private IPs worden overgeslagen — geeft {country, city, region}
+  defp lookup_geo({127, _, _, _}), do: {nil, nil, nil}
+  defp lookup_geo({10, _, _, _}), do: {nil, nil, nil}
+  defp lookup_geo({192, 168, _, _}), do: {nil, nil, nil}
+  defp lookup_geo({172, b, _, _}) when b in 16..31, do: {nil, nil, nil}
+
+  defp lookup_geo({0, 0, 0, 0, 0, 65535, a, b}) do
+    lookup_geo({div(a, 256), rem(a, 256), div(b, 256), rem(b, 256)})
   end
 
-  defp lookup_country({0, 0, 0, 0, 0, 0, 0, 1}), do: nil
+  defp lookup_geo({0, 0, 0, 0, 0, 0, 0, 1}), do: {nil, nil, nil}
 
-  defp lookup_country(remote_ip) when tuple_size(remote_ip) == 4 do
+  defp lookup_geo(remote_ip) when tuple_size(remote_ip) == 4 do
     ip = remote_ip |> Tuple.to_list() |> Enum.join(".")
-
-    case Req.get("http://ip-api.com/json/#{ip}?fields=countryCode", receive_timeout: 2000) do
-      {:ok, %{status: 200, body: %{"countryCode" => code}}} when is_binary(code) -> code
-      _ -> nil
-    end
+    fetch_geo(ip)
   end
 
-  defp lookup_country(remote_ip) when tuple_size(remote_ip) == 8 do
+  defp lookup_geo(remote_ip) when tuple_size(remote_ip) == 8 do
     ip =
       remote_ip
       |> Tuple.to_list()
@@ -162,13 +161,25 @@ defmodule PhoenixAnalyticsWeb.CollectController do
       |> Enum.join(":")
       |> String.downcase()
 
-    case Req.get("http://ip-api.com/json/#{ip}?fields=countryCode", receive_timeout: 2000) do
-      {:ok, %{status: 200, body: %{"countryCode" => code}}} when is_binary(code) -> code
-      _ -> nil
-    end
+    fetch_geo(ip)
   end
 
-  defp lookup_country(_), do: nil
+  defp lookup_geo(_), do: {nil, nil, nil}
+
+  defp fetch_geo(ip) do
+    case Req.get("http://ip-api.com/json/#{ip}?fields=countryCode,city,regionName",
+           receive_timeout: 2000
+         ) do
+      {:ok, %{status: 200, body: body}} ->
+        country = if is_binary(body["countryCode"]), do: body["countryCode"], else: nil
+        city = if is_binary(body["city"]) and body["city"] != "", do: body["city"], else: nil
+        region = if is_binary(body["regionName"]) and body["regionName"] != "", do: body["regionName"], else: nil
+        {country, city, region}
+
+      _ ->
+        {nil, nil, nil}
+    end
+  end
 
   defp classify_device(nil), do: "unknown"
 

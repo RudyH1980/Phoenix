@@ -142,6 +142,23 @@ defmodule PhoenixAnalytics.Analytics.Stats do
     )
   end
 
+  def city_breakdown(site_id, period, limit \\ 10) do
+    since = period_start(period)
+    sid = to_binary_uuid(site_id)
+
+    Repo.all(
+      from p in "pageviews",
+        where:
+          p.site_id == ^sid and
+            p.inserted_at >= ^since and
+            not is_nil(p.city),
+        group_by: [p.city, p.country],
+        order_by: [desc: count(p.id)],
+        limit: ^limit,
+        select: %{city: p.city, country: p.country, count: count(p.id)}
+    )
+  end
+
   def new_vs_returning(site_id, period) do
     since = period_start(period)
     sid = to_binary_uuid(site_id)

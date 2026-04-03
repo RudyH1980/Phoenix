@@ -22,6 +22,8 @@ defmodule PhoenixAnalytics.Analytics.Pageview do
     attribute(:utm_medium, :string)
     attribute(:utm_campaign, :string)
     attribute(:country, :string)
+    attribute(:city, :string)
+    attribute(:region, :string)
     attribute(:device_type, :string)
     attribute(:browser, :string)
     attribute(:os, :string)
@@ -43,6 +45,8 @@ defmodule PhoenixAnalytics.Analytics.Pageview do
         :utm_medium,
         :utm_campaign,
         :country,
+        :city,
+        :region,
         :device_type,
         :browser,
         :os

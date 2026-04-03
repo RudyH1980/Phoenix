@@ -68,6 +68,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
       device_breakdown: Stats.device_breakdown(site_id, period),
       os_breakdown: Stats.os_breakdown(site_id, period),
       country_breakdown: Stats.country_breakdown(site_id, period),
+      city_breakdown: Stats.city_breakdown(site_id, period),
       timeline: Stats.pageviews_timeline(site_id, period)
     )
   end
@@ -238,6 +239,22 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
               <%= for c <- @country_breakdown do %>
                 <li>
                   <span>{flag(c.country)} {c.country || "Onbekend"}</span>
+                  <span class="pa-count">{format_number(c.count)}</span>
+                </li>
+              <% end %>
+            </ul>
+          <% end %>
+        </section>
+
+        <section class="pa-card">
+          <h3>Steden</h3>
+          <%= if Enum.empty?(@city_breakdown) do %>
+            <p class="pa-empty">Nog geen data.</p>
+          <% else %>
+            <ul class="pa-data-list">
+              <%= for c <- @city_breakdown do %>
+                <li>
+                  <span>{flag(c.country)} {c.city}</span>
                   <span class="pa-count">{format_number(c.count)}</span>
                 </li>
               <% end %>
