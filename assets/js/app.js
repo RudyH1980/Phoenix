@@ -396,17 +396,20 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
               powered.classList.add('fade-out')
               overlay.classList.add('fade-out')
+              // Canvas nu al terugzetten naar achtergrond-z-index zodat de
+              // login-kaart tijdens de overlay-fade soepel zichtbaar wordt
+              // (geen plotselinge z-index-sprong halverwege de fade).
+              canvas.style.zIndex = ''
 
-              // Stap 5: opruimen en canvas terugzetten als achtergrond
+              // Stap 5: opruimen na voltooide fade (wacht tot overlay-transitie klaar is)
               setTimeout(() => {
                 hero.remove()
                 powered.remove()
                 overlay.remove()
-                canvas.style.zIndex = ''
                 active = true
                 localStorage.setItem('pa-matrix', 'on')
                 attachToggle(matrix)
-              }, 1200)
+              }, 1500)
             }, 1800)
           }, 700)
         }, 3800)
