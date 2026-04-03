@@ -111,6 +111,7 @@ const MATRIX_CHARS = 'アイウエオカキクケコサシスセソタチツテ�
 
 // opts.introMode  — columns starten bovenaan (voor intro)
 // opts.onMidpoint — callback zodra 60% van columns halverwege scherm zijn
+// opts.speed      — frames per stap (hoger = langzamer). standaard 2, intro = 4
 function initMatrix(opts) {
   opts = opts || {}
   const canvas = document.getElementById('pa-matrix-canvas')
@@ -120,8 +121,10 @@ function initMatrix(opts) {
   let animId = null
   let cols = []
   let midpointFired = false
-  const FONT_SIZE = 14
-  const COL_WIDTH = 16
+  let frameCount = 0
+  const FONT_SIZE = 16
+  const COL_WIDTH = 18
+  const SPEED = opts.speed || 2  // elke N frames een stap
 
   function setupCols(introMode) {
     canvas.width = window.innerWidth
@@ -129,7 +132,7 @@ function initMatrix(opts) {
     cols = Array.from(
       { length: Math.floor(canvas.width / COL_WIDTH) },
       () => introMode
-        ? Math.floor(Math.random() * -4)                           // starten aan de top
+        ? Math.floor(Math.random() * -8)                           // starten aan de top
         : Math.floor(Math.random() * -(canvas.height / FONT_SIZE)) // verspreid (normaal)
     )
   }
@@ -138,7 +141,11 @@ function initMatrix(opts) {
   window.addEventListener('resize', () => setupCols(false))
 
   function draw() {
-    ctx.fillStyle = 'rgba(13, 17, 23, 0.06)'
+    frameCount++
+    const step = frameCount % SPEED === 0  // alleen bewegen elke SPEED frames
+
+    // Licht nagloeien zodat staarten zichtbaar blijven
+    ctx.fillStyle = 'rgba(13, 17, 23, 0.04)'
     ctx.fillRect(0, 0, canvas.width, canvas.height)
     ctx.font = `${FONT_SIZE}px monospace`
 
@@ -146,20 +153,29 @@ function initMatrix(opts) {
     let atMid = 0
 
     for (let i = 0; i < cols.length; i++) {
-      const char = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)]
       const x = i * COL_WIDTH
       const y = cols[i] * FONT_SIZE
 
-      ctx.fillStyle = '#cffff9'
-      ctx.fillText(char, x, y)
-
-      ctx.fillStyle = '#00d4b8'
-      const trailChar = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)]
-      if (cols[i] > 1) ctx.fillText(trailChar, x, y - FONT_SIZE)
+      if (step) {
+        // Wissel karakter elke stap
+        const char = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)]
+        // Voorste teken: helder wit
+        ctx.fillStyle = 'rgba(220, 255, 250, 0.95)'
+        ctx.fillText(char, x, y)
+        // Tweede karakter iets dimmer
+        if (cols[i] > 1) {
+          const trail = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)]
+          ctx.fillStyle = 'rgba(0, 212, 184, 0.7)'
+          ctx.fillText(trail, x, y - FONT_SIZE)
+        }
+      }
 
       if (cols[i] >= midRow) atMid++
-      if (y > canvas.height && Math.random() > 0.975) cols[i] = 0
-      cols[i]++
+
+      if (step) {
+        if (y > canvas.height && Math.random() > 0.975) cols[i] = 0
+        cols[i]++
+      }
     }
 
     // Trigger zodra 60% van kolommen halverwege zijn
@@ -210,44 +226,47 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Versie-sleutel: wijzigen forceert nieuwe intro bij iedereen
-  const INTRO_KEY = 'pa-intro-v3'
+  const INTRO_KEY = 'pa-intro-v4'
   const introSeen = sessionStorage.getItem(INTRO_KEY)
 
   if (!introSeen) {
     sessionStorage.setItem(INTRO_KEY, '1')
 
-    // Donkere achtergrond-overlay die pagina-inhoud verbergt (z-index 9999)
+    // Achtergrond-overlay (verbergt pagina-inhoud)
     const overlay = document.createElement('div')
     overlay.id = 'pa-intro-overlay'
     document.body.appendChild(overlay)
 
-    // Titel als ZELFSTANDIG element buiten overlay (z-index 10001)
+    // Titel los van overlay zodat hij boven canvas kan staan
     const title = document.createElement('div')
     title.id = 'pa-intro-title'
     title.innerHTML = 'Phoenix&nbsp;Analytics'
     document.body.appendChild(title)
 
-    // Canvas tijdelijk boven overlay tillen (z-index 10000)
+    // Canvas boven overlay tijdens intro
     canvas.style.display = ''
     canvas.style.zIndex = '10000'
 
     const matrix = initMatrix({
       introMode: true,
+      speed: 4,  // langzamer vallen tijdens intro
       onMidpoint() {
-        // Kolommen halverwege → titel tonen
         title.classList.add('visible')
 
-        // 2.5s staan → alles outfaden
+        // 4 seconden titel zichtbaar, dan langzaam outfaden
         setTimeout(() => {
           overlay.classList.add('fade-out')
           title.classList.add('fade-out')
           setTimeout(() => {
             overlay.remove()
             title.remove()
-            canvas.style.zIndex = ''  // terug naar CSS standaard (0)
+            // Canvas blijft doorlopen — zet z-index terug en activeer als achtergrond
+            canvas.style.zIndex = ''
+            active = true
+            localStorage.setItem('pa-matrix', 'on')
             attachToggle(matrix)
-          }, 1000)
-        }, 2500)
+          }, 1500)
+        }, 4000)
       }
     })
 
@@ -259,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('pa-matrix', active ? 'on' : 'off')
     })
   } else {
-    const matrix = initMatrix({})
+    const matrix = initMatrix({ speed: 2 })
     if (!matrix) return
     attachToggle(matrix)
   }
