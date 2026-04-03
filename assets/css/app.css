@@ -1994,7 +1994,7 @@ h3 { font-size: 1rem;    line-height: 1.4; }
     0 0 18px oklch(72% 0.18 194 / 0.95),
     0 0 40px oklch(72% 0.18 194 / 0.6),
     0 0 80px oklch(72% 0.18 194 / 0.3);
-  opacity: 0.01; /* 0.01 ipv 0: LCP-candidate beschikbaar vóór visible-class, visueel onzichtbaar */
+  opacity: 0;
   transform: translateY(10px);
   transition: opacity 1s ease, transform 1s ease;
   line-height: 1.35;
@@ -2413,7 +2413,7 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   transform: translate(-50%, calc(-50% + 24px));
   text-align: center;
   pointer-events: none;
-  opacity: 0.01; /* 0.01 ipv 0: LCP-candidate direct beschikbaar, visueel onzichtbaar */
+  opacity: 0;
   transition: opacity 2s ease, transform 2s ease;
 }
 
