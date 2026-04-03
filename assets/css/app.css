@@ -176,8 +176,9 @@
   opacity: 0.45;
 }
 
-/* Zorg dat pagina-inhoud boven canvas ligt */
-body > *:not(#pa-matrix-canvas):not(#pa-theme-toggle):not(#pa-matrix-toggle) {
+/* Pagina-inhoud boven canvas — [data-phx-session] heeft display:contents dus direct targeten */
+.pa-container,
+.pa-auth-container {
   position: relative;
   z-index: 1;
 }
