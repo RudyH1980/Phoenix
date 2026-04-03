@@ -738,12 +738,12 @@ function showPills(seq, textWrap, speechEl, matrix, canvas, overlay) {
   }))
 
   bluePill.addEventListener('click', () =>
-    handlePillChoice('blue', overlay, seq, textWrap, pillsWrap, matrix, canvas))
+    handlePillChoice('blue', overlay, seq, textWrap, pillsWrap, speechEl, matrix, canvas))
   redPill.addEventListener('click', () =>
-    handlePillChoice('red', overlay, seq, textWrap, pillsWrap, matrix, canvas))
+    handlePillChoice('red', overlay, seq, textWrap, pillsWrap, speechEl, matrix, canvas))
 }
 
-function handlePillChoice(pill, overlay, seq, textWrap, pillsWrap, matrix, canvas) {
+function handlePillChoice(pill, overlay, seq, textWrap, pillsWrap, speechEl, matrix, canvas) {
   localStorage.setItem('pa-pill', pill)
 
   // Verberg pillen
