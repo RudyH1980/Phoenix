@@ -1675,6 +1675,17 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   -webkit-text-fill-color: transparent;
 }
 
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.pa-footer {
+  text-align: center;
+  padding: 1.25rem;
+  font-size: 0.7rem;
+  color: var(--pa-text-faint);
+  letter-spacing: 0.04em;
+}
+
 /* Icon-swap buiten layer — anders wint daisyUI unlayered output */
 [data-theme="dark"] #pa-icon-sun { display: none; }
 [data-theme="light"] #pa-icon-moon { display: none; }
