@@ -214,15 +214,11 @@ function initMatrix(opts) {
   let cols = []
   let midpointFired = false
   let frameCount = 0
-  const FONT_SIZE = 18
+  const FONT_SIZE = 16
   const COL_WIDTH = 18
   const SPEED = opts.speed || 2
-  const CHAR_SPEED = 10  // karakters wisselen elke 10 frames (~6fps) — geen flikkering
   let logicalW = window.innerWidth
   let logicalH = window.innerHeight
-
-  // Sla karakters op per kolom zodat ze stabiel zijn tussen frames
-  let charGrid = []
 
   function setupCols(introMode) {
     const dpr = window.devicePixelRatio || 1
@@ -233,16 +229,11 @@ function initMatrix(opts) {
     canvas.style.width = logicalW + 'px'
     canvas.style.height = logicalH + 'px'
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-    const numCols = Math.floor(logicalW / COL_WIDTH)
     cols = Array.from(
-      { length: numCols },
+      { length: Math.floor(logicalW / COL_WIDTH) },
       () => introMode
         ? Math.floor(Math.random() * -8)
         : Math.floor(Math.random() * -(logicalH / FONT_SIZE))
-    )
-    // Initialiseer karakter-grid: 21 tekens per kolom (kop + 20 trail)
-    charGrid = Array.from({ length: numCols }, () =>
-      Array.from({ length: 21 }, () => MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)])
     )
   }
 
@@ -253,42 +244,36 @@ function initMatrix(opts) {
     frameCount++
     const step = frameCount % SPEED === 0
 
-    // Volledig zwart — geen grijze residuen
-    ctx.fillStyle = '#0d1117'
+    // Semi-transparante fade — oude tekens verdwijnen vanzelf (lange trail, geen ruis)
+    ctx.fillStyle = 'rgba(13, 17, 23, 0.08)'
     ctx.fillRect(0, 0, logicalW, logicalH)
-    ctx.font = `${FONT_SIZE}px 'Courier New', monospace`
-    ctx.textBaseline = 'top'
+
+    if (step) {
+      ctx.font = `${FONT_SIZE}px monospace`
+      ctx.textBaseline = 'top'
+    }
 
     const midRow = Math.floor(logicalH / 2 / FONT_SIZE)
     let atMid = 0
 
     for (let i = 0; i < cols.length; i++) {
       const x = i * COL_WIDTH
-      const headRow = cols[i]
-      const y = headRow * FONT_SIZE
+      const y = cols[i] * FONT_SIZE
 
-      // Vernieuw karakters op eigen ritme — ontkoppeld van positie-advance
-      if (frameCount % CHAR_SPEED === 0) {
-        charGrid[i][0] = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)]
-        for (let t = 1; t <= 20; t++) {
-          charGrid[i][t] = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)]
-        }
-      }
-
-      // Teken kop + trail elke frame met stabiele karakters
-      if (headRow >= 0) {
+      if (step) {
+        // Kop: fel wit
         ctx.fillStyle = 'rgba(220, 255, 250, 0.95)'
-        ctx.fillText(charGrid[i][0], x, y)
-        for (let t = 1; t <= 20; t++) {
-          if (headRow > t) {
-            const opacity = Math.max(0.03, 0.65 - (t - 1) * 0.032)
-            ctx.fillStyle = `rgba(0, 212, 184, ${opacity})`
-            ctx.fillText(charGrid[i][t], x, y - FONT_SIZE * t)
+        ctx.fillText(MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)], x, y)
+        // Direct trail: 3 tekens voor duidelijke streep
+        for (let t = 1; t <= 3; t++) {
+          if (cols[i] > t) {
+            ctx.fillStyle = `rgba(0, 212, 184, ${0.7 - t * 0.15})`
+            ctx.fillText(MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)], x, y - FONT_SIZE * t)
           }
         }
       }
 
-      if (headRow >= midRow) atMid++
+      if (cols[i] >= midRow) atMid++
 
       if (step) {
         if (y > logicalH && Math.random() > 0.975) cols[i] = 0
