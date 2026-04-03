@@ -608,6 +608,7 @@ function runPillSequence(canvas) {
   morpheusImg.alt = ''
   morpheusImg.width = 800
   morpheusImg.height = 617
+  morpheusImg.decoding = 'async'
   morpheusImg.setAttribute('aria-hidden', 'true')
   morpheusWrap.appendChild(morpheusImg)
   seq.appendChild(morpheusWrap)
