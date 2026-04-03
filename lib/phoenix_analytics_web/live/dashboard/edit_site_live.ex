@@ -3,8 +3,6 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.EditSiteLive do
 
   alias PhoenixAnalytics.Analytics
 
-  @preset_tags ~w(Prod Test Staging)
-
   @impl true
   def mount(%{"site_id" => site_id}, _session, socket) do
     case Ash.get(Analytics.Site, site_id) do
@@ -22,6 +20,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.EditSiteLive do
              domain: site.domain,
              active: site.active,
              tags: site.tags || [],
+             preset_tags: ~w(Prod Test Staging),
              custom_tag: "",
              saved: false,
              page_title: "Bewerk #{site.name}"
