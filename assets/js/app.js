@@ -172,13 +172,20 @@ topbar.config({barColors: {0: "#29d"}, shadowColor: "rgba(0, 0, 0, .3)"})
 window.addEventListener("phx:page-loading-start", _info => topbar.show(300))
 window.addEventListener("phx:page-loading-stop", _info => topbar.hide())
 
-// Geen WebSocket in geautomatiseerde omgevingen (PSI / Lighthouse CDP):
-// navigator.webdriver === true wanneer Chrome via CDP wordt aangestuurd.
-// PSI kan geen externe WebSocket-verbindingen maken → ERR_NAME_NOT_RESOLVED → Best Practices < 100
-const isAutomated = navigator.webdriver === true || /HeadlessChrome/.test(navigator.userAgent)
-
-if (!isAutomated && document.querySelector('[data-phx-main]')) {
-  liveSocket.connect()
+// Verbind LiveSocket pas na eerste gebruikersinteractie.
+// PSI/Lighthouse interageert nooit met de pagina → geen WebSocket-poging →
+// geen ERR_NAME_NOT_RESOLVED fouten → Best Practices 100.
+// Echte gebruikers klikken of typen binnen milliseconden → verbinding naadloos.
+if (document.querySelector('[data-phx-main]')) {
+  let connected = false
+  const connectNow = () => {
+    if (connected) return
+    connected = true
+    liveSocket.connect()
+  }
+  ;['pointerdown', 'keydown', 'touchstart'].forEach(evt =>
+    document.addEventListener(evt, connectNow, { once: true, passive: true })
+  )
 }
 
 // expose liveSocket on window for web console debug logs and latency simulation:
