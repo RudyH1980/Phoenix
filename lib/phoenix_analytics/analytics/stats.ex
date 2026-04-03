@@ -282,6 +282,38 @@ defmodule PhoenixAnalytics.Analytics.Stats do
     )
   end
 
+  def combined_timeline(org_ids, period) do
+    since = period_start(period)
+    binary_ids = Enum.map(org_ids, &Ecto.UUID.dump!/1)
+    site_ids_q = from s in "sites", where: s.org_id in ^binary_ids, select: s.id
+
+    Repo.all(
+      from p in "pageviews",
+        where: p.site_id in subquery(site_ids_q) and p.inserted_at >= ^since,
+        group_by: fragment("DATE(inserted_at)"),
+        order_by: fragment("DATE(inserted_at)"),
+        select: %{date: fragment("DATE(inserted_at)"), count: count(p.id)}
+    )
+  end
+
+  def sites_pageview_counts(org_ids, period) do
+    since = period_start(period)
+    binary_ids = Enum.map(org_ids, &Ecto.UUID.dump!/1)
+    site_ids_q = from s in "sites", where: s.org_id in ^binary_ids, select: s.id
+
+    Repo.all(
+      from p in "pageviews",
+        where: p.site_id in subquery(site_ids_q) and p.inserted_at >= ^since,
+        group_by: p.site_id,
+        select: %{
+          site_id: type(p.site_id, Ecto.UUID),
+          pageviews: count(p.id),
+          visitors: count(p.session_hash, :distinct)
+        }
+    )
+    |> Map.new(&{&1.site_id, &1})
+  end
+
   def pageviews_timeline(site_id, period) do
     since = period_start(period)
     sid = to_binary_uuid(site_id)
