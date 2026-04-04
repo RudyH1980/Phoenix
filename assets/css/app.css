@@ -2695,6 +2695,7 @@ h3 { font-size: 1rem;    line-height: 1.4; }
 
 /* "100/100" score span */
 .pa-intro-score {
+  display: inline-block;
   color: oklch(80% 0.2 185);
   text-shadow: 0 0 12px oklch(75% 0.2 185 / 0.8);
   font-weight: 600;
