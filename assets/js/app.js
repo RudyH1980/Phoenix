@@ -300,29 +300,28 @@ document.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('pa-matrix-canvas')
   if (!canvas) return
 
-  // Landingspagina: geen matrix of pill-sequence -- gewone marketing pagina
-  const isLanding = window.location.pathname === '/'
-  if (isLanding) return
-
-  // rAF: laat browser één frame renderen vóór overlays verschijnen
-  // zodat de pagina-inhoud (h1, cards) als LCP-element gemeten wordt.
   requestAnimationFrame(() => {
-    if (document.getElementById('login-container')) {
-      initLoginPage(canvas)
+    const isLanding = window.location.pathname === '/'
+    if (isLanding || document.getElementById('login-container')) {
+      // Landingspagina: intro onthult de landingspagina
+      // Loginpagina: intro onthult het loginscherm
+      const revealEl = isLanding
+        ? document.querySelector('.pa-lp-wrapper')
+        : document.querySelector('.pa-auth-container')
+      initLoginPage(canvas, revealEl)
     } else {
       initAppPage(canvas)
     }
   })
 })
 
-// ── Login pagina: matrix intro ────────────────────────────────────────────
-function initLoginPage(canvas) {
-  // Verberg auth-kaart zodat wachtwoordmanager niet verschijnt vóór intro klaar is
-  const authContainer = document.querySelector('.pa-auth-container')
-  if (authContainer) {
-    authContainer.style.opacity = '0'
-    authContainer.style.visibility = 'hidden'
-    authContainer.style.pointerEvents = 'none'
+// ── Login pagina + landingspagina: matrix intro ───────────────────────────
+function initLoginPage(canvas, revealEl) {
+  // Verberg de te onthullen container totdat intro klaar is
+  if (revealEl) {
+    revealEl.style.opacity = '0'
+    revealEl.style.visibility = 'hidden'
+    revealEl.style.pointerEvents = 'none'
   }
 
   // Donkere overlay
@@ -423,13 +422,13 @@ function initLoginPage(canvas) {
                       overlay.classList.add('fade-out')
                       canvas.style.opacity = ''
 
-                      if (authContainer) {
-                        authContainer.style.visibility = 'visible'
-                        authContainer.style.pointerEvents = 'auto'
-                        authContainer.style.transition = 'opacity 2s ease-out'
+                      if (revealEl) {
+                        revealEl.style.visibility = 'visible'
+                        revealEl.style.pointerEvents = 'auto'
+                        revealEl.style.transition = 'opacity 2s ease-out'
                         requestAnimationFrame(() => {
                           requestAnimationFrame(() => {
-                            authContainer.style.opacity = '1'
+                            revealEl.style.opacity = '1'
                           })
                         })
                       }
