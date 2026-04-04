@@ -15,7 +15,7 @@ defmodule PhoenixAnalyticsWeb.Live.Marketing.LandingLive do
     ~H"""
     <div class="pa-lp-wrapper">
       <%!-- NAV --%>
-      <nav class="pa-lp-nav">
+      <nav class="pa-lp-nav" aria-label="Hoofdnavigatie">
         <span class="pa-lp-nav-brand">Neo Analytics</span>
         <div class="pa-lp-nav-links">
           <a href="/login" class="pa-btn pa-btn--ghost pa-btn--sm">Inloggen</a>
@@ -24,193 +24,312 @@ defmodule PhoenixAnalyticsWeb.Live.Marketing.LandingLive do
       </nav>
 
       <%!-- HERO --%>
-      <section class="pa-lp-section pa-lp-hero" data-pa-section="hero">
+      <section class="pa-lp-section pa-lp-hero" aria-label="Hero">
         <div class="pa-lp-hero-badge">Privacy-first · Cookieloos · GDPR-compliant</div>
+
         <h1 class="pa-lp-hero-title">
-          Privacy-first analytics.<br />Geen cookiebanner nodig.
+          The Simulation of Data, <span class="pa-lp-accent-green">Decoded.</span>
         </h1>
+
         <p class="pa-lp-hero-sub">
-          Cookieloos, GDPR-compliant, Lighthouse 4&times;100. Alles in één platform.
+          Powered by AI. Driven by Data. Optimized for a 4&times;100 Lighthouse score.
+          Built to be loved by Google and your customers.
         </p>
-        <div class="pa-lp-hero-ctas">
-          <a href="/login" class="pa-btn pa-btn--primary">Probeer gratis →</a>
-          <a href="/auth/demo" class="pa-btn pa-btn--ghost">Bekijk de demo</a>
+
+        <%!-- Lighthouse Gauge — inline SVG, geen externe afbeelding, LCP-veilig --%>
+        <div class="pa-lp-gauge-wrap" role="img" aria-label="Lighthouse score 100 van 100">
+          <svg class="pa-lp-gauge" width="160" height="160" viewBox="0 0 160 160" aria-hidden="true">
+            <circle class="pa-lp-gauge-track" cx="80" cy="80" r="66" />
+            <circle class="pa-lp-gauge-fill" cx="80" cy="80" r="66" />
+          </svg>
+          <div class="pa-lp-gauge-label">
+            <span class="pa-lp-gauge-value">100</span>
+            <span class="pa-lp-gauge-unit">/ 100</span>
+          </div>
         </div>
-        <div class="pa-lp-hero-metrics">
-          <div class="pa-lp-hero-metric">
-            <span class="pa-lp-hero-metric-value">0</span>
-            <span class="pa-lp-hero-metric-label">Cookies</span>
-          </div>
-          <div class="pa-lp-hero-metric">
-            <span class="pa-lp-hero-metric-value">100</span>
-            <span class="pa-lp-hero-metric-label">Lighthouse score</span>
-          </div>
-          <div class="pa-lp-hero-metric">
-            <span class="pa-lp-hero-metric-value">GDPR</span>
-            <span class="pa-lp-hero-metric-label">Compliant</span>
-          </div>
+
+        <div class="pa-lp-hero-ctas">
+          <a
+            href="/auth/demo"
+            class="pa-btn pa-btn--matrix pa-btn--lg"
+            aria-label="Open live demo van Neo Analytics"
+          >
+            [ ENTER THE MATRIX (LIVE DEMO) ]
+          </a>
+          <a href="/login" class="pa-btn pa-btn--ghost pa-btn--lg">[ Start Free ]</a>
         </div>
       </section>
 
-      <%!-- FEATURES GRID --%>
-      <section class="pa-lp-section">
-        <h2 class="pa-lp-section-title">Alles wat je nodig hebt, niets wat je niet wilt</h2>
-        <p class="pa-lp-section-sub">
-          Geen trackers, geen cookiebanner, geen privacy-hoofdpijn.
-        </p>
-        <div class="pa-lp-features-grid">
-          <div class="pa-lp-feature-card">
-            <div class="pa-lp-feature-icon">🍪</div>
-            <h3>Geen cookiebanner</h3>
-            <p>Cookieloos tracking. Volledig GDPR-compliant zonder toestemmingspopup.</p>
-          </div>
-          <div class="pa-lp-feature-card">
-            <div class="pa-lp-feature-icon">⚗️</div>
-            <h3>A/B Testing</h3>
-            <p>Ingebouwd, deterministisch, geen cookie. Variant toewijzing via session hash.</p>
-          </div>
-          <div class="pa-lp-feature-card">
-            <div class="pa-lp-feature-icon">🔥</div>
-            <h3>Heatmaps</h3>
-            <p>Klik-heatmaps per pagina. Zie direct waar bezoekers op klikken.</p>
-          </div>
-          <div class="pa-lp-feature-card">
-            <div class="pa-lp-feature-icon">⚡</div>
-            <h3>Lighthouse 4&times;100</h3>
-            <p>Sneller dan de meeste analytics tools zelf. Geen render-blocking scripts.</p>
-          </div>
-          <div class="pa-lp-feature-card">
-            <div class="pa-lp-feature-icon">📡</div>
-            <h3>Realtime</h3>
-            <p>Live bezoekers zichtbaar. Zie direct wie er op je site is.</p>
-          </div>
-          <div class="pa-lp-feature-card">
-            <div class="pa-lp-feature-icon">🔒</div>
-            <h3>Privacy-first</h3>
-            <p>
-              Geen PII, geen raw IP opslag. Sessies worden gehasht met dagelijks roterende sleutel.
+      <%!-- AGENCY PITCH --%>
+      <section class="pa-lp-section pa-lp-agency" aria-label="Agency waardepropositie">
+        <div class="pa-lp-agency-inner">
+          <div class="pa-lp-agency-copy">
+            <h2 class="pa-lp-agency-title">
+              Stop Juggling Slow <span class="pa-lp-accent-green">GA4</span> Accounts.
+            </h2>
+            <p class="pa-lp-agency-body">
+              Neo Analytics is the white-label engine that gives you a unified hub for all your
+              domains. Boost your clients' SEO by simply installing the fastest script on the
+              market.
             </p>
           </div>
+          <div class="pa-lp-agency-stats">
+            <div class="pa-lp-stat-block" aria-label="Tracker size kleiner dan 1 kilobyte">
+              <span class="pa-lp-stat-value">&lt;&nbsp;1KB</span>
+              <span class="pa-lp-stat-label">Tracker size</span>
+            </div>
+            <div class="pa-lp-stat-block" aria-label="Lighthouse 4 keer 100 score">
+              <span class="pa-lp-stat-value">4&times;100</span>
+              <span class="pa-lp-stat-label">Lighthouse score</span>
+            </div>
+          </div>
         </div>
       </section>
 
-      <%!-- VERGELIJKINGSTABEL --%>
-      <section class="pa-lp-section">
-        <h2 class="pa-lp-section-title">Neo Analytics vs. de rest</h2>
+      <%!-- FEATURE CARDS --%>
+      <section class="pa-lp-section pa-lp-features" aria-label="Kernfeatures">
+        <h2 class="pa-lp-section-title">Everything You Need. Nothing You Don't.</h2>
         <p class="pa-lp-section-sub">
-          Zie in één oogopslag waarom privacy-first de slimme keuze is.
+          Built for agencies and developers who refuse to compromise on speed or privacy.
         </p>
-        <div class="pa-lp-comparison-wrap">
-          <table class="pa-lp-comparison-table">
-            <thead>
-              <tr>
-                <th>Feature</th>
-                <th class="pa-lp-col-featured">Neo Analytics</th>
-                <th>Google Analytics</th>
-                <th>Hotjar</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Cookieloos</td>
-                <td class="pa-lp-col-featured pa-lp-check">✓</td>
-                <td class="pa-lp-cross">✗</td>
-                <td class="pa-lp-cross">✗</td>
-              </tr>
-              <tr>
-                <td>GDPR zonder banner</td>
-                <td class="pa-lp-col-featured pa-lp-check">✓</td>
-                <td class="pa-lp-cross">✗</td>
-                <td class="pa-lp-cross">✗</td>
-              </tr>
-              <tr>
-                <td>A/B testing ingebouwd</td>
-                <td class="pa-lp-col-featured pa-lp-check">✓</td>
-                <td class="pa-lp-cross">✗</td>
-                <td class="pa-lp-cross">✗</td>
-              </tr>
-              <tr>
-                <td>Heatmaps ingebouwd</td>
-                <td class="pa-lp-col-featured pa-lp-check">✓</td>
-                <td class="pa-lp-cross">✗</td>
-                <td class="pa-lp-check">✓</td>
-              </tr>
-              <tr>
-                <td>Prijs</td>
-                <td class="pa-lp-col-featured">
-                  <span class="pa-lp-price-tag">Gratis te starten</span>
-                </td>
-                <td>Gratis / €€€</td>
-                <td>€39/maand</td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="pa-lp-features-grid" role="list">
+          <%!-- Card 1: Massive Control --%>
+          <article class="pa-lp-feature-card" role="listitem">
+            <div class="pa-lp-feature-icon">
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 32 32"
+                fill="none"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <rect
+                  x="2"
+                  y="4"
+                  width="28"
+                  height="20"
+                  rx="3"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  fill="none"
+                />
+                <path
+                  d="M7 10l4 4-4 4M13 18h6"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <line
+                  x1="8"
+                  y1="28"
+                  x2="24"
+                  y2="28"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </div>
+            <h3>Massive Control</h3>
+            <p>
+              Manage 5 to 500+ sites from one low-latency terminal. Filter the noise, see the
+              truth instantly.
+            </p>
+          </article>
+
+          <%!-- Card 2: White-Label Agency Power --%>
+          <article class="pa-lp-feature-card" role="listitem">
+            <div class="pa-lp-feature-icon">
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 32 32"
+                fill="none"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path
+                  d="M16 3L4 8v8c0 7 5.5 11.5 12 13 6.5-1.5 12-6 12-13V8L16 3z"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  fill="none"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M11 16l3 3 7-7"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </div>
+            <h3>White-Label Agency Power</h3>
+            <p>
+              Your brand, our 4&times;100 tech. Provide elite analytics as a premium service to
+              your clients.
+            </p>
+          </article>
+
+          <%!-- Card 3: Privacy-First Architecture --%>
+          <article class="pa-lp-feature-card" role="listitem">
+            <div class="pa-lp-feature-icon">
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 32 32"
+                fill="none"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <rect
+                  x="8"
+                  y="14"
+                  width="16"
+                  height="14"
+                  rx="2"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  fill="none"
+                />
+                <path
+                  d="M11 14V10a5 5 0 0110 0v4"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                />
+                <circle cx="16" cy="21" r="1.5" fill="currentColor" />
+                <line
+                  x1="5"
+                  y1="5"
+                  x2="27"
+                  y2="27"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  opacity="0.5"
+                />
+              </svg>
+            </div>
+            <h3>Privacy-First Architecture</h3>
+            <p>No cookies, no tracking headaches. 100% compliant, 100% accurate, 0% lag.</p>
+          </article>
         </div>
       </section>
 
       <%!-- PRICING --%>
-      <section class="pa-lp-section">
-        <h2 class="pa-lp-section-title">Simpele, eerlijke prijzen</h2>
+      <section class="pa-lp-section pa-lp-pricing" aria-label="Prijzen">
+        <h2 class="pa-lp-section-title">Choose Your Level in the Simulation.</h2>
         <p class="pa-lp-section-sub">
-          Geen verborgen kosten. Opzeggen kan altijd.
+          Transparent pricing. No hidden costs. Cancel anytime.
         </p>
-        <div class="pa-lp-pricing-grid">
-          <div class="pa-lp-pricing-card">
-            <div class="pa-lp-pricing-name">Free</div>
+
+        <div class="pa-lp-pricing-grid" role="list">
+          <%!-- Tier 1: The Initiate --%>
+          <div class="pa-lp-pricing-card" role="listitem">
+            <div class="pa-lp-pricing-name">The Initiate</div>
             <div class="pa-lp-pricing-price">
-              <span class="pa-lp-pricing-amount">€0</span>
-              <span class="pa-lp-pricing-period">voor altijd</span>
+              <span class="pa-lp-pricing-amount">€99</span>
+              <span class="pa-lp-pricing-period">/mo</span>
             </div>
+            <p class="pa-lp-pricing-tagline">Tot 5 websites. Start the journey.</p>
             <ul class="pa-lp-pricing-features">
-              <li><span class="pa-lp-check">✓</span> 1 website</li>
-              <li><span class="pa-lp-check">✓</span> 10.000 paginaweergaven/maand</li>
-              <li><span class="pa-lp-check">✓</span> Cookieloos</li>
-              <li><span class="pa-lp-check">✓</span> GDPR-compliant</li>
+              <li>
+                <span class="pa-lp-check" aria-hidden="true">✓</span> All core statistics
+              </li>
+              <li><span class="pa-lp-check" aria-hidden="true">✓</span> Heatmaps</li>
+              <li><span class="pa-lp-check" aria-hidden="true">✓</span> A/B testing</li>
+              <li>
+                <span class="pa-lp-check" aria-hidden="true">✓</span> Lighthouse 4&times;100 tracker
+              </li>
             </ul>
-            <a href="/login" class="pa-btn pa-btn--ghost pa-btn--full">Gratis starten</a>
+            <a
+              href="/login"
+              class="pa-btn pa-btn--ghost pa-btn--full"
+              aria-label="Start Journey - The Initiate tier"
+            >
+              Start Journey
+            </a>
           </div>
 
-          <div class="pa-lp-pricing-card pa-lp-pricing-card--featured">
-            <div class="pa-lp-pricing-badge">Meest gekozen</div>
-            <div class="pa-lp-pricing-name">Pro</div>
+          <%!-- Tier 2: The Operator (featured) --%>
+          <div class="pa-lp-pricing-card pa-lp-pricing-card--featured" role="listitem">
+            <div class="pa-lp-pricing-badge">MOST POPULAR</div>
+            <div class="pa-lp-pricing-name">The Operator</div>
             <div class="pa-lp-pricing-price">
-              <span class="pa-lp-pricing-amount">€12</span>
-              <span class="pa-lp-pricing-period">/maand</span>
+              <span class="pa-lp-pricing-amount">€249</span>
+              <span class="pa-lp-pricing-period">/mo</span>
             </div>
+            <p class="pa-lp-pricing-tagline">Tot 25 websites. White-label geactiveerd.</p>
             <ul class="pa-lp-pricing-features">
-              <li><span class="pa-lp-check">✓</span> 5 websites</li>
-              <li><span class="pa-lp-check">✓</span> 100.000 paginaweergaven/maand</li>
-              <li><span class="pa-lp-check">✓</span> A/B testing</li>
-              <li><span class="pa-lp-check">✓</span> Heatmaps</li>
-              <li><span class="pa-lp-check">✓</span> Realtime dashboard</li>
+              <li>
+                <span class="pa-lp-check" aria-hidden="true">✓</span> Everything in Initiate
+              </li>
+              <li>
+                <span class="pa-lp-check" aria-hidden="true">✓</span> White-label dashboard
+              </li>
+              <li><span class="pa-lp-check" aria-hidden="true">✓</span> Team accounts</li>
+              <li><span class="pa-lp-check" aria-hidden="true">✓</span> Priority support</li>
             </ul>
-            <a href="/login" class="pa-btn pa-btn--primary pa-btn--full">Probeer gratis →</a>
+            <a
+              href="/login"
+              class="pa-btn pa-btn--primary pa-btn--full"
+              aria-label="Activate Operator - The Operator tier"
+            >
+              Activate Operator
+            </a>
           </div>
 
-          <div class="pa-lp-pricing-card">
-            <div class="pa-lp-pricing-name">Agency</div>
+          <%!-- Tier 3: The Architect --%>
+          <div class="pa-lp-pricing-card" role="listitem">
+            <div class="pa-lp-pricing-name">The Architect</div>
             <div class="pa-lp-pricing-price">
-              <span class="pa-lp-pricing-amount">€39</span>
-              <span class="pa-lp-pricing-period">/maand</span>
+              <span class="pa-lp-pricing-amount">€499</span>
+              <span class="pa-lp-pricing-period">/mo</span>
             </div>
+            <p class="pa-lp-pricing-tagline">Tot 100 websites. Master the simulation.</p>
             <ul class="pa-lp-pricing-features">
-              <li><span class="pa-lp-check">✓</span> Onbeperkte websites</li>
-              <li><span class="pa-lp-check">✓</span> Onbeperkte paginaweergaven</li>
-              <li><span class="pa-lp-check">✓</span> Alles uit Pro</li>
-              <li><span class="pa-lp-check">✓</span> Prioriteit support</li>
+              <li>
+                <span class="pa-lp-check" aria-hidden="true">✓</span> Everything in Operator
+              </li>
+              <li><span class="pa-lp-check" aria-hidden="true">✓</span> Custom domain</li>
+              <li><span class="pa-lp-check" aria-hidden="true">✓</span> SLA guarantee</li>
+              <li>
+                <span class="pa-lp-check" aria-hidden="true">✓</span> Dedicated onboarding
+              </li>
             </ul>
-            <a href="/login" class="pa-btn pa-btn--ghost pa-btn--full">Contact opnemen</a>
+            <a
+              href="/login"
+              class="pa-btn pa-btn--ghost pa-btn--full"
+              aria-label="Become The Architect - The Architect tier"
+            >
+              Become The Architect
+            </a>
           </div>
         </div>
+
+        <p class="pa-lp-pricing-footnote">
+          Your power grows with your network. Scale as you go.
+        </p>
       </section>
 
-      <%!-- FOOTER CTA --%>
-      <section class="pa-lp-section pa-lp-footer-cta">
-        <h2 class="pa-lp-footer-cta-title">Klaar om te starten?</h2>
-        <p class="pa-lp-footer-cta-sub">
-          Voeg één script toe en je hebt direct inzicht. Geen cookies, geen gedoe.
+      <%!-- FINAL CTA --%>
+      <section class="pa-lp-section pa-lp-final-cta" aria-label="Call to action">
+        <p class="pa-lp-final-cta-trigger">
+          Because every millisecond is a lost sale. See the 100/100 performance in action.
         </p>
-        <a href="/login" class="pa-btn pa-btn--primary pa-btn--lg">Maak gratis account →</a>
+        <a
+          href="/auth/demo"
+          class="pa-btn pa-btn--matrix pa-btn--matrix-lg"
+          aria-label="Open live demo van Neo Analytics"
+        >
+          [ ENTER THE MATRIX (LIVE DEMO) ]
+        </a>
+        <div class="pa-lp-final-cta-secondary">
+          <a href="/login" class="pa-lp-final-cta-link">Or create a free account →</a>
+        </div>
       </section>
     </div>
     """

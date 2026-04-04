@@ -3260,3 +3260,356 @@ body::after {
   text-align: center;
   justify-content: center;
 }
+
+/* ============================================================
+   NEO-MATRIX LANDING PAGE — Redesign stijlen
+   ============================================================ */
+
+/* Nieuwe CSS variabelen */
+:root {
+  --pa-matrix-green:     #00FF41;
+  --pa-matrix-green-dim: oklch(75% 0.2 142 / 0.15);
+}
+
+/* ---- Accent kleur ---- */
+.pa-lp-accent-green {
+  color: var(--pa-matrix-green);
+}
+
+/* ---- Lighthouse Gauge ---- */
+.pa-lp-gauge-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 2rem auto;
+  width: 160px;
+  height: 160px;
+}
+
+.pa-lp-gauge {
+  transform: rotate(-90deg);
+  display: block;
+}
+
+.pa-lp-gauge-track {
+  fill: none;
+  stroke: oklch(26% 0.025 250);
+  stroke-width: 8;
+}
+
+.pa-lp-gauge-fill {
+  fill: none;
+  stroke: var(--pa-matrix-green);
+  stroke-width: 8;
+  stroke-linecap: round;
+  /* Omtrek cirkel r=66: 2*pi*66 = ~414.69 */
+  stroke-dasharray: 414.69;
+  stroke-dashoffset: 414.69;
+  filter: drop-shadow(0 0 6px var(--pa-matrix-green));
+  animation: pa-gauge-fill 1.5s ease-out 0.3s forwards;
+}
+
+@keyframes pa-gauge-fill {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.pa-lp-gauge-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  line-height: 1;
+}
+
+.pa-lp-gauge-value {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--pa-matrix-green);
+  line-height: 1;
+}
+
+.pa-lp-gauge-unit {
+  font-size: 0.75rem;
+  color: var(--pa-text-muted);
+  margin-top: 0.2rem;
+}
+
+/* ---- Matrix CTA knop ---- */
+.pa-btn--matrix {
+  background: transparent;
+  color: var(--pa-matrix-green);
+  border: 1px solid var(--pa-matrix-green);
+  font-family: monospace;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  animation: pa-matrix-pulse 2.5s ease-in-out infinite;
+  transition: background var(--pa-transition), box-shadow var(--pa-transition),
+    transform var(--pa-transition);
+}
+
+.pa-btn--matrix:hover {
+  background: var(--pa-matrix-green-dim);
+  box-shadow: 0 0 16px oklch(75% 0.2 142 / 0.4), 0 0 32px oklch(75% 0.2 142 / 0.2);
+  transform: scale(1.03);
+  color: var(--pa-matrix-green);
+}
+
+.pa-btn--matrix-lg {
+  padding: 1rem 2.5rem;
+  font-size: 1.0625rem;
+}
+
+@keyframes pa-matrix-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 6px oklch(75% 0.2 142 / 0.3);
+  }
+  50% {
+    box-shadow: 0 0 18px oklch(75% 0.2 142 / 0.55), 0 0 36px oklch(75% 0.2 142 / 0.2);
+  }
+}
+
+/* ---- Agency sectie ---- */
+.pa-lp-agency {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.pa-lp-agency-inner {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  background: oklch(18% 0.02 250 / 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid oklch(100% 0 0 / 0.08);
+  border-radius: var(--pa-radius-lg);
+  padding: 2.5rem 2rem;
+}
+
+@media (min-width: 640px) {
+  .pa-lp-agency-inner {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+}
+
+.pa-lp-agency-title {
+  font-size: clamp(1.5rem, 3.5vw, 2rem);
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--pa-text);
+  margin-bottom: 1rem;
+}
+
+.pa-lp-agency-body {
+  font-size: 1rem;
+  color: var(--pa-text-muted);
+  line-height: 1.7;
+  margin: 0;
+}
+
+.pa-lp-agency-stats {
+  display: flex;
+  gap: 1.5rem;
+  flex-shrink: 0;
+}
+
+/* ---- Stat blokken ---- */
+.pa-lp-stat-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 1rem 1.25rem;
+  background: var(--pa-matrix-green-dim);
+  border: 1px solid oklch(72% 0.15 194 / 0.2);
+  border-radius: var(--pa-radius);
+}
+
+.pa-lp-stat-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--pa-teal);
+  line-height: 1;
+  text-shadow: 0 0 12px var(--pa-teal-glow, oklch(72% 0.15 194 / 0.4));
+}
+
+.pa-lp-stat-label {
+  font-size: 0.72rem;
+  color: var(--pa-text-muted);
+  text-align: center;
+  line-height: 1.3;
+}
+
+/* ---- Feature cards glassmorphism override ---- */
+.pa-lp-features .pa-lp-feature-card {
+  background: oklch(18% 0.02 250 / 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid oklch(100% 0 0 / 0.08);
+  transition: border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
+  will-change: transform;
+}
+
+.pa-lp-features .pa-lp-feature-card:hover {
+  border-color: var(--pa-teal);
+  box-shadow: 0 4px 24px oklch(72% 0.15 194 / 0.15);
+  transform: translateY(-4px);
+}
+
+/* ---- Feature iconen (inline SVG) ---- */
+.pa-lp-feature-icon svg {
+  color: var(--pa-teal);
+  display: block;
+}
+
+/* ---- Pricing tagline ---- */
+.pa-lp-pricing-tagline {
+  font-size: 0.825rem;
+  color: var(--pa-text-faint);
+  margin: 0 0 1.25rem;
+  line-height: 1.4;
+}
+
+/* ---- Pricing footnote ---- */
+.pa-lp-pricing-footnote {
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--pa-text-faint);
+  margin-top: 1.75rem;
+  font-style: italic;
+}
+
+/* ---- Final CTA sectie ---- */
+.pa-lp-final-cta {
+  text-align: center;
+  background: linear-gradient(
+    180deg,
+    oklch(14% 0.018 250) 0%,
+    oklch(10% 0.012 250) 100%
+  );
+  border-radius: var(--pa-radius-lg);
+  border: 1px solid oklch(100% 0 0 / 0.06);
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Scanline overlay op final CTA */
+.pa-lp-final-cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    oklch(0% 0 0 / 0.04) 2px,
+    oklch(0% 0 0 / 0.04) 4px
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.pa-lp-final-cta > * {
+  position: relative;
+  z-index: 1;
+}
+
+.pa-lp-final-cta-trigger {
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  color: var(--pa-text-muted);
+  max-width: 520px;
+  margin: 0 auto 2rem;
+  line-height: 1.65;
+}
+
+.pa-lp-final-cta-secondary {
+  margin-top: 1.25rem;
+}
+
+.pa-lp-final-cta-link {
+  font-size: 0.9rem;
+  color: var(--pa-text-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color var(--pa-transition);
+}
+
+.pa-lp-final-cta-link:hover {
+  color: var(--pa-text);
+}
+
+/* ---- Lichtthema overrides voor Neo-Matrix elementen ---- */
+[data-theme="light"] .pa-lp-agency-inner {
+  background: oklch(97% 0.005 240 / 0.85);
+  border-color: oklch(86% 0.01 240);
+}
+
+[data-theme="light"] .pa-lp-features .pa-lp-feature-card {
+  background: oklch(98% 0 0 / 0.85);
+  border-color: oklch(86% 0.01 240);
+}
+
+[data-theme="light"] .pa-lp-final-cta {
+  background: linear-gradient(
+    180deg,
+    oklch(95% 0.005 240) 0%,
+    oklch(91% 0.008 240) 100%
+  );
+  border-color: oklch(86% 0.01 240);
+}
+
+[data-theme="light"] .pa-lp-gauge-track {
+  stroke: oklch(86% 0.01 240);
+}
+
+[data-theme="light"] .pa-btn--matrix {
+  color: oklch(38% 0.18 142);
+  border-color: oklch(38% 0.18 142);
+}
+
+[data-theme="light"] .pa-btn--matrix:hover {
+  background: oklch(38% 0.18 142 / 0.08);
+  color: oklch(38% 0.18 142);
+}
+
+[data-theme="light"] .pa-lp-accent-green {
+  color: oklch(38% 0.18 142);
+}
+
+[data-theme="light"] .pa-lp-gauge-value {
+  color: oklch(38% 0.18 142);
+}
+
+[data-theme="light"] .pa-lp-gauge-fill {
+  stroke: oklch(38% 0.18 142);
+  filter: drop-shadow(0 0 4px oklch(38% 0.18 142 / 0.4));
+}
+
+/* ---- Prefers-reduced-motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  .pa-lp-gauge-fill {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+
+  .pa-btn--matrix {
+    animation: none;
+  }
+
+  .pa-lp-features .pa-lp-feature-card {
+    transition: none;
+    will-change: auto;
+  }
+
+  .pa-btn--matrix:hover {
+    transform: none;
+  }
+}
