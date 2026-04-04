@@ -219,6 +219,7 @@ function initMatrix(opts) {
   let frameCount = 0
   let logicalW = window.innerWidth
   let logicalH = window.innerHeight
+  let pauseCenter = false
 
   function setupCols(introMode) {
     const dpr = window.devicePixelRatio || 1
@@ -268,7 +269,8 @@ function initMatrix(opts) {
       if (cols[i] >= midRow) atMid++
 
       if (y > logicalH && Math.random() > 0.975) cols[i] = 0
-      cols[i]++
+      const inCenter = x > logicalW * 0.2 && x < logicalW * 0.8
+      if (!pauseCenter || !inCenter) cols[i]++
     }
 
     if (!midpointFired && opts.onMidpoint && atMid >= Math.floor(cols.length * 0.6)) {
@@ -281,6 +283,7 @@ function initMatrix(opts) {
 
   return {
     start() { if (!animId) animId = requestAnimationFrame(draw) },
+    setPauseCenter(v) { pauseCenter = v },
     stop() {
       if (animId) { cancelAnimationFrame(animId); animId = null }
       ctx.clearRect(0, 0, canvas.width, canvas.height)
@@ -353,6 +356,7 @@ function initLoginPage(canvas) {
 
         setTimeout(() => {
           powered.classList.add('visible')
+          matrix.setPauseCenter(true)
 
           // ── Fase 1: "Powered by AI. / Driven by Data." — getypt ──────────
           typeSegments(powered, [
@@ -393,21 +397,27 @@ function initLoginPage(canvas) {
 
                   setTimeout(() => {
                     clearInterval(glitchInterval)
+                    // Stap 1: tekst uitfaden
                     powered.classList.add('fade-out')
-                    overlay.classList.add('fade-out')
-                    canvas.style.opacity = ''
+                    matrix.setPauseCenter(false)
 
-                    if (authContainer) {
-                      authContainer.classList.remove('pa-intro-hidden')
-                      authContainer.classList.add('pa-intro-reveal')
-                    }
-
+                    // Stap 2: na tekst-fade overlay + login starten
                     setTimeout(() => {
-                      hero.remove()
-                      powered.remove()
-                      overlay.remove()
-                      canvas.style.zIndex = ''
-                    }, 2300)
+                      overlay.classList.add('fade-out')
+                      canvas.style.opacity = ''
+
+                      if (authContainer) {
+                        authContainer.classList.remove('pa-intro-hidden')
+                        authContainer.classList.add('pa-intro-reveal')
+                      }
+
+                      setTimeout(() => {
+                        hero.remove()
+                        powered.remove()
+                        overlay.remove()
+                        canvas.style.zIndex = ''
+                      }, 2300)
+                    }, 1400)
                   }, 3800)
                 })
               }, 500)
