@@ -2790,6 +2790,27 @@ body::after {
   z-index: 99997;
 }
 
+/* Intro tekst kleiner op mobiel */
+@media (max-width: 480px) {
+  #pa-intro-title {
+    font-size: clamp(1.3rem, 8vw, 1.9rem);
+  }
+
+  #pa-intro-subtitle {
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    white-space: normal;
+    max-width: 80vw;
+  }
+
+  #pa-intro-powered {
+    font-size: clamp(0.85rem, 4vw, 1.1rem);
+    letter-spacing: 0.05em;
+    max-width: 88vw;
+    line-height: 1.6;
+  }
+}
+
 /* ============================================================
    FOOTER
    ============================================================ */
