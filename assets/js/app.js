@@ -319,7 +319,11 @@ document.addEventListener('DOMContentLoaded', () => {
 function initLoginPage(canvas) {
   // Verberg auth-kaart zodat wachtwoordmanager niet verschijnt vóór intro klaar is
   const authContainer = document.querySelector('.pa-auth-container')
-  if (authContainer) authContainer.classList.add('pa-intro-hidden')
+  if (authContainer) {
+    authContainer.style.opacity = '0'
+    authContainer.style.visibility = 'hidden'
+    authContainer.style.pointerEvents = 'none'
+  }
 
   // Donkere overlay
   const overlay = document.createElement('div')
@@ -420,8 +424,14 @@ function initLoginPage(canvas) {
                       canvas.style.opacity = ''
 
                       if (authContainer) {
-                        authContainer.classList.remove('pa-intro-hidden')
-                        authContainer.classList.add('pa-intro-reveal')
+                        authContainer.style.visibility = 'visible'
+                        authContainer.style.pointerEvents = 'auto'
+                        authContainer.style.transition = 'opacity 2s ease-out'
+                        requestAnimationFrame(() => {
+                          requestAnimationFrame(() => {
+                            authContainer.style.opacity = '1'
+                          })
+                        })
                       }
 
                       setTimeout(() => {

@@ -2083,18 +2083,7 @@ h3 { font-size: 1rem;    line-height: 1.4; }
 /* ============================================================
    AUTH — verbergen tijdens intro (voorkomt wachtwoord-manager popup)
    ============================================================ */
-.pa-auth-container.pa-intro-hidden {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-.pa-auth-container.pa-intro-reveal {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-  transition: opacity 2.2s ease-in 0.2s, visibility 0s linear 0s;
-}
+/* Login reveal wordt via JS inline styles gedaan (dubbele rAF patroon) */
 
 /* ============================================================
    MATRIX PILL SEQUENCE
