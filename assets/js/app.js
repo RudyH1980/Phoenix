@@ -358,9 +358,9 @@ function initLoginPage(canvas) {
           typeSegments(powered, [
             {text: 'Powered by AI.'},
             {text: 'Driven by Data.', cls: 'pa-intro-data'}
-          ], 68, () => {
+          ], 45, () => {
             setTimeout(() => {
-              powered.style.transition = 'opacity 1.1s ease'
+              powered.style.transition = 'opacity 0.8s ease'
               powered.style.opacity = '0'
 
               setTimeout(() => {
@@ -410,10 +410,10 @@ function initLoginPage(canvas) {
                     }, 2300)
                   }, 3800)
                 })
-              }, 1100)
-            }, 2000)
+              }, 500)
+            }, 700)
           })
-        }, 700)
+        }, 500)
       }, 3800)
     }
   })

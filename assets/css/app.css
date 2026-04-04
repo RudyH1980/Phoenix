@@ -2095,7 +2095,7 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   visibility: visible;
   pointer-events: auto;
   transform: translateY(0);
-  transition: opacity 2.5s ease-in 1.8s, transform 2.5s ease-out 1.8s, visibility 0s linear 0s;
+  transition: opacity 1.8s ease-in 0.6s, transform 1.8s ease-out 0.6s, visibility 0s linear 0s;
 }
 
 /* ============================================================
