@@ -5,35 +5,43 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.EditSiteLive do
 
   @impl true
   def mount(%{"site_id" => site_id}, _session, socket) do
-    case Ash.get(Analytics.Site, site_id) do
-      {:ok, site} when not is_nil(site) ->
-        if site.org_id in socket.assigns.current_org_ids do
-          {:ok,
-           assign(socket,
-             site: site,
-             name: site.name,
-             domain: site.domain,
-             active: site.active,
-             tags: site.tags || [],
-             preset_tags: ~w(Prod Test Staging),
-             custom_tag: "",
-             saved: false,
-             show_delete_confirm: false,
-             delete_confirm_input: "",
-             page_title: "Bewerk #{site.name}"
-           )}
-        else
+    if socket.assigns[:is_demo] do
+      {:ok,
+       socket
+       |> put_flash(:error, "Niet beschikbaar in de demo.")
+       |> push_navigate(to: ~p"/dashboard")}
+    else
+      case Ash.get(Analytics.Site, site_id) do
+        {:ok, site} when not is_nil(site) ->
+          if site.org_id in socket.assigns.current_org_ids do
+            {:ok,
+             assign(socket,
+               site: site,
+               name: site.name,
+               domain: site.domain,
+               active: site.active,
+               tags: site.tags || [],
+               preset_tags: ~w(Prod Test Staging),
+               custom_tag: "",
+               saved: false,
+               snippet_verified: nil,
+               show_delete_confirm: false,
+               delete_confirm_input: "",
+               page_title: "Bewerk #{site.name}"
+             )}
+          else
+            {:ok,
+             socket
+             |> put_flash(:error, "Geen toegang.")
+             |> push_navigate(to: ~p"/dashboard")}
+          end
+
+        _ ->
           {:ok,
            socket
-           |> put_flash(:error, "Geen toegang.")
+           |> put_flash(:error, "Website niet gevonden.")
            |> push_navigate(to: ~p"/dashboard")}
-        end
-
-      _ ->
-        {:ok,
-         socket
-         |> put_flash(:error, "Website niet gevonden.")
-         |> push_navigate(to: ~p"/dashboard")}
+      end
     end
   end
 
@@ -104,6 +112,12 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.EditSiteLive do
         {:noreply, put_flash(socket, :error, "Naam komt niet overeen.")}
       end
     end
+  end
+
+  def handle_event("verify_snippet", _params, socket) do
+    site = socket.assigns.site
+    recent = PhoenixAnalytics.Analytics.Stats.recent_pageview?(site.id, minutes: 60)
+    {:noreply, assign(socket, snippet_verified: recent)}
   end
 
   defp do_save(socket, name, domain, active) do
@@ -233,9 +247,35 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.EditSiteLive do
       </.form>
 
       <div class="pa-snippet-box" style="margin-top:2rem;">
-        <h3>Tracker token</h3>
-        <pre class="pa-code"><code>{@site.token}</code></pre>
-        <span class="pa-hint">Gebruik dit token in je data-site attribuut.</span>
+        <h3>Tracker implementeren</h3>
+        <p class="pa-hint" style="margin-bottom:0.75rem;">
+          Plak deze regel in de <code>&lt;head&gt;</code> van je website:
+        </p>
+        <div class="pa-snippet-wrap">
+          <pre class="pa-code" id="pa-snippet-code"><code>&lt;script defer data-site="{@site.token}" src="{PhoenixAnalyticsWeb.Endpoint.url()}/js/pa.js"&gt;&lt;/script&gt;</code></pre>
+          <button
+            type="button"
+            class="pa-btn pa-btn--ghost pa-btn--sm pa-snippet-copy"
+            onclick={"navigator.clipboard.writeText('<script defer data-site=\"#{@site.token}\" src=\"#{PhoenixAnalyticsWeb.Endpoint.url()}/js/pa.js\"><\\/script>').then(()=>{this.textContent='Gekopieerd';setTimeout(()=>this.textContent='Kopiëren',2000)})"}
+          >
+            Kopiëren
+          </button>
+        </div>
+        <div style="margin-top:0.5rem;">
+          <button type="button" phx-click="verify_snippet" class="pa-btn pa-btn--ghost pa-btn--sm">
+            Verbinding testen
+          </button>
+          <%= if @snippet_verified == true do %>
+            <span style="color:var(--pa-green); margin-left:0.75rem;">
+              ✓ Tracker actief — data ontvangen
+            </span>
+          <% end %>
+          <%= if @snippet_verified == false do %>
+            <span style="color:var(--pa-text-muted); margin-left:0.75rem;">
+              Nog geen data ontvangen. Zorg dat de snippet in de head staat.
+            </span>
+          <% end %>
+        </div>
       </div>
 
       <%= unless @is_demo do %>

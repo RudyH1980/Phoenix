@@ -7,14 +7,20 @@ defmodule PhoenixAnalytics.Experiments.Stats do
   import Ecto.Query
   alias PhoenixAnalytics.Repo
 
+  defp to_bin(id) when is_binary(id) and byte_size(id) == 16, do: id
+  defp to_bin(id), do: Ecto.UUID.dump!(id)
+
   def variant_stats(experiment) do
     variants = experiment.variants
 
     Enum.map(variants, fn variant ->
+      exp_id = to_bin(experiment.id)
+      var_id = to_bin(variant.id)
+
       visitors =
         Repo.one(
           from a in "assignments",
-            where: a.experiment_id == ^experiment.id and a.variant_id == ^variant.id,
+            where: a.experiment_id == ^exp_id and a.variant_id == ^var_id,
             select: count(a.id)
         ) || 0
 
@@ -22,7 +28,7 @@ defmodule PhoenixAnalytics.Experiments.Stats do
         Repo.one(
           from e in "events",
             where:
-              e.experiment_id == ^experiment.id and
+              e.experiment_id == ^exp_id and
                 e.variant_name == ^variant.name and
                 e.event_name == ^experiment.goal_event,
             select: count(e.id, :distinct),

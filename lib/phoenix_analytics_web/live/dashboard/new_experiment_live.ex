@@ -14,6 +14,8 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.NewExperimentLive do
       case Ash.get(Analytics.Site, site_id) do
         {:ok, site} when not is_nil(site) ->
           if site.org_id in socket.assigns.current_org_ids do
+            recent_events = PhoenixAnalytics.Analytics.Stats.recent_event_names(site.id)
+
             {:ok,
              assign(socket,
                site: site,
@@ -25,6 +27,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.NewExperimentLive do
                    "webhook_url" => ""
                  }),
                variants: [%{name: "Controle", weight: 50}, %{name: "Variant B", weight: 50}],
+               recent_events: recent_events,
                page_title: "Nieuw experiment"
              )}
           else
@@ -115,10 +118,16 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.NewExperimentLive do
             type="text"
             id="goal_event"
             name="goal_event"
+            list="goal-events-list"
             value={@form[:goal_event].value}
             placeholder="cta_klik"
             required
           />
+          <datalist id="goal-events-list">
+            <%= for event <- @recent_events do %>
+              <option value={event} />
+            <% end %>
+          </datalist>
           <span class="pa-hint">Dit is de data-pa-event waarde die als conversie telt</span>
         </div>
         <div class="pa-field">

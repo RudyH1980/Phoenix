@@ -366,6 +366,38 @@ defmodule PhoenixAnalytics.Analytics.Stats do
   Laatste 7 dagen pageviews per dag per site.
   Geeft een map terug: %{site_id => [%{date, count}]}.
   """
+  def recent_event_names(site_id) do
+    sid = to_binary_uuid(site_id)
+
+    Repo.all(
+      from e in "events",
+        where: e.site_id == ^sid,
+        distinct: e.event_name,
+        order_by: [desc: e.inserted_at],
+        limit: 20,
+        select: e.event_name
+    )
+  rescue
+    _ -> []
+  end
+
+  def recent_pageview?(site_id, minutes: minutes) do
+    cutoff = DateTime.add(DateTime.utc_now(), -minutes * 60, :second)
+    sid = to_binary_uuid(site_id)
+
+    count =
+      Repo.one(
+        from p in "pageviews",
+          where: p.site_id == ^sid and p.inserted_at > ^cutoff,
+          select: count(p.id),
+          limit: 1
+      )
+
+    (count || 0) > 0
+  rescue
+    _ -> false
+  end
+
   def sites_sparklines(org_ids) do
     since = DateTime.add(DateTime.utc_now(), -7 * 86_400, :second)
     binary_ids = Enum.map(org_ids, &Ecto.UUID.dump!/1)

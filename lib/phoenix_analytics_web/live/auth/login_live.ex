@@ -145,6 +145,14 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
           <a href="/auth/demo" class="pa-btn pa-btn--demo pa-btn--full">
             Probeer de demo →
           </a>
+          <a
+            href="https://pagespeed.web.dev/analysis?url=https%3A%2F%2Fphoenix-analytics.fly.dev%2F"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="pa-pagespeed-link"
+          >
+            Test paginasnelheid
+          </a>
         </div>
 
         <div class="pa-or-divider">of log in</div>

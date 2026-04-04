@@ -2,7 +2,7 @@
 FROM hexpm/elixir:1.18.3-erlang-27.3.4-debian-bookworm-20260316-slim AS builder
 
 # Build tools
-RUN apt-get update -y && apt-get install -y build-essential git curl \
+RUN apt-get update -y && apt-get install -y build-essential git curl brotli \
     && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
 WORKDIR /app

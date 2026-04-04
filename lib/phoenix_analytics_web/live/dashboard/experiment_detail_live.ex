@@ -16,6 +16,8 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.ExperimentDetailLive do
           significance = Stats.significance(variant_stats)
           winner = find_winner(variant_stats, significance)
 
+          total_visitors = Enum.sum(Enum.map(variant_stats, & &1.visitors))
+
           {:ok,
            assign(socket,
              site: site,
@@ -23,6 +25,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.ExperimentDetailLive do
              variant_stats: variant_stats,
              significance: significance,
              winner: winner,
+             total_visitors: total_visitors,
              page_title: experiment.name
            )}
         else
@@ -84,10 +87,14 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.ExperimentDetailLive do
             {@experiment.status}
           </span>
           <%= if @experiment.status == :draft do %>
-            <button phx-click="start" class="pa-btn pa-btn--primary">▶ Start experiment</button>
+            <button phx-click="start" phx-disable-with="Starten..." class="pa-btn pa-btn--primary">
+              ▶ Start experiment
+            </button>
           <% end %>
           <%= if @experiment.status == :running do %>
-            <button phx-click="stop" class="pa-btn pa-btn--danger">■ Stop experiment</button>
+            <button phx-click="stop" phx-disable-with="Stoppen..." class="pa-btn pa-btn--danger">
+              ■ Stop experiment
+            </button>
           <% end %>
         </div>
       </div>
@@ -95,7 +102,12 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.ExperimentDetailLive do
       <div class="pa-variants-grid">
         <%= for stat <- @variant_stats do %>
           <div class={"pa-variant-card#{if @winner == stat.variant.name, do: " pa-variant-card--winner"}"}>
-            <h3>{stat.variant.name}</h3>
+            <h3>
+              {stat.variant.name}
+              <%= if @winner == stat.variant.name do %>
+                <span class="pa-winner-badge">🏆 Winnaar</span>
+              <% end %>
+            </h3>
             <div class="pa-variant-stats">
               <div class="pa-stat">
                 <span>Gewicht</span>
@@ -142,16 +154,23 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.ExperimentDetailLive do
               <strong>Significant resultaat (p &lt; 0.05)</strong>
               — je kunt een winnaar kiezen.
               <%= if @winner do %>
-                Beste variant: <strong>{@winner}</strong>
+                <div style="margin-top:0.5rem; font-size:1.05rem; color:var(--pa-teal); font-weight:600;">
+                  Winnende variant: {@winner}
+                </div>
               <% end %>
             </div>
           <% :not_significant -> %>
             <div class="pa-alert pa-alert--warning">
               Nog geen significant resultaat. Laat het experiment langer lopen.
+              <p class="pa-progress-note">
+                Nog {max(0, 200 - @total_visitors)} bezoekers nodig
+              </p>
             </div>
           <% :insufficient_data -> %>
             <div class="pa-alert pa-alert--info">
-              Onvoldoende data. Minimaal 100 bezoekers en 20 conversies per variant nodig.
+              Onvoldoende data. Minimaal 200 bezoekers en 20 conversies nodig.
+              Nu: <strong>{@total_visitors} bezoekers</strong>
+              en <strong>{Enum.sum(Enum.map(@variant_stats, & &1.conversions))} conversies</strong>.
             </div>
         <% end %>
       </div>

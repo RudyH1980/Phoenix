@@ -137,9 +137,14 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
           <.link navigate={~p"/dashboard/sites/#{@site.id}/heatmap"} class="pa-btn pa-btn--ghost">
             Heatmap
           </.link>
-          <.link navigate={~p"/dashboard/sites/#{@site.id}/experiments"} class="pa-btn pa-btn--ghost">
-            A/B Experimenten
-          </.link>
+          <%= if !@is_demo do %>
+            <.link
+              navigate={~p"/dashboard/sites/#{@site.id}/experiments"}
+              class="pa-btn pa-btn--ghost"
+            >
+              A/B Experimenten
+            </.link>
+          <% end %>
           <.link
             href={~p"/dashboard/sites/#{@site.id}/export?period=#{@period}"}
             class="pa-btn pa-btn--ghost"

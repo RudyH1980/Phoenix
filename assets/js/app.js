@@ -335,7 +335,6 @@ function initLoginPage(canvas) {
 
   const powered = document.createElement('div')
   powered.id = 'pa-intro-powered'
-  powered.textContent = 'Powered by AI'
   document.body.appendChild(powered)
 
   // Canvas volledig zichtbaar tijdens intro — overlay zit erachter
@@ -355,24 +354,65 @@ function initLoginPage(canvas) {
         setTimeout(() => {
           powered.classList.add('visible')
 
-          setTimeout(() => {
-            powered.classList.add('fade-out')
-            overlay.classList.add('fade-out')
-            canvas.style.zIndex = ''
-            canvas.style.opacity = ''  // terug naar CSS default (0.45)
-
-            if (authContainer) {
-              authContainer.classList.remove('pa-intro-hidden')
-              authContainer.classList.add('pa-intro-reveal')
-            }
-
+          // ── Fase 1: "Powered by AI. / Driven by Data." — getypt ──────────
+          typeSegments(powered, [
+            {text: 'Powered by AI.'},
+            {text: 'Driven by Data.', cls: 'pa-intro-data'}
+          ], 68, () => {
             setTimeout(() => {
-              hero.remove()
-              powered.remove()
-              overlay.remove()
-              // Matrix blijft actief als achtergrond op loginpagina
-            }, 2300)
-          }, 1800)
+              powered.style.transition = 'opacity 1.1s ease'
+              powered.style.opacity = '0'
+
+              setTimeout(() => {
+                // Reset voor fase 2
+                while (powered.firstChild) powered.removeChild(powered.firstChild)
+                powered.style.opacity = '1'
+                powered.style.transition = ''
+
+                // ── Fase 2: performance tekst — getypt ───────────────────
+                typeSegments(powered, [
+                  {text: 'Performance: Optimized for a Lighthouse '},
+                  {text: '100/100', cls: 'pa-intro-score'},
+                  {text: ' Perfect Score.'}
+                ], 52, () => {
+                  // Pulse dot na de score
+                  const scoreEl = powered.querySelector('.pa-intro-score')
+                  if (scoreEl) {
+                    const pulse = document.createElement('span')
+                    pulse.className = 'pa-intro-pulse'
+                    scoreEl.insertAdjacentElement('afterend', pulse)
+                  }
+
+                  // Periodieke glitch — rustig, niet te snel
+                  const glitchInterval = setInterval(() => {
+                    const sc = powered.querySelector('.pa-intro-score')
+                    if (!sc) return
+                    sc.classList.add('glitching')
+                    setTimeout(() => sc.classList.remove('glitching'), 320)
+                  }, 2800)
+
+                  setTimeout(() => {
+                    clearInterval(glitchInterval)
+                    powered.classList.add('fade-out')
+                    overlay.classList.add('fade-out')
+                    canvas.style.opacity = ''
+
+                    if (authContainer) {
+                      authContainer.classList.remove('pa-intro-hidden')
+                      authContainer.classList.add('pa-intro-reveal')
+                    }
+
+                    setTimeout(() => {
+                      hero.remove()
+                      powered.remove()
+                      overlay.remove()
+                      canvas.style.zIndex = ''
+                    }, 2300)
+                  }, 3800)
+                })
+              }, 1100)
+            }, 2000)
+          })
         }, 700)
       }, 3800)
     }
@@ -380,6 +420,24 @@ function initLoginPage(canvas) {
 
   if (!matrix) return
   matrix.start()
+  initCursorTrail()
+}
+
+function initCursorTrail() {
+  let lastTrail = 0
+  document.addEventListener('mousemove', (e) => {
+    const now = Date.now()
+    if (now - lastTrail < 110) return
+    lastTrail = now
+    const bit = document.createElement('div')
+    bit.className = 'pa-cursor-bit'
+    bit.textContent = Math.random() > 0.5 ? '1' : '0'
+    bit.style.left = e.clientX + 'px'
+    bit.style.top = e.clientY + 'px'
+    document.body.appendChild(bit)
+    requestAnimationFrame(() => bit.classList.add('falling'))
+    setTimeout(() => bit.remove(), 900)
+  })
 }
 
 // ── App pagina: pill flow ─────────────────────────────────────────────────
@@ -788,10 +846,15 @@ function handlePillChoice(pill, overlay, seq, textWrap, pillsWrap, speechEl, mat
       speechEl.style.transition = 'opacity 0.4s ease'
       speechEl.style.opacity = '0'
 
-      // Stap 2: consequentietekst + overlay faden samen met identieke timing
+      // Stap 2: consequentietekst + morpheus + overlay faden samen
       setTimeout(() => {
         resultEl.style.transition = 'opacity 1.8s ease'
         resultEl.style.opacity = '0'
+        const morpheusWrap = seq.querySelector('.pa-neo-morpheus-wrap')
+        if (morpheusWrap) {
+          morpheusWrap.style.transition = 'opacity 1.8s ease'
+          morpheusWrap.style.opacity = '0'
+        }
         overlay.style.transition = 'opacity 1.8s ease'
         overlay.classList.add('fade-out')
 

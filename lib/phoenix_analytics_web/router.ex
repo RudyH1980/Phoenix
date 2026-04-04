@@ -33,7 +33,7 @@ defmodule PhoenixAnalyticsWeb.Router do
   scope "/", PhoenixAnalyticsWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    live "/", Live.Marketing.LandingLive, :index
     live "/demo", Live.Demo.DemoLive, :index
     live "/login", Live.Auth.LoginLive, :index
     get "/auth/verify", AuthController, :verify

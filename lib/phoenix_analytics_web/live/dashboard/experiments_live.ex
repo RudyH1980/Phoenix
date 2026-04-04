@@ -31,6 +31,12 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.ExperimentsLive do
     end
   end
 
+  defp status_label(:draft), do: "Concept"
+  defp status_label(:running), do: "Actief"
+  defp status_label(:stopped), do: "Gestopt"
+  defp status_label(:archived), do: "Gearchiveerd"
+  defp status_label(other), do: to_string(other)
+
   @impl true
   def render(assigns) do
     ~H"""
@@ -52,15 +58,20 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.ExperimentsLive do
       </div>
 
       <%= if Enum.empty?(@experiments) do %>
-        <div style="background: var(--pa-surface); border: 1px dashed var(--pa-border); border-radius: var(--pa-radius-lg); padding: 3rem 2rem; text-align: center;">
-          <p style="color: var(--pa-text-muted); margin: 0 0 1.25rem; font-size: 0.95rem;">
-            Nog geen experimenten aangemaakt voor <strong style="color:var(--pa-text);">{@site.name}</strong>.
-          </p>
+        <div class="pa-experiment-empty">
+          <h3 style="font-size:1.15rem; font-weight:700; margin:0 0 0.75rem;">
+            Test wat werkt voor jouw bezoekers
+          </h3>
+          <ul>
+            <li>Vergelijk twee versies van een knop, tekst of pagina</li>
+            <li>Deterministisch toegewezen — geen cookie nodig</li>
+            <li>Statistisch significant resultaat via chi-square test</li>
+          </ul>
           <.link
             navigate={~p"/dashboard/sites/#{@site.id}/experiments/new"}
             class="pa-btn pa-btn--primary"
           >
-            + Eerste experiment aanmaken
+            Eerste experiment aanmaken →
           </.link>
         </div>
       <% else %>
@@ -70,7 +81,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.ExperimentsLive do
               <.link navigate={~p"/dashboard/sites/#{@site.id}/experiments/#{exp.id}"}>
                 <strong>{exp.name}</strong>
                 <span class={"pa-badge pa-badge--#{exp.status}"} aria-label={"Status: #{exp.status}"}>
-                  {exp.status}
+                  {status_label(exp.status)}
                 </span>
                 <span class="pa-goal">Doel: {exp.goal_event}</span>
                 <span style="margin-left:auto; color:var(--pa-text-faint);">›</span>

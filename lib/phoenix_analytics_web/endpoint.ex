@@ -27,7 +27,10 @@ defmodule PhoenixAnalyticsWeb.Endpoint do
     at: "/",
     from: :phoenix_analytics,
     gzip: not code_reloading?,
-    only: PhoenixAnalyticsWeb.static_paths()
+    brotli: not code_reloading?,
+    only: PhoenixAnalyticsWeb.static_paths(),
+    cache_control_for_etags: "public, max-age=31536000, immutable",
+    headers: %{"x-content-type-options" => "nosniff"}
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
