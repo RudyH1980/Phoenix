@@ -2087,15 +2087,13 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transform: translateY(16px);
 }
 
 .pa-auth-container.pa-intro-reveal {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
-  transform: translateY(0);
-  transition: opacity 2s ease-in 0.3s, transform 2s ease-out 0.3s, visibility 0s linear 0s;
+  transition: opacity 2.2s ease-in 0.2s, visibility 0s linear 0s;
 }
 
 /* ============================================================
@@ -2740,13 +2738,13 @@ h3 { font-size: 1rem;    line-height: 1.4; }
 }
 
 @keyframes pa-heartbeat {
-  0%   { transform: scale(1);    text-shadow: 0 0 12px oklch(75% 0.2 185 / 0.8); }
-  12%  { transform: scale(1.18); text-shadow: 0 0 28px oklch(80% 0.25 185 / 1),  0 0 48px oklch(72% 0.2 185 / 0.5); }
-  24%  { transform: scale(1);    text-shadow: 0 0 12px oklch(75% 0.2 185 / 0.8); }
-  36%  { transform: scale(1.12); text-shadow: 0 0 22px oklch(80% 0.25 185 / 0.9), 0 0 36px oklch(72% 0.2 185 / 0.4); }
-  50%  { transform: scale(1);    text-shadow: 0 0 12px oklch(75% 0.2 185 / 0.8); }
-  62%  { transform: scale(1.07); text-shadow: 0 0 16px oklch(78% 0.22 185 / 0.7); }
-  100% { transform: scale(1);    text-shadow: 0 0 12px oklch(75% 0.2 185 / 0.8); }
+  0%   { transform: scale(1);    color: oklch(80% 0.2 185);  text-shadow: 0 0 12px oklch(75% 0.2 185 / 0.8); }
+  10%  { transform: scale(1.32); color: oklch(96% 0.05 90);  text-shadow: 0 0 40px oklch(90% 0.15 90 / 1), 0 0 80px oklch(80% 0.2 185 / 0.6); }
+  22%  { transform: scale(1);    color: oklch(80% 0.2 185);  text-shadow: 0 0 12px oklch(75% 0.2 185 / 0.8); }
+  33%  { transform: scale(1.22); color: oklch(94% 0.08 120); text-shadow: 0 0 30px oklch(88% 0.18 120 / 1), 0 0 60px oklch(75% 0.2 185 / 0.5); }
+  46%  { transform: scale(1);    color: oklch(80% 0.2 185);  text-shadow: 0 0 12px oklch(75% 0.2 185 / 0.8); }
+  56%  { transform: scale(1.12); color: oklch(88% 0.12 160); text-shadow: 0 0 20px oklch(82% 0.15 160 / 0.8); }
+  100% { transform: scale(1);    color: oklch(80% 0.2 185);  text-shadow: 0 0 12px oklch(75% 0.2 185 / 0.8); }
 }
 
 /* Typing cursor in intro */

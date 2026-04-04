@@ -387,6 +387,45 @@ function initLoginPage(canvas) {
                     scoreEl.style.animation = 'pa-heartbeat 1.4s ease-out forwards'
                   }
 
+                  // Bas-hartslag geluid via Web Audio API
+                  function playBeat(vol) {
+                    try {
+                      const ctx = new (window.AudioContext || window.webkitAudioContext)()
+                      const gain = ctx.createGain()
+                      gain.connect(ctx.destination)
+                      gain.gain.setValueAtTime(0, ctx.currentTime)
+                      gain.gain.linearRampToValueAtTime(vol, ctx.currentTime + 0.01)
+                      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35)
+
+                      const osc1 = ctx.createOscillator()
+                      osc1.type = 'sine'
+                      osc1.frequency.setValueAtTime(80, ctx.currentTime)
+                      osc1.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 0.35)
+                      osc1.connect(gain)
+                      osc1.start(ctx.currentTime)
+                      osc1.stop(ctx.currentTime + 0.4)
+
+                      const osc2 = ctx.createOscillator()
+                      osc2.type = 'sine'
+                      osc2.frequency.setValueAtTime(160, ctx.currentTime)
+                      osc2.frequency.exponentialRampToValueAtTime(50, ctx.currentTime + 0.2)
+                      const gain2 = ctx.createGain()
+                      gain2.gain.setValueAtTime(vol * 0.4, ctx.currentTime)
+                      gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2)
+                      osc2.connect(gain2)
+                      gain2.connect(ctx.destination)
+                      osc2.start(ctx.currentTime)
+                      osc2.stop(ctx.currentTime + 0.25)
+
+                      setTimeout(() => ctx.close(), 600)
+                    } catch (e) {}
+                  }
+
+                  // Boem — boem — boem (afnemend)
+                  playBeat(0.7)
+                  setTimeout(() => playBeat(0.55), 280)
+                  setTimeout(() => playBeat(0.35), 560)
+
                   // Stap 1: na weergavetijd langzaam de tekst uitfaden (2s)
                   setTimeout(() => {
                     matrix.setPauseCenter(false)
