@@ -300,6 +300,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('pa-matrix-canvas')
   if (!canvas) return
 
+  // Landingspagina: geen matrix of pill-sequence -- gewone marketing pagina
+  const isLanding = window.location.pathname === '/'
+  if (isLanding) return
+
   // rAF: laat browser één frame renderen vóór overlays verschijnen
   // zodat de pagina-inhoud (h1, cards) als LCP-element gemeten wordt.
   requestAnimationFrame(() => {
