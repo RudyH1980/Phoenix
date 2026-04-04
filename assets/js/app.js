@@ -268,7 +268,8 @@ function initMatrix(opts) {
 
       if (cols[i] >= midRow) atMid++
 
-      const inCenter = x > logicalW * 0.3 && x < logicalW * 0.7
+      const centerX = logicalW / 2
+      const inCenter = x > centerX - 220 && x < centerX + 220
       if (y > logicalH && Math.random() > 0.975 && (!pauseCenter || !inCenter)) cols[i] = 0
       cols[i]++
     }
