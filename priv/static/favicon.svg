@@ -1,7 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
   <defs>
-    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="2.8" result="blur"/>
+    <filter id="glow">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="1.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="glow-strong">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur"/>
       <feMerge>
         <feMergeNode in="blur"/>
         <feMergeNode in="SourceGraphic"/>
@@ -11,15 +18,45 @@
       <rect width="32" height="32" rx="7"/>
     </clipPath>
   </defs>
-  <rect width="32" height="32" rx="7" fill="#0d1117"/>
-  <rect x="1" y="1" width="30" height="30" rx="6" fill="none" stroke="#00d4b8" stroke-width="0.75" opacity="0.3"/>
+
+  <!-- Achtergrond -->
+  <rect width="32" height="32" rx="7" fill="#050d0b"/>
+
+  <!-- Matrix regen kolommen (clip zodat ze binnen het kader blijven) -->
+  <g clip-path="url(#rounded)" font-family="Consolas,'Courier New',monospace" font-size="4.5" text-anchor="middle" filter="url(#glow)">
+    <!-- Kolom 1 -->
+    <text x="4" y="6"  fill="#00d4b8" opacity="0.9">1</text>
+    <text x="4" y="11" fill="#00d4b8" opacity="0.6">0</text>
+    <text x="4" y="16" fill="#00d4b8" opacity="0.35">1</text>
+    <text x="4" y="21" fill="#00d4b8" opacity="0.15">0</text>
+    <!-- Kolom 2 -->
+    <text x="10" y="9"  fill="#00d4b8" opacity="0.8">0</text>
+    <text x="10" y="14" fill="#00d4b8" opacity="0.5">1</text>
+    <text x="10" y="19" fill="#00d4b8" opacity="0.25">0</text>
+    <text x="10" y="24" fill="#00d4b8" opacity="0.1">1</text>
+    <!-- Kolom 3 -->
+    <text x="22" y="7"  fill="#00d4b8" opacity="0.85">0</text>
+    <text x="22" y="12" fill="#00d4b8" opacity="0.55">1</text>
+    <text x="22" y="17" fill="#00d4b8" opacity="0.3">0</text>
+    <text x="22" y="22" fill="#00d4b8" opacity="0.12">1</text>
+    <!-- Kolom 4 -->
+    <text x="28" y="5"  fill="#00d4b8" opacity="0.7">1</text>
+    <text x="28" y="10" fill="#00d4b8" opacity="0.45">0</text>
+    <text x="28" y="15" fill="#00d4b8" opacity="0.2">1</text>
+    <text x="28" y="20" fill="#00d4b8" opacity="0.08">0</text>
+  </g>
+
+  <!-- Subtiele rand -->
+  <rect x="1" y="1" width="30" height="30" rx="6" fill="none" stroke="#00d4b8" stroke-width="0.5" opacity="0.25" clip-path="url(#rounded)"/>
+
+  <!-- Grote "N" op de voorgrond -->
   <text
     x="16" y="24"
-    font-family="Consolas, 'Courier New', monospace"
+    font-family="Consolas,'Courier New',monospace"
     font-weight="bold"
-    font-size="22"
+    font-size="23"
     text-anchor="middle"
     fill="#00d4b8"
     clip-path="url(#rounded)"
-    filter="url(#glow)">N</text>
+    filter="url(#glow-strong)">N</text>
 </svg>
