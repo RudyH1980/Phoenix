@@ -268,9 +268,9 @@ function initMatrix(opts) {
 
       if (cols[i] >= midRow) atMid++
 
-      if (y > logicalH && Math.random() > 0.975) cols[i] = 0
       const inCenter = x > logicalW * 0.2 && x < logicalW * 0.8
-      if (!pauseCenter || !inCenter) cols[i]++
+      if (y > logicalH && Math.random() > 0.975 && (!pauseCenter || !inCenter)) cols[i] = 0
+      cols[i]++
     }
 
     if (!midpointFired && opts.onMidpoint && atMid >= Math.floor(cols.length * 0.6)) {
