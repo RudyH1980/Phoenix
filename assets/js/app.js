@@ -371,9 +371,9 @@ function initLoginPage(canvas) {
 
                 // ── Fase 2: performance tekst — getypt ───────────────────
                 typeSegments(powered, [
-                  {text: 'Performance: Optimized for a Lighthouse '},
-                  {text: '100/100', cls: 'pa-intro-score'},
-                  {text: ' Perfect Score.'}
+                  {text: 'Optimized for a perfect '},
+                  {text: '4×100', cls: 'pa-intro-score'},
+                  {text: ' Lighthouse score. Built to be loved by Google and your customers.'}
                 ], 52, () => {
                   // Pulse dot na de score
                   const scoreEl = powered.querySelector('.pa-intro-score')
