@@ -381,29 +381,19 @@ function initLoginPage(canvas) {
                   {text: '4×100', cls: 'pa-intro-score'},
                   {text: ' Lighthouse score. Built to be loved by Google and your customers.'}
                 ], 52, () => {
-                  // Pulse dot na de score
+                  // Heartbeat op de score — 3 pulsen vlak na typen
                   const scoreEl = powered.querySelector('.pa-intro-score')
                   if (scoreEl) {
-                    const pulse = document.createElement('span')
-                    pulse.className = 'pa-intro-pulse'
-                    scoreEl.insertAdjacentElement('afterend', pulse)
+                    scoreEl.style.animation = 'pa-heartbeat 1.4s ease-out forwards'
                   }
 
-                  // Periodieke glitch — rustig, niet te snel
-                  const glitchInterval = setInterval(() => {
-                    const sc = powered.querySelector('.pa-intro-score')
-                    if (!sc) return
-                    sc.classList.add('glitching')
-                    setTimeout(() => sc.classList.remove('glitching'), 320)
-                  }, 2800)
-
+                  // Stap 1: na weergavetijd langzaam de tekst uitfaden (2s)
                   setTimeout(() => {
-                    clearInterval(glitchInterval)
-                    // Stap 1: tekst uitfaden
-                    powered.classList.add('fade-out')
                     matrix.setPauseCenter(false)
+                    powered.style.transition = 'opacity 2s ease'
+                    powered.style.opacity = '0'
 
-                    // Stap 2: na tekst-fade overlay + login starten
+                    // Stap 2: pas als tekst volledig weg is, overlay + login starten
                     setTimeout(() => {
                       overlay.classList.add('fade-out')
                       canvas.style.opacity = ''
@@ -419,7 +409,7 @@ function initLoginPage(canvas) {
                         overlay.remove()
                         canvas.style.zIndex = ''
                       }, 2300)
-                    }, 1400)
+                    }, 2200)
                   }, 3800)
                 })
               }, 500)
