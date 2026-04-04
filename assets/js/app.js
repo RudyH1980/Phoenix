@@ -381,50 +381,28 @@ function initLoginPage(canvas) {
                   {text: '4×100', cls: 'pa-intro-score'},
                   {text: ' Lighthouse score. Built to be loved by Google and your customers.'}
                 ], 52, () => {
-                  // Heartbeat op de score — 3 pulsen vlak na typen
+                  // Heartbeat op de score — 3 pulsen via JS (betrouwbaar op mobiel)
                   const scoreEl = powered.querySelector('.pa-intro-score')
+                  function doBeat(scale, color, shadow, duration) {
+                    if (!scoreEl) return
+                    scoreEl.style.transition = `transform ${duration}ms ease, color ${duration}ms ease, text-shadow ${duration}ms ease`
+                    scoreEl.style.transform = `scale(${scale})`
+                    scoreEl.style.color = color
+                    scoreEl.style.textShadow = shadow
+                  }
                   if (scoreEl) {
-                    scoreEl.style.animation = 'pa-heartbeat 1.4s ease-out forwards'
+                    scoreEl.style.display = 'inline-block'
+                    // Beat 1 — sterk, wit/geel
+                    setTimeout(() => doBeat(1.4, '#fffbe6', '0 0 40px #ffe066, 0 0 80px #00d4b8aa', 60), 0)
+                    setTimeout(() => doBeat(1,   '#00d4b8', '0 0 12px #00d4b8cc', 120), 160)
+                    // Beat 2 — iets zachter
+                    setTimeout(() => doBeat(1.25, '#ccffee', '0 0 28px #00ffb0, 0 0 56px #00d4b888', 60), 340)
+                    setTimeout(() => doBeat(1,    '#00d4b8', '0 0 12px #00d4b8cc', 120), 500)
+                    // Beat 3 — licht nagloeien
+                    setTimeout(() => doBeat(1.1,  '#aaf0e0', '0 0 18px #00d4b8aa', 80), 660)
+                    setTimeout(() => doBeat(1,    '#00d4b8', '0 0 12px #00d4b8cc', 200), 820)
                   }
 
-                  // Bas-hartslag geluid via Web Audio API
-                  function playBeat(vol) {
-                    try {
-                      const ctx = new (window.AudioContext || window.webkitAudioContext)()
-                      const gain = ctx.createGain()
-                      gain.connect(ctx.destination)
-                      gain.gain.setValueAtTime(0, ctx.currentTime)
-                      gain.gain.linearRampToValueAtTime(vol, ctx.currentTime + 0.01)
-                      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35)
-
-                      const osc1 = ctx.createOscillator()
-                      osc1.type = 'sine'
-                      osc1.frequency.setValueAtTime(80, ctx.currentTime)
-                      osc1.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 0.35)
-                      osc1.connect(gain)
-                      osc1.start(ctx.currentTime)
-                      osc1.stop(ctx.currentTime + 0.4)
-
-                      const osc2 = ctx.createOscillator()
-                      osc2.type = 'sine'
-                      osc2.frequency.setValueAtTime(160, ctx.currentTime)
-                      osc2.frequency.exponentialRampToValueAtTime(50, ctx.currentTime + 0.2)
-                      const gain2 = ctx.createGain()
-                      gain2.gain.setValueAtTime(vol * 0.4, ctx.currentTime)
-                      gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2)
-                      osc2.connect(gain2)
-                      gain2.connect(ctx.destination)
-                      osc2.start(ctx.currentTime)
-                      osc2.stop(ctx.currentTime + 0.25)
-
-                      setTimeout(() => ctx.close(), 600)
-                    } catch (e) {}
-                  }
-
-                  // Boem — boem — boem (afnemend)
-                  playBeat(0.7)
-                  setTimeout(() => playBeat(0.55), 280)
-                  setTimeout(() => playBeat(0.35), 560)
 
                   // Stap 1: na weergavetijd langzaam de tekst uitfaden (2s)
                   setTimeout(() => {
