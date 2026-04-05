@@ -47,6 +47,7 @@ defmodule PhoenixAnalyticsWeb.Router do
     pipe_through [:browser, :require_auth]
 
     get "/dashboard/sites/:site_id/export", ExportController, :csv
+    get "/dashboard/intro/reset", IntroController, :reset
 
     live_session :require_auth,
       on_mount: [{PhoenixAnalyticsWeb.LiveAuth, :ensure_authenticated}] do

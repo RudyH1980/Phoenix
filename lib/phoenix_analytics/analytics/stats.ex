@@ -22,71 +22,81 @@ defmodule PhoenixAnalytics.Analytics.Stats do
   defp to_binary_uuid(id) when is_binary(id) and byte_size(id) == 16, do: id
   defp to_binary_uuid(id), do: Ecto.UUID.dump!(id)
 
-  def pageview_count(site_id, period) do
+  def pageview_count(site_id, period, filters \\ %{}) do
     since = period_start(period)
     sid = to_binary_uuid(site_id)
 
     Repo.one(
-      from p in "pageviews",
+      from(p in "pageviews",
         where: p.site_id == ^sid and p.inserted_at >= ^since,
         select: count(p.id)
+      )
+      |> apply_filters(filters)
     ) || 0
   end
 
-  def unique_visitors(site_id, period) do
+  def unique_visitors(site_id, period, filters \\ %{}) do
     since = period_start(period)
     sid = to_binary_uuid(site_id)
 
     Repo.one(
-      from p in "pageviews",
+      from(p in "pageviews",
         where: p.site_id == ^sid and p.inserted_at >= ^since,
         select: count(p.session_hash, :distinct)
+      )
+      |> apply_filters(filters)
     ) || 0
   end
 
-  def bounce_rate(site_id, period) do
+  def bounce_rate(site_id, period, filters \\ %{}) do
     since = period_start(period)
     sid = to_binary_uuid(site_id)
 
     total =
       Repo.one(
-        from p in "pageviews",
+        from(p in "pageviews",
           where: p.site_id == ^sid and p.inserted_at >= ^since,
           select: count(p.session_hash, :distinct)
+        )
+        |> apply_filters(filters)
       ) || 0
 
     bounced_subq =
-      from p in "pageviews",
+      from(p in "pageviews",
         where: p.site_id == ^sid and p.inserted_at >= ^since,
         group_by: p.session_hash,
         having: count(p.id) == 1,
         select: %{session_hash: p.session_hash}
+      )
+      |> apply_filters(filters)
 
     bounced = Repo.one(from s in subquery(bounced_subq), select: count()) || 0
 
     if total > 0, do: Float.round(bounced / total * 100, 1), else: 0.0
   end
 
-  def top_pages(site_id, period, limit \\ 10) do
+  def top_pages(site_id, period, limit \\ 10, filters \\ %{}) do
     since = period_start(period)
     sid = to_binary_uuid(site_id)
 
     Repo.all(
-      from p in "pageviews",
+      from(p in "pageviews",
         where: p.site_id == ^sid and p.inserted_at >= ^since,
         group_by: p.url,
         order_by: [desc: count(p.id)],
         limit: ^limit,
         select: %{url: p.url, count: count(p.id)}
+      )
+      |> apply_filters(filters)
     )
   end
 
-  def top_referrers(site_id, period, limit \\ 10) do
+  def top_referrers(site_id, period, limit \\ 10, filters \\ %{}) do
     since = period_start(period)
     sid = to_binary_uuid(site_id)
 
     Repo.all(
-      from p in "pageviews",
+      from(p in "pageviews",
         where:
           p.site_id == ^sid and
             p.inserted_at >= ^since and
@@ -96,8 +106,66 @@ defmodule PhoenixAnalytics.Analytics.Stats do
         order_by: [desc: count(p.id)],
         limit: ^limit,
         select: %{referrer: p.referrer, count: count(p.id)}
+      )
+      |> apply_filters(filters)
     )
   end
+
+  def available_countries(site_id, period) do
+    since = period_start(period)
+    sid = to_binary_uuid(site_id)
+
+    Repo.all(
+      from p in "pageviews",
+        where:
+          p.site_id == ^sid and
+            p.inserted_at >= ^since and
+            not is_nil(p.country),
+        distinct: p.country,
+        order_by: p.country,
+        select: p.country
+    )
+  end
+
+  def available_devices(site_id, period) do
+    since = period_start(period)
+    sid = to_binary_uuid(site_id)
+
+    Repo.all(
+      from p in "pageviews",
+        where:
+          p.site_id == ^sid and
+            p.inserted_at >= ^since and
+            not is_nil(p.device_type),
+        distinct: p.device_type,
+        order_by: p.device_type,
+        select: p.device_type
+    )
+  end
+
+  defp apply_filters(query, filters) when is_map(filters) do
+    query
+    |> then(fn q ->
+      case Map.get(filters, :device) do
+        nil -> q
+        device -> where(q, [p], p.device_type == ^device)
+      end
+    end)
+    |> then(fn q ->
+      case Map.get(filters, :country) do
+        nil -> q
+        country -> where(q, [p], p.country == ^country)
+      end
+    end)
+    |> then(fn q ->
+      case Map.get(filters, :referrer) do
+        nil -> q
+        referrer -> where(q, [p], p.referrer == ^referrer)
+      end
+    end)
+  end
+
+  defp apply_filters(query, _), do: query
 
   def device_breakdown(site_id, period) do
     since = period_start(period)

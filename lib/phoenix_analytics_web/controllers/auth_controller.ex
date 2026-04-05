@@ -133,6 +133,7 @@ defmodule PhoenixAnalyticsWeb.AuthController do
             )
 
             conn
+            |> configure_session(renew: true)
             |> put_session(:user_id, user.id)
             |> put_session(:demo, true)
             |> redirect(to: ~p"/dashboard?neo=1")

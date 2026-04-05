@@ -30,9 +30,16 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
   @impl true
   def handle_params(%{"period" => period}, _uri, socket)
       when period in ~w(today 7d 30d 90d) do
+    site_id = socket.assigns.site.id
+
     {:noreply,
      socket
-     |> assign(period: period)
+     |> assign(
+       period: period,
+       filters: %{},
+       available_countries: Stats.available_countries(site_id, period),
+       available_devices: Stats.available_devices(site_id, period)
+     )
      |> load_stats(period)}
   end
 
@@ -62,7 +69,10 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
       realtime_count: 0,
       realtime_visitors: 0,
       realtime_pages: [],
-      table_limits: %{}
+      table_limits: %{},
+      filters: %{},
+      available_countries: Stats.available_countries(site_id, "7d"),
+      available_devices: Stats.available_devices(site_id, "7d")
     )
     |> load_stats("7d")
     |> load_realtime()
@@ -75,17 +85,47 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
     {:noreply, assign(socket, table_limits: limits)}
   end
 
+  @impl true
+  def handle_event("set_device_filter", %{"value" => value}, socket) do
+    filters =
+      if value == "",
+        do: Map.delete(socket.assigns.filters, :device),
+        else: Map.put(socket.assigns.filters, :device, value)
+
+    {:noreply, socket |> assign(filters: filters) |> reload_stats()}
+  end
+
+  @impl true
+  def handle_event("set_country_filter", %{"value" => value}, socket) do
+    filters =
+      if value == "",
+        do: Map.delete(socket.assigns.filters, :country),
+        else: Map.put(socket.assigns.filters, :country, value)
+
+    {:noreply, socket |> assign(filters: filters) |> reload_stats()}
+  end
+
+  @impl true
+  def handle_event("clear_filters", _, socket) do
+    {:noreply, socket |> assign(filters: %{}) |> reload_stats()}
+  end
+
+  defp reload_stats(socket) do
+    load_stats(socket, socket.assigns.period)
+  end
+
   defp load_stats(socket, period) do
     site_id = socket.assigns.site.id
+    filters = Map.get(socket.assigns, :filters, %{})
 
     assign(socket,
-      pageviews: Stats.pageview_count(site_id, period),
-      visitors: Stats.unique_visitors(site_id, period),
-      bounce_rate: Stats.bounce_rate(site_id, period),
+      pageviews: Stats.pageview_count(site_id, period, filters),
+      visitors: Stats.unique_visitors(site_id, period, filters),
+      bounce_rate: Stats.bounce_rate(site_id, period, filters),
       avg_time: Stats.avg_time_on_page(site_id, period),
       visitor_types: Stats.new_vs_returning(site_id, period),
-      top_pages: Stats.top_pages(site_id, period),
-      top_referrers: Stats.top_referrers(site_id, period),
+      top_pages: Stats.top_pages(site_id, period, 10, filters),
+      top_referrers: Stats.top_referrers(site_id, period, 10, filters),
       top_events: Stats.top_events(site_id, period),
       section_views: Stats.section_views(site_id, period),
       device_breakdown: Stats.device_breakdown(site_id, period),
@@ -183,6 +223,28 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
           >
             {period}
           </.link>
+        <% end %>
+      </div>
+
+      <div class="pa-filter-bar">
+        <select phx-change="set_device_filter" name="value" class="pa-select pa-select--sm">
+          <option value="">Alle apparaten</option>
+          <option value="mobile" selected={@filters[:device] == "mobile"}>Mobiel</option>
+          <option value="tablet" selected={@filters[:device] == "tablet"}>Tablet</option>
+          <option value="desktop" selected={@filters[:device] == "desktop"}>Desktop</option>
+        </select>
+
+        <select phx-change="set_country_filter" name="value" class="pa-select pa-select--sm">
+          <option value="">Alle landen</option>
+          <%= for c <- @available_countries do %>
+            <option value={c} selected={@filters[:country] == c}>{c}</option>
+          <% end %>
+        </select>
+
+        <%= if map_size(@filters) > 0 do %>
+          <button phx-click="clear_filters" class="pa-btn pa-btn--ghost pa-btn--sm">
+            &times; Filters wissen
+          </button>
         <% end %>
       </div>
 

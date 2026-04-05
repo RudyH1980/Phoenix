@@ -56,6 +56,9 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
             send_magic_link_email(email, magic_token.token)
             {:noreply, assign(socket, sent: true)}
 
+          {:error, :rate_limited} ->
+            {:noreply, assign(socket, error: "Te veel pogingen. Wacht 10 minuten.", sent: false)}
+
           _ ->
             {:noreply, assign(socket, sent: true)}
         end

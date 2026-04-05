@@ -308,6 +308,27 @@ document.addEventListener('DOMContentLoaded', () => {
       const revealEl = isLanding
         ? document.querySelector('.pa-lp-wrapper')
         : document.querySelector('.pa-auth-container')
+
+      // Check of intro uitgeschakeld is
+      const introSkip = localStorage.getItem('pa-intro-skip') === 'true'
+      const introEnabled = document.querySelector('meta[name="pa-intro-enabled"]')?.content !== 'false'
+
+      if (!introEnabled || introSkip) {
+        // Sla intro over, onthul direct
+        if (revealEl) {
+          revealEl.style.opacity = '1'
+          revealEl.style.visibility = 'visible'
+          revealEl.style.pointerEvents = 'auto'
+        }
+        // Matrix op standaard opacity
+        canvas.style.display = canvas.style.display || ''
+        initMatrix({ speed: 4 })?.start()
+        if (revealEl?.classList.contains('pa-lp-wrapper')) {
+          injectMatrixToggle(canvas, true, null)
+        }
+        return
+      }
+
       initLoginPage(canvas, revealEl)
     } else {
       initAppPage(canvas)
@@ -348,6 +369,48 @@ function initLoginPage(canvas, revealEl) {
   const powered = document.createElement('div')
   powered.id = 'pa-intro-powered'
   document.body.appendChild(powered)
+
+  // Skip-knop
+  const skipBtn = document.createElement('button')
+  skipBtn.id = 'pa-intro-skip'
+  skipBtn.textContent = 'Sla over \u2192'
+  skipBtn.setAttribute('aria-label', 'Sla de intro over')
+  document.body.appendChild(skipBtn)
+
+  // Toon na 0.5s zodat het niet per ongeluk geklikt wordt
+  setTimeout(() => skipBtn.classList.add('visible'), 500)
+
+  function skipIntro() {
+    // Stop alles
+    matrix && matrix.stop()
+    skipBtn.remove()
+    hero.remove()
+    powered.remove()
+    overlay.remove()
+    canvas.style.zIndex = ''
+    canvas.style.opacity = ''
+    canvas.style.display = 'none'
+
+    // Sla op in localStorage
+    localStorage.setItem('pa-intro-skip', 'true')
+
+    // Onthul direct de content
+    if (revealEl) {
+      revealEl.style.opacity = '1'
+      revealEl.style.visibility = 'visible'
+      revealEl.style.pointerEvents = 'auto'
+      revealEl.style.transition = 'none'
+    }
+
+    // Op landingspagina: matrix dimmen en toggle tonen
+    if (revealEl && revealEl.classList.contains('pa-lp-wrapper')) {
+      canvas.style.display = ''
+      canvas.style.opacity = '0.07'
+      injectMatrixToggle(canvas, true, matrix)
+    }
+  }
+
+  skipBtn.addEventListener('click', skipIntro)
 
   // Canvas volledig zichtbaar tijdens intro — overlay zit erachter
   canvas.style.display = ''
