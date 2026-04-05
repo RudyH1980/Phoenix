@@ -5,7 +5,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OverviewLive do
   import PhoenixAnalyticsWeb.ChartComponents
 
   alias PhoenixAnalytics.{Accounts, Repo}
-  alias PhoenixAnalytics.Analytics.{Stats, Site}
+  alias PhoenixAnalytics.Analytics.{Site, Stats}
 
   @impl true
   def mount(_params, session, socket) do

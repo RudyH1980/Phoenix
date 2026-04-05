@@ -19,24 +19,7 @@ defmodule PhoenixAnalyticsWeb.AuthController do
       {:allow, _} ->
         case Accounts.verify_token(token) do
           {:ok, user, invite_org_id} ->
-            if invite_org_id, do: Accounts.accept_invite(user.id, invite_org_id)
-            {:ok, _org} = Accounts.get_or_create_default_org(user)
-
-            Logger.info("LOGIN via magic_link",
-              user_id: user.id,
-              email: user.email,
-              ip: ip_string(conn),
-              at: DateTime.utc_now() |> DateTime.to_iso8601()
-            )
-
-            conn
-            |> configure_session(renew: true)
-            |> put_session(:user_id, user.id)
-            |> put_flash(
-              :info,
-              "Welkom#{if invite_org_id, do: " — uitnodiging geaccepteerd!", else: " terug!"}"
-            )
-            |> redirect(to: ~p"/dashboard?neo=1")
+            handle_verified_user(conn, user, invite_org_id)
 
           {:error, :invalid_or_expired} ->
             conn
@@ -44,6 +27,26 @@ defmodule PhoenixAnalyticsWeb.AuthController do
             |> redirect(to: ~p"/login")
         end
     end
+  end
+
+  defp handle_verified_user(conn, user, invite_org_id) do
+    if invite_org_id, do: Accounts.accept_invite(user.id, invite_org_id)
+    {:ok, _org} = Accounts.get_or_create_default_org(user)
+
+    Logger.info("LOGIN via magic_link",
+      user_id: user.id,
+      email: user.email,
+      ip: ip_string(conn),
+      at: DateTime.utc_now() |> DateTime.to_iso8601()
+    )
+
+    welcome = if invite_org_id, do: "Welkom — uitnodiging geaccepteerd!", else: "Welkom terug!"
+
+    conn
+    |> configure_session(renew: true)
+    |> put_session(:user_id, user.id)
+    |> put_flash(:info, welcome)
+    |> redirect(to: ~p"/dashboard?neo=1")
   end
 
   def verify_password(conn, %{"user_id" => user_id, "passkey" => "true"}) do

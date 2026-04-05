@@ -2,6 +2,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.NewExperimentLive do
   use PhoenixAnalyticsWeb, :live_view
 
   alias PhoenixAnalytics.{Analytics, Experiments}
+  alias PhoenixAnalytics.Analytics.Stats
 
   @impl true
   def mount(%{"site_id" => site_id}, _session, socket) do
@@ -13,29 +14,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.NewExperimentLive do
     else
       case Ash.get(Analytics.Site, site_id) do
         {:ok, site} when not is_nil(site) ->
-          if site.org_id in socket.assigns.current_org_ids do
-            recent_events = PhoenixAnalytics.Analytics.Stats.recent_event_names(site.id)
-
-            {:ok,
-             assign(socket,
-               site: site,
-               form:
-                 to_form(%{
-                   "name" => "",
-                   "description" => "",
-                   "goal_event" => "",
-                   "webhook_url" => ""
-                 }),
-               variants: [%{name: "Controle", weight: 50}, %{name: "Variant B", weight: 50}],
-               recent_events: recent_events,
-               page_title: "Nieuw experiment"
-             )}
-          else
-            {:ok,
-             socket
-             |> put_flash(:error, "Geen toegang tot deze website.")
-             |> push_navigate(to: ~p"/dashboard")}
-          end
+          mount_authorized(site, socket)
 
         _ ->
           {:ok,
@@ -43,6 +22,30 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.NewExperimentLive do
            |> put_flash(:error, "Website niet gevonden.")
            |> push_navigate(to: ~p"/dashboard")}
       end
+    end
+  end
+
+  defp mount_authorized(site, socket) do
+    if site.org_id in socket.assigns.current_org_ids do
+      {:ok,
+       assign(socket,
+         site: site,
+         form:
+           to_form(%{
+             "name" => "",
+             "description" => "",
+             "goal_event" => "",
+             "webhook_url" => ""
+           }),
+         variants: [%{name: "Controle", weight: 50}, %{name: "Variant B", weight: 50}],
+         recent_events: Stats.recent_event_names(site.id),
+         page_title: "Nieuw experiment"
+       )}
+    else
+      {:ok,
+       socket
+       |> put_flash(:error, "Geen toegang tot deze website.")
+       |> push_navigate(to: ~p"/dashboard")}
     end
   end
 

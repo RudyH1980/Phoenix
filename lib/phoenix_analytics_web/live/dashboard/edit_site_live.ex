@@ -2,6 +2,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.EditSiteLive do
   use PhoenixAnalyticsWeb, :live_view
 
   alias PhoenixAnalytics.Analytics
+  alias PhoenixAnalytics.Analytics.Stats
 
   @impl true
   def mount(%{"site_id" => site_id}, _session, socket) do
@@ -13,28 +14,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.EditSiteLive do
     else
       case Ash.get(Analytics.Site, site_id) do
         {:ok, site} when not is_nil(site) ->
-          if site.org_id in socket.assigns.current_org_ids do
-            {:ok,
-             assign(socket,
-               site: site,
-               name: site.name,
-               domain: site.domain,
-               active: site.active,
-               tags: site.tags || [],
-               preset_tags: ~w(Prod Test Staging),
-               custom_tag: "",
-               saved: false,
-               snippet_verified: nil,
-               show_delete_confirm: false,
-               delete_confirm_input: "",
-               page_title: "Bewerk #{site.name}"
-             )}
-          else
-            {:ok,
-             socket
-             |> put_flash(:error, "Geen toegang.")
-             |> push_navigate(to: ~p"/dashboard")}
-          end
+          mount_authorized(site, socket)
 
         _ ->
           {:ok,
@@ -42,6 +22,31 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.EditSiteLive do
            |> put_flash(:error, "Website niet gevonden.")
            |> push_navigate(to: ~p"/dashboard")}
       end
+    end
+  end
+
+  defp mount_authorized(site, socket) do
+    if site.org_id in socket.assigns.current_org_ids do
+      {:ok,
+       assign(socket,
+         site: site,
+         name: site.name,
+         domain: site.domain,
+         active: site.active,
+         tags: site.tags || [],
+         preset_tags: ~w(Prod Test Staging),
+         custom_tag: "",
+         saved: false,
+         snippet_verified: nil,
+         show_delete_confirm: false,
+         delete_confirm_input: "",
+         page_title: "Bewerk #{site.name}"
+       )}
+    else
+      {:ok,
+       socket
+       |> put_flash(:error, "Geen toegang.")
+       |> push_navigate(to: ~p"/dashboard")}
     end
   end
 
@@ -116,7 +121,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.EditSiteLive do
 
   def handle_event("verify_snippet", _params, socket) do
     site = socket.assigns.site
-    recent = PhoenixAnalytics.Analytics.Stats.recent_pageview?(site.id, minutes: 60)
+    recent = Stats.recent_pageview?(site.id, minutes: 60)
     {:noreply, assign(socket, snippet_verified: recent)}
   end
 

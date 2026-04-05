@@ -6,7 +6,7 @@ defmodule PhoenixAnalytics.DemoSeeder do
 
   import Ecto.Query
 
-  alias PhoenixAnalytics.{Repo, Accounts, Analytics}
+  alias PhoenixAnalytics.{Accounts, Analytics, Repo}
   alias PhoenixAnalytics.Accounts.User
   alias PhoenixAnalytics.Experiments.{Experiment, Variant}
 
@@ -179,17 +179,18 @@ defmodule PhoenixAnalytics.DemoSeeder do
     rows =
       config.pages
       |> Enum.flat_map(fn page ->
-        # 90 dagen aan klik-data per pagina
         Date.range(Date.add(today, -90), today)
-        |> Enum.flat_map(fn date ->
-          clicks_per_day = :rand.uniform(8) + 2
-          for _ <- 1..clicks_per_day, do: heatmap_row(site_id_bin, page, date)
-        end)
+        |> Enum.flat_map(&clicks_for_date(site_id_bin, page, &1))
       end)
 
     rows
     |> Enum.chunk_every(500)
     |> Enum.each(&Repo.insert_all("events", &1))
+  end
+
+  defp clicks_for_date(site_id_bin, page, date) do
+    clicks_per_day = :rand.uniform(8) + 2
+    for _ <- 1..clicks_per_day, do: heatmap_row(site_id_bin, page, date)
   end
 
   defp heatmap_row(site_id_bin, url, date) do
