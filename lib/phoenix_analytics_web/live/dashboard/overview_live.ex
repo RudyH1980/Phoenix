@@ -237,7 +237,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OverviewLive do
 
   defp permanent_delete_date(%{deleted_at: deleted_at}) do
     deleted_at
-    |> DateTime.add(6 * 30 * 24 * 3600, :second)
+    |> NaiveDateTime.add(6 * 30 * 24 * 3600, :second)
     |> Calendar.strftime("%d %b %Y")
   end
 
