@@ -3689,3 +3689,168 @@ body::after {
     transform: none;
   }
 }
+
+/* ============================================================
+   REALTIME WIDGET
+   ============================================================ */
+
+.pa-realtime-widget {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  background: var(--pa-surface-raised);
+  border: 1px solid var(--pa-border-subtle);
+  border-radius: var(--pa-radius);
+  margin-bottom: 1rem;
+  font-size: 0.8rem;
+}
+
+.pa-realtime-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #00d4b8;
+  animation: pa-pulse 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.pa-realtime-count {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--pa-teal);
+}
+
+.pa-realtime-label {
+  color: var(--pa-text-muted);
+}
+
+.pa-realtime-pages {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-left: 0.5rem;
+  padding-left: 0.5rem;
+  border-left: 1px solid var(--pa-border-subtle);
+}
+
+.pa-realtime-page {
+  color: var(--pa-text-muted);
+}
+
+.pa-realtime-page em {
+  color: var(--pa-teal);
+  font-style: normal;
+  font-weight: 600;
+}
+
+/* Funnels */
+.pa-funnel-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 700px) {
+  .pa-funnel-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pa-funnel-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pa-funnel-item {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--pa-radius);
+  border: 1px solid var(--pa-border-subtle);
+  background: var(--pa-surface-raised);
+  color: var(--pa-text);
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.pa-funnel-item.active {
+  border-color: var(--pa-teal);
+  color: var(--pa-teal);
+}
+
+.pa-funnel-create {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--pa-border-subtle);
+}
+
+.pa-funnel-create h4 {
+  font-size: 0.8rem;
+  color: var(--pa-text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.pa-funnel-steps-input {
+  font-family: ui-monospace, monospace;
+  font-size: 0.8rem;
+}
+
+.pa-funnel-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.pa-funnel-step {
+  display: grid;
+  grid-template-columns: 180px 1fr 100px;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+@media (max-width: 600px) {
+  .pa-funnel-step {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pa-funnel-step-label {
+  font-size: 0.8rem;
+  color: var(--pa-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pa-funnel-bar-wrap {
+  height: 28px;
+  background: var(--pa-surface-raised);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.pa-funnel-bar {
+  height: 100%;
+  background: linear-gradient(to right, var(--pa-teal), oklch(60% 0.2 200));
+  transition: width 0.6s ease;
+  min-width: 2px;
+}
+
+.pa-funnel-step-stats {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.pa-funnel-count {
+  font-weight: 600;
+  color: var(--pa-text);
+  font-size: 0.9rem;
+}
+
+.pa-funnel-drop {
+  font-size: 0.75rem;
+  color: oklch(55% 0.18 25);
+}

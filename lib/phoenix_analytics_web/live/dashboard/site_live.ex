@@ -43,9 +43,15 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
     {:noreply, update(socket, :realtime_count, &(&1 + 1))}
   end
 
+  def handle_info(:refresh_realtime, socket) do
+    Process.send_after(self(), :refresh_realtime, 30_000)
+    {:noreply, load_realtime(socket)}
+  end
+
   defp mount_authorized(socket, site, site_id) do
     if connected?(socket) do
       Phoenix.PubSub.subscribe(PhoenixAnalytics.PubSub, "site:#{site_id}")
+      Process.send_after(self(), :refresh_realtime, 30_000)
     end
 
     socket
@@ -54,9 +60,12 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
       period: "7d",
       page_title: site.name,
       realtime_count: 0,
+      realtime_visitors: 0,
+      realtime_pages: [],
       table_limits: %{}
     )
     |> load_stats("7d")
+    |> load_realtime()
   end
 
   @impl true
@@ -84,6 +93,15 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
       country_breakdown: Stats.country_breakdown(site_id, period),
       city_breakdown: Stats.city_breakdown(site_id, period),
       timeline: Stats.pageviews_timeline(site_id, period)
+    )
+  end
+
+  defp load_realtime(socket) do
+    site_id = socket.assigns.site.id
+
+    assign(socket,
+      realtime_visitors: Stats.realtime_visitors(site_id),
+      realtime_pages: Stats.realtime_pages(site_id)
     )
   end
 
@@ -137,6 +155,9 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
           <.link navigate={~p"/dashboard/sites/#{@site.id}/heatmap"} class="pa-btn pa-btn--ghost">
             Heatmap
           </.link>
+          <.link navigate={~p"/dashboard/sites/#{@site.id}/funnels"} class="pa-btn pa-btn--ghost">
+            Funnels
+          </.link>
           <%= if !@is_demo do %>
             <.link
               navigate={~p"/dashboard/sites/#{@site.id}/experiments"}
@@ -162,6 +183,19 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
           >
             {period}
           </.link>
+        <% end %>
+      </div>
+
+      <div class="pa-realtime-widget">
+        <div class="pa-realtime-dot"></div>
+        <span class="pa-realtime-count">{@realtime_visitors}</span>
+        <span class="pa-realtime-label">nu actief</span>
+        <%= if length(@realtime_pages) > 0 do %>
+          <div class="pa-realtime-pages">
+            <%= for {url, count} <- @realtime_pages do %>
+              <span class="pa-realtime-page">{url} <em>{count}</em></span>
+            <% end %>
+          </div>
         <% end %>
       </div>
 

@@ -381,6 +381,26 @@ defmodule PhoenixAnalytics.Analytics.Stats do
     _ -> []
   end
 
+  @doc "Berekent voor elke stap het aantal unieke sessies dat die stap bereikte."
+  def funnel_steps(site_id, steps, period) when is_list(steps) do
+    cutoff = period_start(period)
+    site_id_bin = to_binary_uuid(site_id)
+
+    Enum.map(steps, fn step ->
+      count =
+        Repo.one(
+          from(p in "pageviews",
+            where: p.site_id == ^site_id_bin,
+            where: p.inserted_at >= ^cutoff,
+            where: p.url == ^step,
+            select: count(p.session_hash, :distinct)
+          )
+        ) || 0
+
+      {step, count}
+    end)
+  end
+
   def recent_pageview?(site_id, minutes: minutes) do
     cutoff = DateTime.add(DateTime.utc_now(), -minutes * 60, :second)
     sid = to_binary_uuid(site_id)
@@ -396,6 +416,38 @@ defmodule PhoenixAnalytics.Analytics.Stats do
     (count || 0) > 0
   rescue
     _ -> false
+  end
+
+  @doc """
+  Aantal unieke bezoekers (distinct session_hash) actief in de laatste 5 minuten.
+  """
+  def realtime_visitors(site_id) do
+    cutoff = DateTime.add(DateTime.utc_now(), -5 * 60, :second)
+    sid = to_binary_uuid(site_id)
+
+    Repo.one(
+      from p in "pageviews",
+        where: p.site_id == ^sid and p.inserted_at > ^cutoff,
+        select: count(p.session_hash, :distinct)
+    ) || 0
+  end
+
+  @doc """
+  Actieve pagina's in de laatste 5 minuten, gesorteerd op bezoeken (max `limit`).
+  Geeft een lijst van %{url, count} terug.
+  """
+  def realtime_pages(site_id, limit \\ 5) do
+    cutoff = DateTime.add(DateTime.utc_now(), -5 * 60, :second)
+    sid = to_binary_uuid(site_id)
+
+    Repo.all(
+      from p in "pageviews",
+        where: p.site_id == ^sid and p.inserted_at > ^cutoff,
+        group_by: p.url,
+        order_by: [desc: count(p.id)],
+        limit: ^limit,
+        select: %{url: p.url, count: count(p.id)}
+    )
   end
 
   def sites_sparklines(org_ids) do

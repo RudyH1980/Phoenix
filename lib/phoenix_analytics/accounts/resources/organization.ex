@@ -14,6 +14,7 @@ defmodule PhoenixAnalytics.Accounts.Organization do
     attribute(:name, :string, allow_nil?: false)
     # URL-veilige identifier, gegenereerd uit naam
     attribute(:slug, :string, allow_nil?: false)
+    attribute(:data_retention_months, :integer, default: 13)
     timestamps()
   end
 
@@ -36,6 +37,10 @@ defmodule PhoenixAnalytics.Accounts.Organization do
 
     update :update do
       accept([:name])
+    end
+
+    update :update_settings do
+      accept([:data_retention_months])
     end
   end
 

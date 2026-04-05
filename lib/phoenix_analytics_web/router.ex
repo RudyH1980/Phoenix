@@ -61,6 +61,7 @@ defmodule PhoenixAnalyticsWeb.Router do
            Live.Dashboard.ExperimentDetailLive,
            :index
 
+      live "/dashboard/sites/:site_id/funnels", Live.Dashboard.FunnelLive, :index
       live "/dashboard/sites/:site_id/heatmap", Live.Dashboard.HeatmapLive, :index
       live "/dashboard/orgs/:org_id", Live.Dashboard.OrgSettingsLive, :index
       live "/dashboard/orgs/:org_id/invite", Live.Dashboard.InviteLive, :index
