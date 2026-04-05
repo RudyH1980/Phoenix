@@ -1,6 +1,8 @@
 defmodule PhoenixAnalyticsWeb.Live.Dashboard.FunnelLive do
   use PhoenixAnalyticsWeb, :live_view
 
+  require Ash.Query
+
   alias PhoenixAnalytics.Analytics
   alias PhoenixAnalytics.Analytics.{Funnel, Stats}
 
@@ -9,7 +11,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.FunnelLive do
     case Ash.get(Analytics.Site, site_id) do
       {:ok, site} when not is_nil(site) ->
         if site.org_id in socket.assigns.current_org_ids do
-          funnels = Ash.read!(Funnel, filter: [site_id: site_id])
+          funnels = Funnel |> Ash.Query.filter(site_id == ^site_id) |> Ash.read!()
 
           {:ok,
            assign(socket,
@@ -50,7 +52,13 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.FunnelLive do
       |> Enum.map(&String.trim/1)
       |> Enum.reject(&(&1 == ""))
 
-    case Ash.create(Funnel, %{name: name, steps: steps, site_id: socket.assigns.site.id}) do
+    case Funnel
+         |> Ash.Changeset.for_create(:create, %{
+           name: name,
+           steps: steps,
+           site_id: socket.assigns.site.id
+         })
+         |> Ash.create() do
       {:ok, funnel} ->
         {:noreply,
          assign(socket,
