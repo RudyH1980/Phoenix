@@ -2,6 +2,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OnboardingLive do
   use PhoenixAnalyticsWeb, :live_view
 
   alias PhoenixAnalytics.{Accounts, Analytics}
+  alias PhoenixAnalytics.Analytics.Stats
 
   @impl true
   def mount(_params, session, socket) do
@@ -45,7 +46,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.OnboardingLive do
 
   def handle_event("check_snippet", _, socket) do
     site = socket.assigns.site
-    verified = PhoenixAnalytics.Analytics.Stats.recent_pageview?(site.id, minutes: 10)
+    verified = Stats.recent_pageview?(site.id, minutes: 10)
     {:noreply, assign(socket, snippet_verified: verified)}
   end
 

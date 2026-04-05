@@ -22,20 +22,21 @@ defmodule PhoenixAnalytics.Accounts do
 
   def request_magic_link(email) do
     case PhoenixAnalytics.RateLimiter.hit("magic_link:#{String.downcase(email)}", 10 * 60_000, 5) do
-      {:deny, _} ->
-        {:error, :rate_limited}
+      {:deny, _} -> {:error, :rate_limited}
+      {:allow, _} -> do_request_magic_link(email)
+    end
+  end
 
-      {:allow, _} ->
-        if email_allowed?(email) do
-          with {:ok, user} <- find_or_create_user(email) do
-            MagicToken
-            |> Ash.Changeset.for_create(:create, %{user_id: user.id})
-            |> Ash.create()
-          end
-        else
-          # Geef altijd :ok terug -- geen e-mail enumeration
-          {:ok, :not_allowed}
-        end
+  defp do_request_magic_link(email) do
+    if email_allowed?(email) do
+      with {:ok, user} <- find_or_create_user(email) do
+        MagicToken
+        |> Ash.Changeset.for_create(:create, %{user_id: user.id})
+        |> Ash.create()
+      end
+    else
+      # Geef altijd :ok terug -- geen e-mail enumeration
+      {:ok, :not_allowed}
     end
   end
 

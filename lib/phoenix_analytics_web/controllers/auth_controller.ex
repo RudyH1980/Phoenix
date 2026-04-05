@@ -71,73 +71,48 @@ defmodule PhoenixAnalyticsWeb.AuthController do
 
   def verify_password(conn, %{"user_id" => user_id, "passkey" => "true"}) do
     case RateLimiter.hit("verify_pw:#{ip_string(conn)}", 15 * 60_000, 10) do
-      {:deny, _} ->
-        conn
-        |> put_flash(:error, "Te veel pogingen. Probeer het later opnieuw.")
-        |> redirect(to: ~p"/login")
-        |> halt()
-
-      {:allow, _} ->
-        case Ash.get(Accounts.User, user_id) do
-          {:ok, user} ->
-            {:ok, _org} = Accounts.get_or_create_default_org(user)
-
-            Logger.info("LOGIN via passkey",
-              user_id: user.id,
-              email: user.email,
-              ip: ip_string(conn),
-              at: DateTime.utc_now() |> DateTime.to_iso8601()
-            )
-
-            redirect_to =
-              if user_has_sites?(user.id), do: ~p"/dashboard?neo=1", else: ~p"/onboarding"
-
-            conn
-            |> configure_session(renew: true)
-            |> put_session(:user_id, user.id)
-            |> redirect(to: redirect_to)
-
-          _ ->
-            conn
-            |> put_flash(:error, "Inloggen mislukt.")
-            |> redirect(to: ~p"/login")
-        end
+      {:deny, _} -> deny_conn(conn)
+      {:allow, _} -> handle_password_user(conn, user_id, "passkey")
     end
   end
 
   def verify_password(conn, %{"user_id" => user_id}) do
     case RateLimiter.hit("verify_pw:#{ip_string(conn)}", 15 * 60_000, 10) do
-      {:deny, _} ->
+      {:deny, _} -> deny_conn(conn)
+      {:allow, _} -> handle_password_user(conn, user_id, "password")
+    end
+  end
+
+  defp deny_conn(conn) do
+    conn
+    |> put_flash(:error, "Te veel pogingen. Probeer het later opnieuw.")
+    |> redirect(to: ~p"/login")
+    |> halt()
+  end
+
+  defp handle_password_user(conn, user_id, method) do
+    case Ash.get(Accounts.User, user_id) do
+      {:ok, user} ->
+        {:ok, _org} = Accounts.get_or_create_default_org(user)
+
+        Logger.info("LOGIN via #{method}",
+          user_id: user.id,
+          email: user.email,
+          ip: ip_string(conn),
+          at: DateTime.utc_now() |> DateTime.to_iso8601()
+        )
+
+        redirect_to = if user_has_sites?(user.id), do: ~p"/dashboard?neo=1", else: ~p"/onboarding"
+
         conn
-        |> put_flash(:error, "Te veel pogingen. Probeer het later opnieuw.")
+        |> configure_session(renew: true)
+        |> put_session(:user_id, user.id)
+        |> redirect(to: redirect_to)
+
+      _ ->
+        conn
+        |> put_flash(:error, "Inloggen mislukt.")
         |> redirect(to: ~p"/login")
-        |> halt()
-
-      {:allow, _} ->
-        case Ash.get(Accounts.User, user_id) do
-          {:ok, user} ->
-            {:ok, _org} = Accounts.get_or_create_default_org(user)
-
-            Logger.info("LOGIN via password",
-              user_id: user.id,
-              email: user.email,
-              ip: ip_string(conn),
-              at: DateTime.utc_now() |> DateTime.to_iso8601()
-            )
-
-            redirect_to =
-              if user_has_sites?(user.id), do: ~p"/dashboard?neo=1", else: ~p"/onboarding"
-
-            conn
-            |> configure_session(renew: true)
-            |> put_session(:user_id, user.id)
-            |> redirect(to: redirect_to)
-
-          _ ->
-            conn
-            |> put_flash(:error, "Inloggen mislukt.")
-            |> redirect(to: ~p"/login")
-        end
     end
   end
 
