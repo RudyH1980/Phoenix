@@ -40,13 +40,33 @@ defmodule PhoenixAnalyticsWeb.AuthController do
       at: DateTime.utc_now() |> DateTime.to_iso8601()
     )
 
-    welcome = if invite_org_id, do: "Welkom — uitnodiging geaccepteerd!", else: "Welkom terug!"
+    welcome = if invite_org_id, do: "Welkom - uitnodiging geaccepteerd!", else: "Welkom terug!"
+    redirect_to = if user_has_sites?(user.id), do: ~p"/dashboard?neo=1", else: ~p"/onboarding"
 
     conn
     |> configure_session(renew: true)
     |> put_session(:user_id, user.id)
     |> put_flash(:info, welcome)
-    |> redirect(to: ~p"/dashboard?neo=1")
+    |> redirect(to: redirect_to)
+  end
+
+  defp user_has_sites?(user_id) do
+    import Ecto.Query
+
+    org_ids = Accounts.user_org_ids(user_id)
+
+    bins =
+      Enum.flat_map(org_ids, fn id ->
+        case Ecto.UUID.dump(id) do
+          {:ok, bin} -> [bin]
+          _ -> []
+        end
+      end)
+
+    count =
+      PhoenixAnalytics.Repo.one(from(s in "sites", where: s.org_id in ^bins, select: count(s.id)))
+
+    (count || 0) > 0
   end
 
   def verify_password(conn, %{"user_id" => user_id, "passkey" => "true"}) do
@@ -69,10 +89,13 @@ defmodule PhoenixAnalyticsWeb.AuthController do
               at: DateTime.utc_now() |> DateTime.to_iso8601()
             )
 
+            redirect_to =
+              if user_has_sites?(user.id), do: ~p"/dashboard?neo=1", else: ~p"/onboarding"
+
             conn
             |> configure_session(renew: true)
             |> put_session(:user_id, user.id)
-            |> redirect(to: ~p"/dashboard?neo=1")
+            |> redirect(to: redirect_to)
 
           _ ->
             conn
@@ -102,10 +125,13 @@ defmodule PhoenixAnalyticsWeb.AuthController do
               at: DateTime.utc_now() |> DateTime.to_iso8601()
             )
 
+            redirect_to =
+              if user_has_sites?(user.id), do: ~p"/dashboard?neo=1", else: ~p"/onboarding"
+
             conn
             |> configure_session(renew: true)
             |> put_session(:user_id, user.id)
-            |> redirect(to: ~p"/dashboard?neo=1")
+            |> redirect(to: redirect_to)
 
           _ ->
             conn

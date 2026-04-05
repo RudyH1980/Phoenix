@@ -3900,3 +3900,17 @@ body::after {
   font-size: 0.75rem;
   color: oklch(55% 0.18 25);
 }
+
+/* Onboarding */
+.pa-onboarding { max-width: 560px; margin: 4rem auto; }
+.pa-onboarding-header { margin-bottom: 2rem; text-align: center; }
+.pa-onboarding-steps { display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.85rem; }
+.pa-onboarding-step { color: var(--pa-text-muted); }
+.pa-onboarding-step.active { color: var(--pa-teal); font-weight: 600; }
+.pa-onboarding-step-divider { color: var(--pa-border); }
+.pa-onboarding-card { background: var(--pa-surface-raised); border: 1px solid var(--pa-border); border-radius: var(--pa-radius); padding: 2rem; }
+.pa-onboarding-card h2 { margin-top: 0; }
+.pa-form { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; }
+.pa-form-field { display: flex; flex-direction: column; gap: 0.35rem; }
+.pa-form-field label { font-size: 0.85rem; font-weight: 500; color: var(--pa-text-muted); }
+.pa-form-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.5rem; }

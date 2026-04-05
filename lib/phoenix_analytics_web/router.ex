@@ -67,6 +67,7 @@ defmodule PhoenixAnalyticsWeb.Router do
       live "/dashboard/orgs/:org_id", Live.Dashboard.OrgSettingsLive, :index
       live "/dashboard/orgs/:org_id/invite", Live.Dashboard.InviteLive, :index
       live "/dashboard/account", Live.Auth.PasskeyLive, :index
+      live "/onboarding", Live.Dashboard.OnboardingLive, :index
     end
   end
 
