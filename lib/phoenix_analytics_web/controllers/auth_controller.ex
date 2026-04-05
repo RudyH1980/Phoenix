@@ -30,6 +30,7 @@ defmodule PhoenixAnalyticsWeb.AuthController do
             )
 
             conn
+            |> configure_session(renew: true)
             |> put_session(:user_id, user.id)
             |> put_flash(
               :info,
@@ -66,6 +67,7 @@ defmodule PhoenixAnalyticsWeb.AuthController do
             )
 
             conn
+            |> configure_session(renew: true)
             |> put_session(:user_id, user.id)
             |> redirect(to: ~p"/dashboard?neo=1")
 
@@ -98,6 +100,7 @@ defmodule PhoenixAnalyticsWeb.AuthController do
             )
 
             conn
+            |> configure_session(renew: true)
             |> put_session(:user_id, user.id)
             |> redirect(to: ~p"/dashboard?neo=1")
 

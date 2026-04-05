@@ -438,6 +438,13 @@ function initLoginPage(canvas, revealEl) {
                         powered.remove()
                         overlay.remove()
                         canvas.style.zIndex = ''
+
+                        // Op de landingspagina: matrix heel zacht op de achtergrond laten doorlopen
+                        if (revealEl && revealEl.classList.contains('pa-lp-wrapper')) {
+                          canvas.style.transition = 'opacity 1.5s ease'
+                          canvas.style.opacity = '0.07'
+                          injectMatrixToggle(canvas, true, matrix)
+                        }
                       }, 2300)
                     }, 2200)
                   }, 3800)

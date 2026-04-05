@@ -25,6 +25,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.NewSiteLive do
          form: to_form(%{"name" => "", "domain" => ""}),
          created_site: nil,
          org_id: org_id,
+         base_url: PhoenixAnalyticsWeb.Endpoint.url(),
          page_title: "Nieuwe website"
        )}
     end
@@ -61,19 +62,50 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.NewSiteLive do
           <p><strong>{@created_site.name}</strong> · {@created_site.domain}</p>
 
           <div class="pa-snippet-box">
-            <h3>Voeg dit toe aan jouw website</h3>
+            <div class="pa-snippet-box-header">
+              <h3>Snippet 1 — Basistracker</h3>
+              <span class="pa-snippet-badge pa-snippet-badge--required">Verplicht</span>
+            </div>
+            <p class="pa-snippet-hint">
+              Registreert automatisch: paginabezoeken, unieke bezoekers, bouncepercentage, apparaat, browser, klikken op knoppen en links.
+            </p>
             <p class="pa-snippet-hint">
               Plak dit snippet in de <code>&lt;head&gt;</code> van elke pagina:
             </p>
-            <pre class="pa-code"><code>&lt;script async src="https://yourdomain.com/js/pa.js" data-site="{@created_site.token}"&gt;&lt;/script&gt;</code></pre>
+            <pre class="pa-code"><code>&lt;script async src="{@base_url}/js/pa.js" data-site="{@created_site.token}"&gt;&lt;/script&gt;</code></pre>
+
+            <div class="pa-snippet-wp">
+              <div class="pa-snippet-wp-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" /><path d="M11 7h2v6h-2zm0 8h2v2h-2z" />
+                </svg>
+                WordPress installatie
+              </div>
+              <ol class="pa-snippet-wp-steps">
+                <li>
+                  Ga naar <strong>Plugins → Nieuwe plugin</strong> en zoek op <strong>WPCode</strong>
+                </li>
+                <li>Installeer en activeer de plugin</li>
+                <li>Ga naar <strong>Code Snippets → Header &amp; Footer</strong></li>
+                <li>Plak het snippet hierboven in het vak <strong>"Header"</strong></li>
+                <li>Klik op <strong>Opslaan</strong> — klaar</li>
+              </ol>
+            </div>
           </div>
 
           <div class="pa-snippet-box">
-            <h3>Klik-events tracken</h3>
+            <div class="pa-snippet-box-header">
+              <h3>Snippet 2 — Conversie tracking</h3>
+              <span class="pa-snippet-badge pa-snippet-badge--optional">Optioneel</span>
+            </div>
             <p class="pa-snippet-hint">
-              Voeg <code>data-pa-event="naam"</code> toe aan elk element:
+              Gebruik dit als je wilt bijhouden welke specifieke knoppen of links mensen klikken — bijvoorbeeld voor A/B testen of conversiedoelen. Voeg het attribuut
+              <code>data-pa-event="naam"</code>
+              toe aan elk element dat je wilt meten:
             </p>
-            <pre class="pa-code"><code>&lt;button data-pa-event="cta_klik"&gt;Aanmelden&lt;/button&gt; &lt;a data-pa-event="download"&gt;Download brochure&lt;/a&gt;</code></pre>
+            <pre class="pa-code"><code>&lt;button data-pa-event="offerte_aangevraagd"&gt;Vraag offerte aan&lt;/button&gt;
+    &lt;a href="tel:..." data-pa-event="telefoon_geklikt"&gt;Bel ons&lt;/a&gt;
+    &lt;button type="submit" data-pa-event="contact_verzonden"&gt;Verstuur&lt;/button&gt;</code></pre>
           </div>
 
           <.link navigate={~p"/dashboard/sites/#{@created_site.id}"} class="pa-btn pa-btn--primary">
