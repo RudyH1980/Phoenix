@@ -36,7 +36,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
      socket
      |> assign(
        period: period,
-       filters: %{},
+       filters: %{env: :production},
        available_countries: Stats.available_countries(site_id, period),
        available_devices: Stats.available_devices(site_id, period)
      )
@@ -70,7 +70,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
       realtime_visitors: 0,
       realtime_pages: [],
       table_limits: %{},
-      filters: %{},
+      filters: %{env: :production},
       available_countries: Stats.available_countries(site_id, "7d"),
       available_devices: Stats.available_devices(site_id, "7d")
     )
@@ -106,8 +106,21 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
   end
 
   @impl true
+  def handle_event("set_env_filter", %{"value" => value}, socket) do
+    env =
+      case value do
+        "test" -> :test
+        "all" -> :all
+        _ -> :production
+      end
+
+    filters = Map.put(socket.assigns.filters, :env, env)
+    {:noreply, socket |> assign(filters: filters) |> reload_stats()}
+  end
+
+  @impl true
   def handle_event("clear_filters", _, socket) do
-    {:noreply, socket |> assign(filters: %{}) |> reload_stats()}
+    {:noreply, socket |> assign(filters: %{env: :production}) |> reload_stats()}
   end
 
   defp reload_stats(socket) do
@@ -267,6 +280,30 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
       <% end %>
 
       <div class="pa-filter-bar">
+        <div class="pa-env-toggle">
+          <button
+            phx-click="set_env_filter"
+            phx-value-value="production"
+            class={"pa-env-btn#{if @filters[:env] != :test and @filters[:env] != :all, do: " active"}"}
+          >
+            Productie
+          </button>
+          <button
+            phx-click="set_env_filter"
+            phx-value-value="test"
+            class={"pa-env-btn#{if @filters[:env] == :test, do: " active"}"}
+          >
+            Test
+          </button>
+          <button
+            phx-click="set_env_filter"
+            phx-value-value="all"
+            class={"pa-env-btn#{if @filters[:env] == :all, do: " active"}"}
+          >
+            Alles
+          </button>
+        </div>
+
         <select phx-change="set_device_filter" name="value" class="pa-select pa-select--sm">
           <option value="">Alle apparaten</option>
           <option value="mobile" selected={@filters[:device] == "mobile"}>Mobiel</option>
@@ -281,7 +318,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
           <% end %>
         </select>
 
-        <%= if map_size(@filters) > 0 do %>
+        <%= if map_size(Map.delete(@filters, :env)) > 0 do %>
           <button phx-click="clear_filters" class="pa-btn pa-btn--ghost pa-btn--sm">
             &times; Filters wissen
           </button>

@@ -14,43 +14,17 @@ defmodule PhoenixAnalyticsWeb.CollectController do
   def preflight(conn, _params), do: send_resp(conn, 204, "")
 
   def create(conn, params) do
-    if test_url?(params["u"]) do
+    with {:ok, site} <- find_site(params["s"]),
+         session_hash <- build_session_hash(conn, params["vid"]),
+         :ok <- process_event(conn, site, session_hash, params) do
       send_resp(conn, 204, "")
     else
-      with {:ok, site} <- find_site(params["s"]),
-           session_hash <- build_session_hash(conn, params["vid"]),
-           :ok <- process_event(conn, site, session_hash, params) do
+      {:error, :site_not_found} ->
+        send_resp(conn, 404, "")
+
+      _ ->
         send_resp(conn, 204, "")
-      else
-        {:error, :site_not_found} ->
-          send_resp(conn, 404, "")
-
-        _ ->
-          send_resp(conn, 204, "")
-      end
     end
-  end
-
-  # Test/dev hostnames worden stilletjes genegeerd
-  @test_subdomains ~w(test staging dev preview demo local sandbox)
-  @test_tlds ~w(.test .local .localhost .internal .invalid .example .lan)
-
-  defp test_url?(nil), do: false
-
-  defp test_url?(url) when is_binary(url) do
-    case URI.parse(url) do
-      %URI{host: host} when is_binary(host) -> test_hostname?(String.downcase(host))
-      _ -> false
-    end
-  end
-
-  defp test_hostname?("localhost"), do: true
-  defp test_hostname?("127.0.0.1"), do: true
-  defp test_hostname?("::1"), do: true
-
-  defp test_hostname?(host) do
-    Enum.any?(@test_tlds, &String.ends_with?(host, &1)) or
-      Enum.any?(@test_subdomains, &String.starts_with?(host, &1 <> "."))
   end
 
   defp find_site(nil), do: {:error, :site_not_found}

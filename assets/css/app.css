@@ -1561,6 +1561,37 @@ h3 { font-size: 1rem;    line-height: 1.4; }
   border-radius: var(--pa-radius);
 }
 
+.pa-env-toggle {
+  display: flex;
+  border: 1px solid var(--pa-border);
+  border-radius: var(--pa-radius);
+  overflow: hidden;
+}
+
+.pa-env-btn {
+  font-size: 0.8rem;
+  padding: 0.3rem 0.75rem;
+  background: var(--pa-bg);
+  border: none;
+  border-right: 1px solid var(--pa-border);
+  color: var(--pa-text-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.pa-env-btn:last-child { border-right: none; }
+
+.pa-env-btn:hover {
+  background: var(--pa-surface-raised);
+  color: var(--pa-text);
+}
+
+.pa-env-btn.active {
+  background: var(--pa-accent);
+  color: #fff;
+}
+
 .pa-select--sm {
   font-size: 0.8rem;
   padding: 0.3rem 0.6rem;

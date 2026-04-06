@@ -143,8 +143,18 @@ defmodule PhoenixAnalytics.Analytics.Stats do
     )
   end
 
+  # Regex die test/dev hostnames matcht in een URL
+  @test_url_regex "^https?://(test|staging|dev|preview|sandbox|demo|local)\\.|^https?://(localhost|127\\.0\\.0\\.1)(:|/|$)"
+
   defp apply_filters(query, filters) when is_map(filters) do
     query
+    |> then(fn q ->
+      case Map.get(filters, :env, :production) do
+        :all -> q
+        :test -> where(q, [p], fragment("? ~ ?", p.url, @test_url_regex))
+        :production -> where(q, [p], not fragment("? ~ ?", p.url, @test_url_regex))
+      end
+    end)
     |> then(fn q ->
       case Map.get(filters, :device) do
         nil -> q
