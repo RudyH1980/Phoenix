@@ -125,14 +125,7 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div
-      class="pa-auth-container"
-      id="login-container"
-      phx-hook="PasskeyLogin"
-      data-challenge={@passkey_challenge}
-      data-session-key={@passkey_session_key}
-      data-rp-id={@passkey_rp_id}
-    >
+    <div class="pa-auth-container" id="login-container">
       <div class="pa-auth-card">
         <h1>Neo Analytics</h1>
 
@@ -166,7 +159,15 @@ defmodule PhoenixAnalyticsWeb.Live.Auth.LoginLive do
           </div>
         <% end %>
 
-        <button id="passkey-btn" class="pa-btn pa-btn--ghost pa-btn--full" style="margin-bottom:1rem;">
+        <button
+          id="passkey-btn"
+          phx-hook="PasskeyLogin"
+          data-challenge={@passkey_challenge}
+          data-session-key={@passkey_session_key}
+          data-rp-id={@passkey_rp_id}
+          class="pa-btn pa-btn--ghost pa-btn--full"
+          style="margin-bottom:1rem;"
+        >
           Inloggen met passkey
         </button>
 

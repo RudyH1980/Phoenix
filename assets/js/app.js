@@ -122,16 +122,13 @@ Hooks.PasskeyRegister = {
 
 Hooks.PasskeyLogin = {
   mounted() {
-    const btn = document.getElementById('passkey-btn')
-    if (!btn) return
-
-    btn.addEventListener('click', async () => {
+    this.el.addEventListener('click', async () => {
       const challenge = this.el.dataset.challenge
       const rpId = this.el.dataset.rpId
       const sessionKey = this.el.dataset.sessionKey
       if (!challenge || !rpId || !sessionKey) return
 
-      btn.disabled = true
+      this.el.disabled = true
       try {
         const cred = await navigator.credentials.get({
           publicKey: {
@@ -153,7 +150,7 @@ Hooks.PasskeyLogin = {
         })
       } catch (e) {
         console.warn('Passkey login failed:', e)
-        btn.disabled = false
+        this.el.disabled = false
       }
     })
   }
@@ -370,29 +367,34 @@ function initLoginPage(canvas, revealEl) {
   powered.id = 'pa-intro-powered'
   document.body.appendChild(powered)
 
-  // Skip-knop
-  const skipBtn = document.createElement('button')
-  skipBtn.id = 'pa-intro-skip'
-  skipBtn.textContent = 'Sla over \u2192'
-  skipBtn.setAttribute('aria-label', 'Sla de intro over')
-  document.body.appendChild(skipBtn)
+  // Skip-bar met "niet meer tonen" checkbox
+  const skipBar = document.createElement('div')
+  skipBar.id = 'pa-intro-skip-bar'
+  skipBar.innerHTML = `
+    <label class="pa-neo-skip-label">
+      <input type="checkbox" class="pa-neo-skip-check" id="pa-intro-skip-check" />
+      Niet meer tonen
+    </label>
+    <button class="pa-neo-skip-btn" aria-label="Sla de intro over">Overslaan \u2192</button>
+  `
+  document.body.appendChild(skipBar)
 
   // Toon na 0.5s zodat het niet per ongeluk geklikt wordt
-  setTimeout(() => skipBtn.classList.add('visible'), 500)
+  setTimeout(() => skipBar.classList.add('visible'), 500)
 
   function skipIntro() {
+    const neverShow = skipBar.querySelector('#pa-intro-skip-check')?.checked
+    if (neverShow) localStorage.setItem('pa-intro-skip', 'true')
+
     // Stop alles
     matrix && matrix.stop()
-    skipBtn.remove()
+    skipBar.remove()
     hero.remove()
     powered.remove()
     overlay.remove()
     canvas.style.zIndex = ''
     canvas.style.opacity = ''
     canvas.style.display = 'none'
-
-    // Sla op in localStorage
-    localStorage.setItem('pa-intro-skip', 'true')
 
     // Onthul direct de content
     if (revealEl) {
@@ -410,7 +412,7 @@ function initLoginPage(canvas, revealEl) {
     }
   }
 
-  skipBtn.addEventListener('click', skipIntro)
+  skipBar.querySelector('.pa-neo-skip-btn').addEventListener('click', skipIntro)
 
   // Canvas volledig zichtbaar tijdens intro — overlay zit erachter
   canvas.style.display = ''
