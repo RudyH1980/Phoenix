@@ -22,6 +22,9 @@ defmodule PhoenixAnalytics.Analytics.Stats do
   defp to_binary_uuid(id) when is_binary(id) and byte_size(id) == 16, do: id
   defp to_binary_uuid(id), do: Ecto.UUID.dump!(id)
 
+  # Soft delete filter — altijd toepassen op pageview queries
+  defp active(query), do: where(query, [p], is_nil(p.deleted_at))
+
   def pageview_count(site_id, period, filters \\ %{}) do
     since = period_start(period)
     sid = to_binary_uuid(site_id)
@@ -148,6 +151,7 @@ defmodule PhoenixAnalytics.Analytics.Stats do
 
   defp apply_filters(query, filters) when is_map(filters) do
     query
+    |> where([p], is_nil(p.deleted_at))
     |> then(fn q ->
       case Map.get(filters, :env, :production) do
         :all -> q
@@ -182,11 +186,13 @@ defmodule PhoenixAnalytics.Analytics.Stats do
     sid = to_binary_uuid(site_id)
 
     Repo.all(
-      from p in "pageviews",
+      from(p in "pageviews",
         where: p.site_id == ^sid and p.inserted_at >= ^since,
         group_by: p.device_type,
         order_by: [desc: count(p.id)],
         select: %{device: p.device_type, count: count(p.id)}
+      )
+      |> active()
     )
   end
 
@@ -195,11 +201,13 @@ defmodule PhoenixAnalytics.Analytics.Stats do
     sid = to_binary_uuid(site_id)
 
     Repo.all(
-      from p in "pageviews",
+      from(p in "pageviews",
         where: p.site_id == ^sid and p.inserted_at >= ^since,
         group_by: p.os,
         order_by: [desc: count(p.id)],
         select: %{os: p.os, count: count(p.id)}
+      )
+      |> active()
     )
   end
 
@@ -208,7 +216,7 @@ defmodule PhoenixAnalytics.Analytics.Stats do
     sid = to_binary_uuid(site_id)
 
     Repo.all(
-      from p in "pageviews",
+      from(p in "pageviews",
         where:
           p.site_id == ^sid and
             p.inserted_at >= ^since and
@@ -217,6 +225,8 @@ defmodule PhoenixAnalytics.Analytics.Stats do
         order_by: [desc: count(p.id)],
         limit: ^limit,
         select: %{country: p.country, count: count(p.id)}
+      )
+      |> active()
     )
   end
 
@@ -225,7 +235,7 @@ defmodule PhoenixAnalytics.Analytics.Stats do
     sid = to_binary_uuid(site_id)
 
     Repo.all(
-      from p in "pageviews",
+      from(p in "pageviews",
         where:
           p.site_id == ^sid and
             p.inserted_at >= ^since and
@@ -234,6 +244,8 @@ defmodule PhoenixAnalytics.Analytics.Stats do
         order_by: [desc: count(p.id)],
         limit: ^limit,
         select: %{city: p.city, country: p.country, count: count(p.id)}
+      )
+      |> active()
     )
   end
 
@@ -242,20 +254,24 @@ defmodule PhoenixAnalytics.Analytics.Stats do
     sid = to_binary_uuid(site_id)
 
     period_sessions =
-      from p in "pageviews",
+      from(p in "pageviews",
         where: p.site_id == ^sid and p.inserted_at >= ^since,
         select: p.session_hash,
         distinct: true
+      )
+      |> active()
 
     total = Repo.one(from s in subquery(period_sessions), select: count()) || 0
 
     # Terugkerend = sessies die op meer dan 1 dag bezochten (ooit)
     multi_day =
-      from p in "pageviews",
+      from(p in "pageviews",
         where: p.site_id == ^sid,
         group_by: p.session_hash,
         having: count(fragment("DISTINCT DATE(inserted_at)")) > 1,
         select: p.session_hash
+      )
+      |> active()
 
     returning =
       Repo.one(
@@ -340,7 +356,7 @@ defmodule PhoenixAnalytics.Analytics.Stats do
     sid = to_binary_uuid(site_id)
 
     Repo.all(
-      from p in "pageviews",
+      from(p in "pageviews",
         where: p.site_id == ^sid and p.inserted_at >= ^since,
         order_by: [desc: p.inserted_at],
         select: %{
@@ -357,6 +373,8 @@ defmodule PhoenixAnalytics.Analytics.Stats do
           utm_medium: p.utm_medium,
           utm_campaign: p.utm_campaign
         }
+      )
+      |> active()
     )
   end
 
@@ -366,11 +384,13 @@ defmodule PhoenixAnalytics.Analytics.Stats do
     site_ids_q = from s in "sites", where: s.org_id in ^binary_ids, select: s.id
 
     Repo.all(
-      from p in "pageviews",
+      from(p in "pageviews",
         where: p.site_id in subquery(site_ids_q) and p.inserted_at >= ^since,
         group_by: fragment("DATE(inserted_at)"),
         order_by: fragment("DATE(inserted_at)"),
         select: %{date: fragment("DATE(inserted_at)"), count: count(p.id)}
+      )
+      |> active()
     )
   end
 
@@ -380,7 +400,7 @@ defmodule PhoenixAnalytics.Analytics.Stats do
     site_ids_q = from s in "sites", where: s.org_id in ^binary_ids, select: s.id
 
     Repo.all(
-      from p in "pageviews",
+      from(p in "pageviews",
         where: p.site_id in subquery(site_ids_q) and p.inserted_at >= ^since,
         group_by: p.site_id,
         select: %{
@@ -388,6 +408,8 @@ defmodule PhoenixAnalytics.Analytics.Stats do
           pageviews: count(p.id),
           visitors: count(p.session_hash, :distinct)
         }
+      )
+      |> active()
     )
     |> Map.new(&{&1.site_id, &1})
   end
@@ -397,7 +419,7 @@ defmodule PhoenixAnalytics.Analytics.Stats do
     sid = to_binary_uuid(site_id)
 
     Repo.all(
-      from p in "pageviews",
+      from(p in "pageviews",
         where: p.site_id == ^sid and p.inserted_at >= ^since,
         group_by: fragment("DATE(inserted_at)"),
         order_by: fragment("DATE(inserted_at)"),
@@ -405,6 +427,8 @@ defmodule PhoenixAnalytics.Analytics.Stats do
           date: fragment("DATE(inserted_at)"),
           count: count(p.id)
         }
+      )
+      |> active()
     )
   end
 
@@ -426,7 +450,7 @@ defmodule PhoenixAnalytics.Analytics.Stats do
     site_ids_q = from s in "sites", where: s.org_id in ^binary_ids, select: s.id
 
     Repo.all(
-      from p in "pageviews",
+      from(p in "pageviews",
         where:
           p.site_id in subquery(site_ids_q) and
             p.inserted_at >= ^yesterday_start and
@@ -436,6 +460,8 @@ defmodule PhoenixAnalytics.Analytics.Stats do
           site_id: type(p.site_id, Ecto.UUID),
           pageviews: count(p.id)
         }
+      )
+      |> active()
     )
     |> Map.new(&{&1.site_id, &1.pageviews})
   end
@@ -473,6 +499,7 @@ defmodule PhoenixAnalytics.Analytics.Stats do
             where: p.url == ^step,
             select: count(p.session_hash, :distinct)
           )
+          |> active()
         ) || 0
 
       {step, count}
@@ -485,10 +512,12 @@ defmodule PhoenixAnalytics.Analytics.Stats do
 
     count =
       Repo.one(
-        from p in "pageviews",
+        from(p in "pageviews",
           where: p.site_id == ^sid and p.inserted_at > ^cutoff,
           select: count(p.id),
           limit: 1
+        )
+        |> active()
       )
 
     (count || 0) > 0
@@ -504,9 +533,11 @@ defmodule PhoenixAnalytics.Analytics.Stats do
     sid = to_binary_uuid(site_id)
 
     Repo.one(
-      from p in "pageviews",
+      from(p in "pageviews",
         where: p.site_id == ^sid and p.inserted_at > ^cutoff,
         select: count(p.session_hash, :distinct)
+      )
+      |> active()
     ) || 0
   end
 
@@ -519,12 +550,14 @@ defmodule PhoenixAnalytics.Analytics.Stats do
     sid = to_binary_uuid(site_id)
 
     Repo.all(
-      from p in "pageviews",
+      from(p in "pageviews",
         where: p.site_id == ^sid and p.inserted_at > ^cutoff,
         group_by: p.url,
         order_by: [desc: count(p.id)],
         limit: ^limit,
         select: %{url: p.url, count: count(p.id)}
+      )
+      |> active()
     )
   end
 
@@ -535,7 +568,7 @@ defmodule PhoenixAnalytics.Analytics.Stats do
 
     rows =
       Repo.all(
-        from p in "pageviews",
+        from(p in "pageviews",
           where: p.site_id in subquery(site_ids_q) and p.inserted_at >= ^since,
           group_by: [p.site_id, fragment("DATE(inserted_at)")],
           order_by: [asc: p.site_id, asc: fragment("DATE(inserted_at)")],
@@ -544,6 +577,8 @@ defmodule PhoenixAnalytics.Analytics.Stats do
             date: fragment("DATE(inserted_at)"),
             count: count(p.id)
           }
+        )
+        |> active()
       )
 
     Enum.group_by(rows, & &1.site_id, &%{date: &1.date, count: &1.count})

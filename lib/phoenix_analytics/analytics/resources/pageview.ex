@@ -30,11 +30,17 @@ defmodule PhoenixAnalytics.Analytics.Pageview do
     attribute(:os, :string)
     # Nooit raw IP opslaan (AVG) -- alleen dagelijks geroteerd hash
     attribute(:duration_seconds, :integer)
+    attribute(:deleted_at, :utc_datetime, allow_nil?: true)
     timestamps()
   end
 
   actions do
     defaults([:read, :destroy])
+
+    update :soft_delete do
+      accept([])
+      change(set_attribute(:deleted_at, &DateTime.utc_now/0))
+    end
 
     create :record do
       accept([
