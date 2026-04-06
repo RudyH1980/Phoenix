@@ -538,4 +538,53 @@ defmodule PhoenixAnalytics.Analytics.Stats do
 
     Enum.group_by(rows, & &1.site_id, &%{date: &1.date, count: &1.count})
   end
+
+  @doc """
+  Haalt de meest recente deploy_ping op per unieke URL (= per deployment).
+  Geeft een lijst terug van %{url, version, owner, last_seen}.
+  """
+  def latest_deploy_pings(site_id) do
+    sid = to_binary_uuid(site_id)
+    since = DateTime.add(DateTime.utc_now(), -30 * 86_400, :second)
+
+    Repo.all(
+      from e in "events",
+        where:
+          e.site_id == ^sid and
+            e.event_name == "deploy_ping" and
+            e.inserted_at >= ^since,
+        order_by: [desc: e.inserted_at],
+        select: %{
+          url: e.url,
+          metadata: e.metadata,
+          last_seen: e.inserted_at
+        }
+    )
+    |> Enum.reduce(%{}, fn row, acc ->
+      # Groepeer op domein (niet op volledig pad)
+      domain = extract_domain(row.url)
+
+      if Map.has_key?(acc, domain) do
+        acc
+      else
+        Map.put(acc, domain, %{
+          domain: domain,
+          version: get_in(row.metadata, ["v"]),
+          owner: get_in(row.metadata, ["o"]),
+          last_seen: row.last_seen
+        })
+      end
+    end)
+    |> Map.values()
+    |> Enum.sort_by(& &1.last_seen, {:desc, DateTime})
+  end
+
+  defp extract_domain(url) when is_binary(url) do
+    case URI.parse(url) do
+      %URI{host: host} when is_binary(host) -> host
+      _ -> url
+    end
+  end
+
+  defp extract_domain(_), do: "onbekend"
 end

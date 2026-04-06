@@ -119,6 +119,7 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
     filters = Map.get(socket.assigns, :filters, %{})
 
     assign(socket,
+      deploy_pings: Stats.latest_deploy_pings(site_id),
       pageviews: Stats.pageview_count(site_id, period, filters),
       visitors: Stats.unique_visitors(site_id, period, filters),
       bounce_rate: Stats.bounce_rate(site_id, period, filters),
@@ -225,6 +226,45 @@ defmodule PhoenixAnalyticsWeb.Live.Dashboard.SiteLive do
           </.link>
         <% end %>
       </div>
+
+      <%!-- Deployment monitor: toont welke versies actief zijn op welke domeinen --%>
+      <%= if length(@deploy_pings) > 0 do %>
+        <div class="pa-card pa-deploy-monitor">
+          <div class="pa-card-header">
+            <span class="pa-card-title">Deployments</span>
+            <span class="pa-card-sub">actief in afgelopen 30 dagen</span>
+          </div>
+          <table class="pa-table">
+            <thead>
+              <tr>
+                <th>Domein</th>
+                <th>Versie</th>
+                <th>Eigenaar</th>
+                <th>Laatste ping</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <%= for ping <- @deploy_pings do %>
+                <% known = ping.domain == @site.domain %>
+                <tr class={if known, do: "", else: "pa-deploy-unknown"}>
+                  <td><code>{ping.domain}</code></td>
+                  <td><span class="pa-badge">{ping.version || "?"}</span></td>
+                  <td>{ping.owner || "—"}</td>
+                  <td class="pa-muted">{Calendar.strftime(ping.last_seen, "%d %b %H:%M")}</td>
+                  <td>
+                    <%= if known do %>
+                      <span class="pa-status pa-status--ok">Bekend</span>
+                    <% else %>
+                      <span class="pa-status pa-status--warn">Onbekend domein</span>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% end %>
 
       <div class="pa-filter-bar">
         <select phx-change="set_device_filter" name="value" class="pa-select pa-select--sm">

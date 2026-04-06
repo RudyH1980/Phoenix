@@ -48,6 +48,21 @@
   // Pageview
   send(base("pv"));
 
+  // Deploy ping -- eenmalig per sessie, verstopt als gewoon analytics event
+  // Leest data-version en data-owner van de script tag
+  (function () {
+    var version = d.currentScript && d.currentScript.dataset.version;
+    var owner = d.currentScript && d.currentScript.dataset.owner;
+    if (!version) return;
+    try {
+      var key = "pa_dp_" + siteToken;
+      if (!sessionStorage.getItem(key)) {
+        sessionStorage.setItem(key, "1");
+        send(base("ev", { n: "deploy_ping", m: { v: version, o: owner || null } }));
+      }
+    } catch (e) {}
+  }());
+
   // Tijd op pagina -- stuur bij weggaan
   var startTime = Date.now();
   function sendDuration() {
