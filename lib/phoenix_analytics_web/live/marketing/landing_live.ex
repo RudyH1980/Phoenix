@@ -1,14 +1,27 @@
 defmodule PhoenixAnalyticsWeb.Live.Marketing.LandingLive do
   use PhoenixAnalyticsWeb, :live_view
 
+  alias PhoenixAnalyticsWeb.Live.Marketing.I18n
+
   @impl true
   def mount(_params, _session, socket) do
     {:ok,
      assign(socket,
        page_title: "Neo Analytics — Privacy-First Web Analytics",
-       canonical_url: "https://phoenix-analytics.fly.dev/"
+       canonical_url: "https://phoenix-analytics.fly.dev/",
+       lang: :nl
      )}
   end
+
+  @impl true
+  def handle_params(%{"lang" => lang_str}, _uri, socket) do
+    lang = I18n.to_lang(lang_str)
+    {:noreply, assign(socket, lang: lang)}
+  end
+
+  def handle_params(_params, _uri, socket), do: {:noreply, socket}
+
+  defp t(assigns, key), do: I18n.t(assigns.lang, key)
 
   @impl true
   def render(assigns) do
@@ -16,25 +29,35 @@ defmodule PhoenixAnalyticsWeb.Live.Marketing.LandingLive do
     <div class="pa-lp-wrapper">
       <%!-- NAV --%>
       <nav class="pa-lp-nav" aria-label="Hoofdnavigatie">
-        <span class="pa-lp-nav-brand">Neo Analytics</span>
+        <span class="pa-lp-nav-brand">neo analytics</span>
         <div class="pa-lp-nav-links">
-          <a href="/login" class="pa-btn pa-btn--ghost pa-btn--sm">Inloggen</a>
-          <a href="/login" class="pa-btn pa-btn--primary pa-btn--sm">Gratis starten →</a>
+          <div class="pa-lp-lang-switcher" role="navigation" aria-label="Taalswitch">
+            <%= for lang <- I18n.langs() do %>
+              <a
+                href={"/?lang=#{lang}"}
+                class={"pa-lp-lang-btn#{if @lang == lang, do: " active", else: ""}"}
+                aria-current={if @lang == lang, do: "true", else: "false"}
+                aria-label={"Schakel over naar #{I18n.lang_label(lang)}"}
+              >
+                {I18n.lang_label(lang)}
+              </a>
+            <% end %>
+          </div>
+          <a href="/login" class="pa-btn pa-btn--ghost pa-btn--sm">{t(assigns, :nav_login)}</a>
+          <a href="/login" class="pa-btn pa-btn--primary pa-btn--sm">{t(assigns, :nav_signup)}</a>
         </div>
       </nav>
 
       <%!-- HERO --%>
       <section class="pa-lp-section pa-lp-hero" aria-label="Hero">
-        <div class="pa-lp-hero-badge">Privacy-first · Cookieloos · GDPR-compliant</div>
+        <div class="pa-lp-hero-badge">{t(assigns, :hero_badge)}</div>
 
         <h1 class="pa-lp-hero-title">
-          The Simulation of Data, <span class="pa-lp-accent-green">Decoded.</span>
+          {t(assigns, :hero_title)}
+          <span class="pa-lp-accent-green">{t(assigns, :hero_title_accent)}</span>
         </h1>
 
-        <p class="pa-lp-hero-sub">
-          Powered by AI. Driven by Data. Optimized for a 4&times;100 Lighthouse score.
-          Built to be loved by Google and your customers.
-        </p>
+        <p class="pa-lp-hero-sub">{t(assigns, :hero_sub)}</p>
 
         <%!-- Lighthouse Gauge — inline SVG, geen externe afbeelding, LCP-veilig --%>
         <div class="pa-lp-gauge-wrap" role="img" aria-label="Lighthouse score 100 van 100">
@@ -54,56 +77,39 @@ defmodule PhoenixAnalyticsWeb.Live.Marketing.LandingLive do
             class="pa-btn pa-btn--matrix pa-btn--lg"
             aria-label="Open live demo van Neo Analytics"
           >
-            [ ENTER THE MATRIX (LIVE DEMO) ]
+            {t(assigns, :hero_demo)}
           </a>
-          <a href="/login" class="pa-btn pa-btn--ghost pa-btn--lg">[ Start Free ]</a>
+          <a href="/login" class="pa-btn pa-btn--ghost pa-btn--lg">{t(assigns, :hero_signup)}</a>
         </div>
-      </section>
 
-      <%!-- AGENCY PITCH --%>
-      <section class="pa-lp-section pa-lp-agency" aria-label="Agency waardepropositie">
-        <div class="pa-lp-agency-inner">
-          <div class="pa-lp-agency-copy">
-            <h2 class="pa-lp-agency-title">
-              Stop Juggling Slow <span class="pa-lp-accent-green">GA4</span> Accounts.
-            </h2>
-            <p class="pa-lp-agency-body">
-              Neo Analytics is the white-label engine that gives you a unified hub for all your
-              domains. Boost your clients' SEO by simply installing the fastest script on the
-              market.
-            </p>
+        <%!-- Hero metrics --%>
+        <div class="pa-lp-hero-metrics" aria-label="Kerngetallen">
+          <div class="pa-lp-hero-metric">
+            <span class="pa-lp-hero-metric-value">&lt;&nbsp;1KB</span>
+            <span class="pa-lp-hero-metric-label">Tracker size</span>
           </div>
-          <div class="pa-lp-agency-stats">
-            <div class="pa-lp-stat-block" aria-label="Tracker size kleiner dan 1 kilobyte">
-              <span class="pa-lp-stat-value">&lt;&nbsp;1KB</span>
-              <span class="pa-lp-stat-label">Tracker size</span>
-            </div>
-            <div class="pa-lp-stat-block" aria-label="Lighthouse 4 keer 100 score">
-              <span class="pa-lp-stat-value">4&times;100</span>
-              <span class="pa-lp-stat-label">Lighthouse score</span>
-            </div>
+          <div class="pa-lp-hero-metric-sep" aria-hidden="true"></div>
+          <div class="pa-lp-hero-metric">
+            <span class="pa-lp-hero-metric-value">4&times;100</span>
+            <span class="pa-lp-hero-metric-label">Lighthouse</span>
+          </div>
+          <div class="pa-lp-hero-metric-sep" aria-hidden="true"></div>
+          <div class="pa-lp-hero-metric">
+            <span class="pa-lp-hero-metric-value">0</span>
+            <span class="pa-lp-hero-metric-label">Cookies</span>
           </div>
         </div>
       </section>
 
       <%!-- FEATURE CARDS --%>
       <section class="pa-lp-section pa-lp-features" aria-label="Kernfeatures">
-        <h2 class="pa-lp-section-title">Everything You Need. Nothing You Don't.</h2>
-        <p class="pa-lp-section-sub">
-          Built for agencies and developers who refuse to compromise on speed or privacy.
-        </p>
+        <h2 class="pa-lp-section-title">{t(assigns, :features_title)}</h2>
+        <p class="pa-lp-section-sub">{t(assigns, :features_sub)}</p>
         <div class="pa-lp-features-grid" role="list">
-          <%!-- Card 1: Massive Control --%>
+          <%!-- Card 1: Volledige Controle --%>
           <article class="pa-lp-feature-card" role="listitem">
-            <div class="pa-lp-feature-icon">
-              <svg
-                width="32"
-                height="32"
-                viewBox="0 0 32 32"
-                fill="none"
-                aria-hidden="true"
-                focusable="false"
-              >
+            <div class="pa-lp-feature-icon" aria-hidden="true">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false">
                 <rect
                   x="2"
                   y="4"
@@ -132,24 +138,19 @@ defmodule PhoenixAnalyticsWeb.Live.Marketing.LandingLive do
                 />
               </svg>
             </div>
-            <h3>Massive Control</h3>
-            <p>
-              Manage 5 to 500+ sites from one low-latency terminal. Filter the noise, see the
-              truth instantly.
-            </p>
+            <h3>{t(assigns, :feat1_title)}</h3>
+            <p>{t(assigns, :feat1_body)}</p>
+            <ul class="pa-lp-feature-list">
+              <%= for item <- t(assigns, :feat1_items) do %>
+                <li><span class="pa-lp-check" aria-hidden="true">✓</span> {item}</li>
+              <% end %>
+            </ul>
           </article>
 
-          <%!-- Card 2: White-Label Agency Power --%>
+          <%!-- Card 2: White Label --%>
           <article class="pa-lp-feature-card" role="listitem">
-            <div class="pa-lp-feature-icon">
-              <svg
-                width="32"
-                height="32"
-                viewBox="0 0 32 32"
-                fill="none"
-                aria-hidden="true"
-                focusable="false"
-              >
+            <div class="pa-lp-feature-icon" aria-hidden="true">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false">
                 <path
                   d="M16 3L4 8v8c0 7 5.5 11.5 12 13 6.5-1.5 12-6 12-13V8L16 3z"
                   stroke="currentColor"
@@ -166,24 +167,19 @@ defmodule PhoenixAnalyticsWeb.Live.Marketing.LandingLive do
                 />
               </svg>
             </div>
-            <h3>White-Label Agency Power</h3>
-            <p>
-              Your brand, our 4&times;100 tech. Provide elite analytics as a premium service to
-              your clients.
-            </p>
+            <h3>{t(assigns, :feat2_title)}</h3>
+            <p>{t(assigns, :feat2_body)}</p>
+            <ul class="pa-lp-feature-list">
+              <%= for item <- t(assigns, :feat2_items) do %>
+                <li><span class="pa-lp-check" aria-hidden="true">✓</span> {item}</li>
+              <% end %>
+            </ul>
           </article>
 
-          <%!-- Card 3: Privacy-First Architecture --%>
+          <%!-- Card 3: Privacy-First --%>
           <article class="pa-lp-feature-card" role="listitem">
-            <div class="pa-lp-feature-icon">
-              <svg
-                width="32"
-                height="32"
-                viewBox="0 0 32 32"
-                fill="none"
-                aria-hidden="true"
-                focusable="false"
-              >
+            <div class="pa-lp-feature-icon" aria-hidden="true">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" focusable="false">
                 <rect
                   x="8"
                   y="14"
@@ -201,134 +197,97 @@ defmodule PhoenixAnalyticsWeb.Live.Marketing.LandingLive do
                   stroke-linecap="round"
                 />
                 <circle cx="16" cy="21" r="1.5" fill="currentColor" />
-                <line
-                  x1="5"
-                  y1="5"
-                  x2="27"
-                  y2="27"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  opacity="0.5"
-                />
               </svg>
             </div>
-            <h3>Privacy-First Architecture</h3>
-            <p>No cookies, no tracking headaches. 100% compliant, 100% accurate, 0% lag.</p>
+            <h3>{t(assigns, :feat3_title)}</h3>
+            <p>{t(assigns, :feat3_body)}</p>
+            <ul class="pa-lp-feature-list">
+              <%= for item <- t(assigns, :feat3_items) do %>
+                <li><span class="pa-lp-check" aria-hidden="true">✓</span> {item}</li>
+              <% end %>
+            </ul>
           </article>
         </div>
       </section>
 
       <%!-- PRICING --%>
       <section class="pa-lp-section pa-lp-pricing" aria-label="Prijzen">
-        <h2 class="pa-lp-section-title">Choose Your Level in the Simulation.</h2>
-        <p class="pa-lp-section-sub">
-          Transparent pricing. No hidden costs. Cancel anytime.
-        </p>
+        <h2 class="pa-lp-section-title">{t(assigns, :pricing_title)}</h2>
+        <p class="pa-lp-section-sub">{t(assigns, :pricing_sub)}</p>
 
         <div class="pa-lp-pricing-grid" role="list">
-          <%!-- Tier 1: The Initiate --%>
+          <%!-- Tier 1 --%>
           <div class="pa-lp-pricing-card" role="listitem">
-            <div class="pa-lp-pricing-name">The Initiate</div>
+            <div class="pa-lp-pricing-name">{t(assigns, :tier1_name)}</div>
             <div class="pa-lp-pricing-price">
               <span class="pa-lp-pricing-amount">€99</span>
-              <span class="pa-lp-pricing-period">/mo</span>
+              <span class="pa-lp-pricing-period">{t(assigns, :tier1_period)}</span>
             </div>
-            <p class="pa-lp-pricing-tagline">Tot 5 websites. Start the journey.</p>
+            <p class="pa-lp-pricing-tagline">{t(assigns, :tier1_tagline)}</p>
             <ul class="pa-lp-pricing-features">
-              <li>
-                <span class="pa-lp-check" aria-hidden="true">✓</span> All core statistics
-              </li>
-              <li><span class="pa-lp-check" aria-hidden="true">✓</span> Heatmaps</li>
-              <li><span class="pa-lp-check" aria-hidden="true">✓</span> A/B testing</li>
-              <li>
-                <span class="pa-lp-check" aria-hidden="true">✓</span> Lighthouse 4&times;100 tracker
-              </li>
+              <%= for item <- t(assigns, :tier1_items) do %>
+                <li><span class="pa-lp-check" aria-hidden="true">✓</span> {item}</li>
+              <% end %>
             </ul>
-            <a
-              href="/login"
-              class="pa-btn pa-btn--ghost pa-btn--full"
-              aria-label="Start Journey - The Initiate tier"
-            >
-              Start Journey
+            <a href="/login" class="pa-btn pa-btn--ghost pa-btn--full">
+              {t(assigns, :tier1_cta)}
             </a>
           </div>
 
-          <%!-- Tier 2: The Operator (featured) --%>
+          <%!-- Tier 2: featured --%>
           <div class="pa-lp-pricing-card pa-lp-pricing-card--featured" role="listitem">
-            <div class="pa-lp-pricing-badge">MOST POPULAR</div>
-            <div class="pa-lp-pricing-name">The Operator</div>
+            <div class="pa-lp-pricing-badge">{t(assigns, :pricing_popular)}</div>
+            <div class="pa-lp-pricing-name">{t(assigns, :tier2_name)}</div>
             <div class="pa-lp-pricing-price">
               <span class="pa-lp-pricing-amount">€249</span>
-              <span class="pa-lp-pricing-period">/mo</span>
+              <span class="pa-lp-pricing-period">{t(assigns, :tier2_period)}</span>
             </div>
-            <p class="pa-lp-pricing-tagline">Tot 25 websites. White-label geactiveerd.</p>
+            <p class="pa-lp-pricing-tagline">{t(assigns, :tier2_tagline)}</p>
             <ul class="pa-lp-pricing-features">
-              <li>
-                <span class="pa-lp-check" aria-hidden="true">✓</span> Everything in Initiate
-              </li>
-              <li>
-                <span class="pa-lp-check" aria-hidden="true">✓</span> White-label dashboard
-              </li>
-              <li><span class="pa-lp-check" aria-hidden="true">✓</span> Team accounts</li>
-              <li><span class="pa-lp-check" aria-hidden="true">✓</span> Priority support</li>
+              <%= for item <- t(assigns, :tier2_items) do %>
+                <li><span class="pa-lp-check" aria-hidden="true">✓</span> {item}</li>
+              <% end %>
             </ul>
-            <a
-              href="/login"
-              class="pa-btn pa-btn--primary pa-btn--full"
-              aria-label="Activate Operator - The Operator tier"
-            >
-              Activate Operator
+            <a href="/login" class="pa-btn pa-btn--primary pa-btn--full">
+              {t(assigns, :tier2_cta)}
             </a>
           </div>
 
-          <%!-- Tier 3: The Architect --%>
+          <%!-- Tier 3 --%>
           <div class="pa-lp-pricing-card" role="listitem">
-            <div class="pa-lp-pricing-name">The Architect</div>
+            <div class="pa-lp-pricing-name">{t(assigns, :tier3_name)}</div>
             <div class="pa-lp-pricing-price">
               <span class="pa-lp-pricing-amount">€499</span>
-              <span class="pa-lp-pricing-period">/mo</span>
+              <span class="pa-lp-pricing-period">{t(assigns, :tier3_period)}</span>
             </div>
-            <p class="pa-lp-pricing-tagline">Tot 100 websites. Master the simulation.</p>
+            <p class="pa-lp-pricing-tagline">{t(assigns, :tier3_tagline)}</p>
             <ul class="pa-lp-pricing-features">
-              <li>
-                <span class="pa-lp-check" aria-hidden="true">✓</span> Everything in Operator
-              </li>
-              <li><span class="pa-lp-check" aria-hidden="true">✓</span> Custom domain</li>
-              <li><span class="pa-lp-check" aria-hidden="true">✓</span> SLA guarantee</li>
-              <li>
-                <span class="pa-lp-check" aria-hidden="true">✓</span> Dedicated onboarding
-              </li>
+              <%= for item <- t(assigns, :tier3_items) do %>
+                <li><span class="pa-lp-check" aria-hidden="true">✓</span> {item}</li>
+              <% end %>
             </ul>
-            <a
-              href="/login"
-              class="pa-btn pa-btn--ghost pa-btn--full"
-              aria-label="Become The Architect - The Architect tier"
-            >
-              Become The Architect
+            <a href="/login" class="pa-btn pa-btn--ghost pa-btn--full">
+              {t(assigns, :tier3_cta)}
             </a>
           </div>
         </div>
 
-        <p class="pa-lp-pricing-footnote">
-          Your power grows with your network. Scale as you go.
-        </p>
+        <p class="pa-lp-pricing-footnote">{t(assigns, :pricing_footnote)}</p>
       </section>
 
       <%!-- FINAL CTA --%>
       <section class="pa-lp-section pa-lp-final-cta" aria-label="Call to action">
-        <p class="pa-lp-final-cta-trigger">
-          Because every millisecond is a lost sale. See the 100/100 performance in action.
-        </p>
+        <p class="pa-lp-social-proof">{t(assigns, :social_proof)}</p>
+        <p class="pa-lp-final-cta-trigger">{t(assigns, :cta_trigger)}</p>
         <a
           href="/auth/demo"
           class="pa-btn pa-btn--matrix pa-btn--matrix-lg"
           aria-label="Open live demo van Neo Analytics"
         >
-          [ ENTER THE MATRIX (LIVE DEMO) ]
+          {t(assigns, :cta_demo)}
         </a>
         <div class="pa-lp-final-cta-secondary">
-          <a href="/login" class="pa-lp-final-cta-link">Or create a free account →</a>
+          <a href="/login" class="pa-lp-final-cta-link">{t(assigns, :cta_secondary)}</a>
         </div>
       </section>
     </div>

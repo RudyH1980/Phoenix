@@ -3687,6 +3687,60 @@ body::after {
   color: var(--pa-text);
 }
 
+/* Social proof boven CTA */
+.pa-lp-social-proof {
+  font-size: 0.85rem;
+  color: var(--pa-teal);
+  letter-spacing: 0.04em;
+  margin-bottom: 0.75rem;
+  opacity: 0.85;
+}
+
+/* Taalwisselaar */
+.pa-lp-lang-switcher {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  margin-right: 0.75rem;
+}
+
+.pa-lp-lang-btn {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--pa-text-muted);
+  padding: 0.2rem 0.35rem;
+  border-radius: 3px;
+  text-decoration: none;
+  transition: color var(--pa-transition), background var(--pa-transition);
+  line-height: 1;
+}
+
+.pa-lp-lang-btn:hover {
+  color: var(--pa-text);
+  background: var(--pa-surface);
+}
+
+.pa-lp-lang-btn.active {
+  color: var(--pa-teal);
+  background: oklch(72% 0.15 194 / 0.1);
+}
+
+/* Feature bullet lijst */
+.pa-lp-feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.75rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.pa-lp-feature-list li {
+  font-size: 0.8rem;
+  color: var(--pa-text-muted);
+}
+
 /* ---- Lichtthema overrides voor Neo-Matrix elementen ---- */
 [data-theme="light"] .pa-lp-agency-inner {
   background: oklch(97% 0.005 240 / 0.85);
