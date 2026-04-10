@@ -502,6 +502,7 @@ function initLoginPage(canvas, revealEl) {
                         hero.remove()
                         powered.remove()
                         overlay.remove()
+                        skipBar.remove()
                         canvas.style.zIndex = ''
 
                         // Op de landingspagina: matrix heel zacht op de achtergrond laten doorlopen

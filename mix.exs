@@ -5,7 +5,7 @@ defmodule PhoenixAnalytics.MixProject do
     [
       app: :phoenix_analytics,
       version: "0.3.2",
-      elixir: "~> 1.15",
+      elixir: "~> 1.19",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
@@ -38,13 +38,13 @@ defmodule PhoenixAnalytics.MixProject do
   defp deps do
     [
       # Phoenix core
-      {:phoenix, "~> 1.8.0-rc.3", override: true},
+      {:phoenix, "~> 1.8"},
       {:phoenix_ecto, "~> 4.5"},
       {:ecto_sql, "~> 3.10"},
       {:postgrex, ">= 0.0.0"},
       {:phoenix_html, "~> 4.1"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:phoenix_live_view, "~> 1.0.9"},
+      {:phoenix_live_view, "~> 1.1"},
       {:floki, ">= 0.30.0", only: :test},
       {:phoenix_live_dashboard, "~> 0.8.3"},
       {:esbuild, "~> 0.9", runtime: Mix.env() == :dev},
@@ -67,12 +67,12 @@ defmodule PhoenixAnalytics.MixProject do
       {:bandit, "~> 1.5"},
 
       # Ash Framework
-      {:ash, "~> 3.0"},
-      {:ash_postgres, "~> 2.0"},
-      {:ash_phoenix, "~> 2.0"},
+      {:ash, "~> 3.4"},
+      {:ash_postgres, "~> 2.3"},
+      {:ash_phoenix, "~> 2.1"},
 
       # Background jobs
-      {:oban, "~> 2.18"},
+      {:oban, "~> 2.19"},
 
       # Rate limiting
       {:hammer, "~> 7.0"},
