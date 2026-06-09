@@ -4,7 +4,7 @@ defmodule PhoenixAnalytics.MixProject do
   def project do
     [
       app: :phoenix_analytics,
-      version: "0.3.2",
+      version: "0.3.3",
       elixir: "~> 1.19",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
@@ -59,6 +59,8 @@ defmodule PhoenixAnalytics.MixProject do
       {:swoosh, "~> 1.16"},
       {:gen_smtp, "~> 1.2"},
       {:req, "~> 0.5"},
+      # decimal gepind op 2.x — 3.x major bewust niet meegenomen (bekende ignore, zie security-bump 2026-06-09)
+      {:decimal, "~> 2.3"},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 0.26"},
