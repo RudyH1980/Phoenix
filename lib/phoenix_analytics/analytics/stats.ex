@@ -152,34 +152,26 @@ defmodule PhoenixAnalytics.Analytics.Stats do
   defp apply_filters(query, filters) when is_map(filters) do
     query
     |> where([p], is_nil(p.deleted_at))
-    |> then(fn q ->
-      case Map.get(filters, :env, :production) do
-        :all -> q
-        :test -> where(q, [p], fragment("? ~ ?", p.url, @test_url_regex))
-        :production -> where(q, [p], not fragment("? ~ ?", p.url, @test_url_regex))
-      end
-    end)
-    |> then(fn q ->
-      case Map.get(filters, :device) do
-        nil -> q
-        device -> where(q, [p], p.device_type == ^device)
-      end
-    end)
-    |> then(fn q ->
-      case Map.get(filters, :country) do
-        nil -> q
-        country -> where(q, [p], p.country == ^country)
-      end
-    end)
-    |> then(fn q ->
-      case Map.get(filters, :referrer) do
-        nil -> q
-        referrer -> where(q, [p], p.referrer == ^referrer)
-      end
-    end)
+    |> apply_env_filter(Map.get(filters, :env, :production))
+    |> apply_eq_filter(:device_type, Map.get(filters, :device))
+    |> apply_eq_filter(:country, Map.get(filters, :country))
+    |> apply_eq_filter(:referrer, Map.get(filters, :referrer))
   end
 
   defp apply_filters(query, _), do: query
+
+  defp apply_env_filter(query, :all), do: query
+
+  defp apply_env_filter(query, :test),
+    do: where(query, [p], fragment("? ~ ?", p.url, @test_url_regex))
+
+  defp apply_env_filter(query, :production),
+    do: where(query, [p], not fragment("? ~ ?", p.url, @test_url_regex))
+
+  defp apply_eq_filter(query, _field, nil), do: query
+
+  defp apply_eq_filter(query, field, value),
+    do: where(query, [p], field(p, ^field) == ^value)
 
   def device_breakdown(site_id, period) do
     since = period_start(period)
